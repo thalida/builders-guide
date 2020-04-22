@@ -1,0 +1,636 @@
+[
+    {
+        "item_name": "torch",
+        "recipes": [
+            {
+                "name": "torch",
+                "type": "minecraft:crafting_shaped",
+                "ingredients": [
+                    {
+                        "item_name": "stick",
+                        "recipes": [
+                            {
+                                "name": "stick",
+                                "type": "minecraft:crafting_shaped",
+                                "ingredients": [
+                                    {
+                                        "__has_nested_ingredients": true
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "stick_from_bamboo_item",
+                                "type": "minecraft:crafting_shaped",
+                                "ingredients": [
+                                    {
+                                        "item_name": "bamboo",
+                                        "recipes": [],
+                                        "has_recipe": false
+                                    }
+                                ]
+                            }
+                        ],
+                        "has_recipe": true
+                    },
+                    {
+                        "__has_nested_ingredients": true
+                    }
+                ]
+            }
+        ],
+        "has_recipe": true
+    },
+    {
+        "item_name": "light_blue_concrete_powder",
+        "recipes": [
+            {
+                "name": "light_blue_concrete_powder",
+                "type": "minecraft:crafting_shapeless",
+                "ingredients": [
+                    {
+                        "item_name": "light_blue_dye",
+                        "recipes": [
+                            {
+                                "name": "light_blue_dye_from_blue_orchid",
+                                "type": "minecraft:crafting_shapeless",
+                                "ingredients": [
+                                    {
+                                        "item_name": "blue_orchid",
+                                        "recipes": [],
+                                        "has_recipe": false
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "light_blue_dye_from_blue_white_dye",
+                                "type": "minecraft:crafting_shapeless",
+                                "ingredients": [
+                                    {
+                                        "item_name": "blue_dye",
+                                        "recipes": [
+                                            {
+                                                "name": "blue_dye",
+                                                "type": "minecraft:crafting_shapeless",
+                                                "ingredients": [
+                                                    {
+                                                        "item_name": "lapis_lazuli",
+                                                        "recipes": [],
+                                                        "has_recipe": false
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "name": "blue_dye_from_cornflower",
+                                                "type": "minecraft:crafting_shapeless",
+                                                "ingredients": [
+                                                    {
+                                                        "item_name": "cornflower",
+                                                        "recipes": [],
+                                                        "has_recipe": false
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "has_recipe": true
+                                    },
+                                    {
+                                        "item_name": "white_dye",
+                                        "recipes": [
+                                            {
+                                                "name": "white_dye_from_lily_of_the_valley",
+                                                "type": "minecraft:crafting_shapeless",
+                                                "ingredients": [
+                                                    {
+                                                        "item_name": "lily_of_the_valley",
+                                                        "recipes": [],
+                                                        "has_recipe": false
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "name": "white_dye",
+                                                "type": "minecraft:crafting_shapeless",
+                                                "ingredients": [
+                                                    {
+                                                        "item_name": "bone_meal",
+                                                        "recipes": [],
+                                                        "has_recipe": false
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "has_recipe": true
+                                    }
+                                ]
+                            }
+                        ],
+                        "has_recipe": true
+                    },
+                    {
+                        "item_name": "sand",
+                        "recipes": [],
+                        "has_recipe": false
+                    },
+                    {
+                        "item_name": "sand",
+                        "recipes": [],
+                        "has_recipe": false
+                    },
+                    {
+                        "item_name": "sand",
+                        "recipes": [],
+                        "has_recipe": false
+                    },
+                    {
+                        "item_name": "sand",
+                        "recipes": [],
+                        "has_recipe": false
+                    },
+                    {
+                        "item_name": "gravel",
+                        "recipes": [],
+                        "has_recipe": false
+                    },
+                    {
+                        "item_name": "gravel",
+                        "recipes": [],
+                        "has_recipe": false
+                    },
+                    {
+                        "item_name": "gravel",
+                        "recipes": [],
+                        "has_recipe": false
+                    },
+                    {
+                        "item_name": "gravel",
+                        "recipes": [],
+                        "has_recipe": false
+                    }
+                ]
+            }
+        ],
+        "has_recipe": true
+    },
+    {
+        "item_name": "red_bed",
+        "recipes": [
+            {
+                "name": "red_bed",
+                "type": "minecraft:crafting_shaped",
+                "ingredients": [
+                    {
+                        "item_name": "red_wool",
+                        "recipes": [
+                            {
+                                "name": "red_wool",
+                                "type": "minecraft:crafting_shapeless",
+                                "ingredients": [
+                                    {
+                                        "item_name": "red_dye",
+                                        "recipes": [
+                                            {
+                                                "name": "red_dye_from_rose_bush",
+                                                "type": "minecraft:crafting_shapeless",
+                                                "ingredients": [
+                                                    {
+                                                        "item_name": "rose_bush",
+                                                        "recipes": [],
+                                                        "has_recipe": false
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "name": "red_dye_from_poppy",
+                                                "type": "minecraft:crafting_shapeless",
+                                                "ingredients": [
+                                                    {
+                                                        "item_name": "poppy",
+                                                        "recipes": [],
+                                                        "has_recipe": false
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "name": "red_dye_from_beetroot",
+                                                "type": "minecraft:crafting_shapeless",
+                                                "ingredients": [
+                                                    {
+                                                        "item_name": "beetroot",
+                                                        "recipes": [],
+                                                        "has_recipe": false
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "name": "red_dye_from_tulip",
+                                                "type": "minecraft:crafting_shapeless",
+                                                "ingredients": [
+                                                    {
+                                                        "item_name": "red_tulip",
+                                                        "recipes": [],
+                                                        "has_recipe": false
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "has_recipe": true
+                                    },
+                                    {
+                                        "item_name": "white_wool",
+                                        "recipes": [
+                                            {
+                                                "name": "white_wool_from_string",
+                                                "type": "minecraft:crafting_shaped",
+                                                "ingredients": [
+                                                    {
+                                                        "item_name": "string",
+                                                        "recipes": [],
+                                                        "has_recipe": false
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "has_recipe": true
+                                    }
+                                ]
+                            }
+                        ],
+                        "has_recipe": true
+                    },
+                    {
+                        "__has_nested_ingredients": true
+                    }
+                ]
+            },
+            {
+                "name": "red_bed_from_white_bed",
+                "type": "minecraft:crafting_shapeless",
+                "ingredients": [
+                    {
+                        "item_name": "white_bed",
+                        "recipes": [
+                            {
+                                "name": "white_bed",
+                                "type": "minecraft:crafting_shaped",
+                                "ingredients": [
+                                    {
+                                        "item_name": "white_wool",
+                                        "recipes": [
+                                            {
+                                                "name": "white_wool_from_string",
+                                                "type": "minecraft:crafting_shaped",
+                                                "ingredients": [
+                                                    {
+                                                        "item_name": "string",
+                                                        "recipes": [],
+                                                        "has_recipe": false
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "has_recipe": true
+                                    },
+                                    {
+                                        "__has_nested_ingredients": true
+                                    }
+                                ]
+                            }
+                        ],
+                        "has_recipe": true
+                    },
+                    {
+                        "item_name": "red_dye",
+                        "recipes": [
+                            {
+                                "name": "red_dye_from_rose_bush",
+                                "type": "minecraft:crafting_shapeless",
+                                "ingredients": [
+                                    {
+                                        "item_name": "rose_bush",
+                                        "recipes": [],
+                                        "has_recipe": false
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "red_dye_from_poppy",
+                                "type": "minecraft:crafting_shapeless",
+                                "ingredients": [
+                                    {
+                                        "item_name": "poppy",
+                                        "recipes": [],
+                                        "has_recipe": false
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "red_dye_from_beetroot",
+                                "type": "minecraft:crafting_shapeless",
+                                "ingredients": [
+                                    {
+                                        "item_name": "beetroot",
+                                        "recipes": [],
+                                        "has_recipe": false
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "red_dye_from_tulip",
+                                "type": "minecraft:crafting_shapeless",
+                                "ingredients": [
+                                    {
+                                        "item_name": "red_tulip",
+                                        "recipes": [],
+                                        "has_recipe": false
+                                    }
+                                ]
+                            }
+                        ],
+                        "has_recipe": true
+                    }
+                ]
+            }
+        ],
+        "has_recipe": true
+    },
+    {
+        "item_name": "blue_dye",
+        "recipes": [
+            {
+                "name": "blue_dye",
+                "type": "minecraft:crafting_shapeless",
+                "ingredients": [
+                    {
+                        "item_name": "lapis_lazuli",
+                        "recipes": [],
+                        "has_recipe": false
+                    }
+                ]
+            },
+            {
+                "name": "blue_dye_from_cornflower",
+                "type": "minecraft:crafting_shapeless",
+                "ingredients": [
+                    {
+                        "item_name": "cornflower",
+                        "recipes": [],
+                        "has_recipe": false
+                    }
+                ]
+            }
+        ],
+        "has_recipe": true
+    },
+    {
+        "item_name": "purple_stained_glass_pane",
+        "recipes": [
+            {
+                "name": "purple_stained_glass_pane",
+                "type": "minecraft:crafting_shaped",
+                "ingredients": [
+                    {
+                        "item_name": "purple_stained_glass",
+                        "recipes": [
+                            {
+                                "name": "purple_stained_glass",
+                                "type": "minecraft:crafting_shaped",
+                                "ingredients": [
+                                    {
+                                        "item_name": "glass",
+                                        "recipes": [
+                                            {
+                                                "name": "glass",
+                                                "type": "minecraft:smelting",
+                                                "ingredients": [
+                                                    {
+                                                        "__has_nested_ingredients": true
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "has_recipe": true
+                                    },
+                                    {
+                                        "item_name": "purple_dye",
+                                        "recipes": [
+                                            {
+                                                "name": "purple_dye",
+                                                "type": "minecraft:crafting_shapeless",
+                                                "ingredients": [
+                                                    {
+                                                        "item_name": "blue_dye",
+                                                        "recipes": [
+                                                            {
+                                                                "name": "blue_dye",
+                                                                "type": "minecraft:crafting_shapeless",
+                                                                "ingredients": [
+                                                                    {
+                                                                        "item_name": "lapis_lazuli",
+                                                                        "recipes": [],
+                                                                        "has_recipe": false
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "name": "blue_dye_from_cornflower",
+                                                                "type": "minecraft:crafting_shapeless",
+                                                                "ingredients": [
+                                                                    {
+                                                                        "item_name": "cornflower",
+                                                                        "recipes": [],
+                                                                        "has_recipe": false
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ],
+                                                        "has_recipe": true
+                                                    },
+                                                    {
+                                                        "item_name": "red_dye",
+                                                        "recipes": [
+                                                            {
+                                                                "name": "red_dye_from_rose_bush",
+                                                                "type": "minecraft:crafting_shapeless",
+                                                                "ingredients": [
+                                                                    {
+                                                                        "item_name": "rose_bush",
+                                                                        "recipes": [],
+                                                                        "has_recipe": false
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "name": "red_dye_from_poppy",
+                                                                "type": "minecraft:crafting_shapeless",
+                                                                "ingredients": [
+                                                                    {
+                                                                        "item_name": "poppy",
+                                                                        "recipes": [],
+                                                                        "has_recipe": false
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "name": "red_dye_from_beetroot",
+                                                                "type": "minecraft:crafting_shapeless",
+                                                                "ingredients": [
+                                                                    {
+                                                                        "item_name": "beetroot",
+                                                                        "recipes": [],
+                                                                        "has_recipe": false
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "name": "red_dye_from_tulip",
+                                                                "type": "minecraft:crafting_shapeless",
+                                                                "ingredients": [
+                                                                    {
+                                                                        "item_name": "red_tulip",
+                                                                        "recipes": [],
+                                                                        "has_recipe": false
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ],
+                                                        "has_recipe": true
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "has_recipe": true
+                                    }
+                                ]
+                            }
+                        ],
+                        "has_recipe": true
+                    }
+                ]
+            },
+            {
+                "name": "purple_stained_glass_pane_from_glass_pane",
+                "type": "minecraft:crafting_shaped",
+                "ingredients": [
+                    {
+                        "item_name": "glass_pane",
+                        "recipes": [
+                            {
+                                "name": "glass_pane",
+                                "type": "minecraft:crafting_shaped",
+                                "ingredients": [
+                                    {
+                                        "item_name": "glass",
+                                        "recipes": [
+                                            {
+                                                "name": "glass",
+                                                "type": "minecraft:smelting",
+                                                "ingredients": [
+                                                    {
+                                                        "__has_nested_ingredients": true
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "has_recipe": true
+                                    }
+                                ]
+                            }
+                        ],
+                        "has_recipe": true
+                    },
+                    {
+                        "item_name": "purple_dye",
+                        "recipes": [
+                            {
+                                "name": "purple_dye",
+                                "type": "minecraft:crafting_shapeless",
+                                "ingredients": [
+                                    {
+                                        "item_name": "blue_dye",
+                                        "recipes": [
+                                            {
+                                                "name": "blue_dye",
+                                                "type": "minecraft:crafting_shapeless",
+                                                "ingredients": [
+                                                    {
+                                                        "item_name": "lapis_lazuli",
+                                                        "recipes": [],
+                                                        "has_recipe": false
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "name": "blue_dye_from_cornflower",
+                                                "type": "minecraft:crafting_shapeless",
+                                                "ingredients": [
+                                                    {
+                                                        "item_name": "cornflower",
+                                                        "recipes": [],
+                                                        "has_recipe": false
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "has_recipe": true
+                                    },
+                                    {
+                                        "item_name": "red_dye",
+                                        "recipes": [
+                                            {
+                                                "name": "red_dye_from_rose_bush",
+                                                "type": "minecraft:crafting_shapeless",
+                                                "ingredients": [
+                                                    {
+                                                        "item_name": "rose_bush",
+                                                        "recipes": [],
+                                                        "has_recipe": false
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "name": "red_dye_from_poppy",
+                                                "type": "minecraft:crafting_shapeless",
+                                                "ingredients": [
+                                                    {
+                                                        "item_name": "poppy",
+                                                        "recipes": [],
+                                                        "has_recipe": false
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "name": "red_dye_from_beetroot",
+                                                "type": "minecraft:crafting_shapeless",
+                                                "ingredients": [
+                                                    {
+                                                        "item_name": "beetroot",
+                                                        "recipes": [],
+                                                        "has_recipe": false
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "name": "red_dye_from_tulip",
+                                                "type": "minecraft:crafting_shapeless",
+                                                "ingredients": [
+                                                    {
+                                                        "item_name": "red_tulip",
+                                                        "recipes": [],
+                                                        "has_recipe": false
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "has_recipe": true
+                                    }
+                                ]
+                            }
+                        ],
+                        "has_recipe": true
+                    }
+                ]
+            }
+        ],
+        "has_recipe": true
+    }
+]
