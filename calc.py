@@ -18,6 +18,7 @@ ALL_ITEM_TAGS_FILE = f"{GENERATED_FILES_DIR}/all_item_tags.json"
 CALCULATION_OUTPUT_FILE = f"{GENERATED_FILES_DIR}/calculation_output.json"
 
 UNKNOWN_RESULT = "result:unknown"
+ERROR_CIRCULAR_REF = "error_circular_ref_on"
 
 
 def parse_item_name(orig_item_name):
@@ -148,7 +149,7 @@ def get_ingredients(recipe):
 
 
 def create_recipe_tree(
-    all_recipes, all_item_tags, recipes_by_result, items, grandpa_item_name=None
+    all_recipes, all_item_tags, recipes_by_result, items, ancestors=None,
 ):
 
     tree = []
@@ -156,7 +157,7 @@ def create_recipe_tree(
         curr_item_name = item["name"]
         node = {"item_name": curr_item_name}
         recipe_tree = []
-        found_node_with_circular_ref = None
+        node_has_circular_ref = False
 
         found_recipes = recipes_by_result.get(curr_item_name)
         if found_recipes is not None:
@@ -188,30 +189,43 @@ def create_recipe_tree(
 
                     for nested_ingredient in parsed_ingredient:
                         ingredient_name = parse_item_name(nested_ingredient["item"])
-                        if (
-                            grandpa_item_name is not None
-                            and grandpa_item_name == ingredient_name
-                        ):
-                            found_node_with_circular_ref = grandpa_item_name
-                            break
 
-                        tmp_ingredient_tree += create_recipe_tree(
+                        if ancestors is None:
+                            ancestors = []
+
+                        new_ancestors = ancestors.copy()
+                        new_ancestors.append(curr_item_name)
+
+                        if ingredient_name in ancestors:
+                            return {
+                                "error": True,
+                                "type": ERROR_CIRCULAR_REF,
+                                "data": ingredient_name,
+                            }
+
+                        new_recipe_tree = create_recipe_tree(
                             all_recipes,
                             all_item_tags,
                             recipes_by_result,
                             items=[{"name": ingredient_name, "require": 1}],
-                            grandpa_item_name=curr_item_name,
+                            ancestors=new_ancestors,
                         )
 
-                    for tmp_ingredient in tmp_ingredient_tree:
-                        tmp_circular_ref_node = tmp_ingredient.get(
-                            "found_node_with_circular_ref"
-                        )
-                        if tmp_circular_ref_node == curr_item_name:
-                            found_node_with_circular_ref = curr_item_name
-                            break
+                        if isinstance(new_recipe_tree, list):
+                            tmp_ingredient_tree += new_recipe_tree
+                            continue
 
-                    if found_node_with_circular_ref:
+                        if (
+                            new_recipe_tree.get("error")
+                            and new_recipe_tree.get("type") == ERROR_CIRCULAR_REF
+                        ):
+                            if new_recipe_tree.get("data") == curr_item_name:
+                                node_has_circular_ref = True
+                                break
+                            else:
+                                return new_recipe_tree
+
+                    if node_has_circular_ref:
                         break
 
                     if has_options:
@@ -219,7 +233,7 @@ def create_recipe_tree(
                     else:
                         ingredient_recipe_tree += tmp_ingredient_tree
 
-                if found_node_with_circular_ref:
+                if node_has_circular_ref:
                     break
 
                 recipe_node = {
@@ -230,11 +244,8 @@ def create_recipe_tree(
                 }
                 recipe_tree.append(recipe_node)
 
-        if found_node_with_circular_ref:
-            if found_node_with_circular_ref == curr_item_name:
-                recipe_tree = []
-            else:
-                node["found_node_with_circular_ref"] = found_node_with_circular_ref
+        if node_has_circular_ref:
+            recipe_tree = []
 
         node["num_recipes"] = len(recipe_tree)
         node["recipes"] = recipe_tree
