@@ -131,6 +131,22 @@ def group_recipes_by_result(recipes):
     return grouped_by_result
 
 
+def get_ingredients(recipe):
+    ingredient_list = []
+    recipe_type = recipe["type"]
+
+    if recipe_type == "minecraft:smelting" or recipe_type == "minecraft:blasting":
+        ingredient_list = [recipe["ingredient"]]
+
+    elif recipe_type == "minecraft:crafting_shapeless":
+        ingredient_list = recipe["ingredients"]
+
+    elif recipe_type == "minecraft:crafting_shaped":
+        ingredient_list = list(recipe["key"].values())
+
+    return ingredient_list
+
+
 def create_recipe_tree(
     all_recipes, all_item_tags, recipes_by_result, items, grandpa_item_name=None
 ):
@@ -140,46 +156,32 @@ def create_recipe_tree(
         curr_item_name = item["name"]
         node = {"item_name": curr_item_name}
         recipe_tree = []
-        has_circular_recipe_refs = 0
+        found_node_with_circular_ref = None
 
         found_recipes = recipes_by_result.get(curr_item_name)
         if found_recipes is not None:
             for recipe_key in found_recipes:
                 recipe = all_recipes[recipe_key]
-                recipe_type = recipe["type"]
-                recipe_result_count = recipe["result"].get("count", 1)
-                ingrident_recipe_tree = []
-                ingredient_list = []
-
-                if (
-                    recipe_type == "minecraft:smelting"
-                    or recipe_type == "minecraft:blasting"
-                ):
-                    ingredient_list = [recipe["ingredient"]]
-
-                elif recipe_type == "minecraft:crafting_shapeless":
-                    ingredient_list = recipe["ingredients"]
-
-                elif recipe_type == "minecraft:crafting_shaped":
-                    ingredient_list = list(recipe["key"].values())
+                ingredient_list = get_ingredients(recipe)
+                ingredient_recipe_tree = []
 
                 for ingredient in ingredient_list:
-                    store_as_ingredient_group = False
+                    has_options = False
                     parsed_ingredient = []
 
                     if isinstance(ingredient, dict):
-                        if ingredient.get("tag") is not None:
-                            store_as_ingredient_group = True
+                        if ingredient.get("item") is not None:
+                            has_options = False
+                            parsed_ingredient = [ingredient]
+                        elif ingredient.get("tag") is not None:
+                            has_options = True
                             tag_name = parse_item_name(ingredient.get("tag"))
                             tag_data = all_item_tags[tag_name]
                             parsed_ingredient = [
                                 {"item": value} for value in tag_data["values"]
                             ]
-                        elif ingredient.get("item") is not None:
-                            store_as_ingredient_group = False
-                            parsed_ingredient = [ingredient]
                     elif isinstance(ingredient, list):
-                        store_as_ingredient_group = True
+                        has_options = True
                         parsed_ingredient = ingredient
 
                     tmp_ingredient_tree = []
@@ -190,7 +192,7 @@ def create_recipe_tree(
                             grandpa_item_name is not None
                             and grandpa_item_name == ingredient_name
                         ):
-                            has_circular_recipe_refs = 1
+                            found_node_with_circular_ref = grandpa_item_name
                             break
 
                         tmp_ingredient_tree += create_recipe_tree(
@@ -202,32 +204,37 @@ def create_recipe_tree(
                         )
 
                     for tmp_ingredient in tmp_ingredient_tree:
-                        if tmp_ingredient.get("has_circular_recipe_refs") == 1:
-                            has_circular_recipe_refs = 2
+                        tmp_circular_ref_node = tmp_ingredient.get(
+                            "found_node_with_circular_ref"
+                        )
+                        if tmp_circular_ref_node == curr_item_name:
+                            found_node_with_circular_ref = curr_item_name
                             break
 
-                    if has_circular_recipe_refs > 0:
+                    if found_node_with_circular_ref:
                         break
 
-                    if store_as_ingredient_group:
-                        ingrident_recipe_tree.append(tmp_ingredient_tree)
+                    if has_options:
+                        ingredient_recipe_tree.append(tmp_ingredient_tree)
                     else:
-                        ingrident_recipe_tree += tmp_ingredient_tree
+                        ingredient_recipe_tree += tmp_ingredient_tree
 
-                if has_circular_recipe_refs > 0:
+                if found_node_with_circular_ref:
                     break
 
                 recipe_node = {
                     "name": recipe_key,
-                    "type": recipe_type,
-                    "amount_created": recipe_result_count,
-                    "ingredients": ingrident_recipe_tree,
+                    "type": recipe["type"],
+                    "amount_created": recipe["result"].get("count", 1),
+                    "ingredients": ingredient_recipe_tree,
                 }
                 recipe_tree.append(recipe_node)
 
-        if has_circular_recipe_refs > 0:
-            node["has_circular_recipe_refs"] = has_circular_recipe_refs
-            recipe_tree = []
+        if found_node_with_circular_ref:
+            if found_node_with_circular_ref == curr_item_name:
+                recipe_tree = []
+            else:
+                node["found_node_with_circular_ref"] = found_node_with_circular_ref
 
         node["num_recipes"] = len(recipe_tree)
         node["recipes"] = recipe_tree

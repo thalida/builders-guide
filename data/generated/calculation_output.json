@@ -404,7 +404,6 @@
                     [
                         {
                             "item_name": "coal",
-                            "has_circular_recipe_refs": 2,
                             "num_recipes": 0,
                             "recipes": []
                         },
@@ -499,7 +498,6 @@
                                                 "ingredients": [
                                                     {
                                                         "item_name": "lapis_lazuli",
-                                                        "has_circular_recipe_refs": 2,
                                                         "num_recipes": 0,
                                                         "recipes": []
                                                     }
@@ -542,7 +540,6 @@
                                                 "ingredients": [
                                                     {
                                                         "item_name": "bone_meal",
-                                                        "has_circular_recipe_refs": 2,
                                                         "num_recipes": 0,
                                                         "recipes": []
                                                     }
@@ -1535,7 +1532,6 @@
                 "ingredients": [
                     {
                         "item_name": "lapis_lazuli",
-                        "has_circular_recipe_refs": 2,
                         "num_recipes": 0,
                         "recipes": []
                     }
@@ -1618,7 +1614,6 @@
                                                                 "ingredients": [
                                                                     {
                                                                         "item_name": "lapis_lazuli",
-                                                                        "has_circular_recipe_refs": 2,
                                                                         "num_recipes": 0,
                                                                         "recipes": []
                                                                     }
@@ -1765,7 +1760,6 @@
                                                 "ingredients": [
                                                     {
                                                         "item_name": "lapis_lazuli",
-                                                        "has_circular_recipe_refs": 2,
                                                         "num_recipes": 0,
                                                         "recipes": []
                                                     }
