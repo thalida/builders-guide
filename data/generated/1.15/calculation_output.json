@@ -667,33 +667,33 @@
                 "name": "red_bed",
                 "type": "minecraft:crafting_shaped",
                 "amount_required": 3,
-                "amount_created": 1,
+                "amount_created": 3,
                 "ingredients": [
                     {
                         "name": "red_wool",
-                        "amount_required": 3,
+                        "amount_required": 9,
                         "num_recipes": 1,
                         "recipes": [
                             {
                                 "name": "red_wool",
                                 "type": "minecraft:crafting_shapeless",
-                                "amount_required": 3,
-                                "amount_created": 1,
+                                "amount_required": 9,
+                                "amount_created": 9,
                                 "ingredients": [
                                     {
                                         "name": "red_dye",
-                                        "amount_required": 1,
+                                        "amount_required": 9,
                                         "num_recipes": 4,
                                         "recipes": [
                                             {
                                                 "name": "red_dye_from_rose_bush",
                                                 "type": "minecraft:crafting_shapeless",
-                                                "amount_required": 1,
-                                                "amount_created": 2,
+                                                "amount_required": 9,
+                                                "amount_created": 10,
                                                 "ingredients": [
                                                     {
                                                         "name": "rose_bush",
-                                                        "amount_required": 1,
+                                                        "amount_required": 5,
                                                         "num_recipes": 0,
                                                         "recipes": []
                                                     }
@@ -702,12 +702,12 @@
                                             {
                                                 "name": "red_dye_from_poppy",
                                                 "type": "minecraft:crafting_shapeless",
-                                                "amount_required": 1,
-                                                "amount_created": 1,
+                                                "amount_required": 9,
+                                                "amount_created": 9,
                                                 "ingredients": [
                                                     {
                                                         "name": "poppy",
-                                                        "amount_required": 1,
+                                                        "amount_required": 9,
                                                         "num_recipes": 0,
                                                         "recipes": []
                                                     }
@@ -716,12 +716,12 @@
                                             {
                                                 "name": "red_dye_from_beetroot",
                                                 "type": "minecraft:crafting_shapeless",
-                                                "amount_required": 1,
-                                                "amount_created": 1,
+                                                "amount_required": 9,
+                                                "amount_created": 9,
                                                 "ingredients": [
                                                     {
                                                         "name": "beetroot",
-                                                        "amount_required": 1,
+                                                        "amount_required": 9,
                                                         "num_recipes": 0,
                                                         "recipes": []
                                                     }
@@ -730,12 +730,12 @@
                                             {
                                                 "name": "red_dye_from_tulip",
                                                 "type": "minecraft:crafting_shapeless",
-                                                "amount_required": 1,
-                                                "amount_created": 1,
+                                                "amount_required": 9,
+                                                "amount_created": 9,
                                                 "ingredients": [
                                                     {
                                                         "name": "red_tulip",
-                                                        "amount_required": 1,
+                                                        "amount_required": 9,
                                                         "num_recipes": 0,
                                                         "recipes": []
                                                     }
@@ -745,18 +745,18 @@
                                     },
                                     {
                                         "name": "white_wool",
-                                        "amount_required": 1,
+                                        "amount_required": 9,
                                         "num_recipes": 1,
                                         "recipes": [
                                             {
                                                 "name": "white_wool_from_string",
                                                 "type": "minecraft:crafting_shaped",
-                                                "amount_required": 1,
-                                                "amount_created": 1,
+                                                "amount_required": 9,
+                                                "amount_created": 9,
                                                 "ingredients": [
                                                     {
                                                         "name": "string",
-                                                        "amount_required": 4,
+                                                        "amount_required": 36,
                                                         "num_recipes": 0,
                                                         "recipes": []
                                                     }
@@ -771,31 +771,31 @@
                     [
                         {
                             "name": "oak_planks",
-                            "amount_required": 3,
+                            "amount_required": 9,
                             "num_recipes": 1,
                             "recipes": [
                                 {
                                     "name": "oak_planks",
                                     "type": "minecraft:crafting_shapeless",
-                                    "amount_required": 3,
-                                    "amount_created": 4,
+                                    "amount_required": 9,
+                                    "amount_created": 12,
                                     "ingredients": [
                                         [
                                             {
                                                 "name": "oak_log",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 0,
                                                 "recipes": []
                                             },
                                             {
                                                 "name": "oak_wood",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 1,
                                                 "recipes": [
                                                     {
                                                         "name": "oak_wood",
                                                         "type": "minecraft:crafting_shaped",
-                                                        "amount_required": 1,
+                                                        "amount_required": 3,
                                                         "amount_created": 3,
                                                         "ingredients": [
                                                             {
@@ -810,19 +810,19 @@
                                             },
                                             {
                                                 "name": "stripped_oak_log",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 0,
                                                 "recipes": []
                                             },
                                             {
                                                 "name": "stripped_oak_wood",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 1,
                                                 "recipes": [
                                                     {
                                                         "name": "stripped_oak_wood",
                                                         "type": "minecraft:crafting_shaped",
-                                                        "amount_required": 1,
+                                                        "amount_required": 3,
                                                         "amount_created": 3,
                                                         "ingredients": [
                                                             {
@@ -842,31 +842,31 @@
                         },
                         {
                             "name": "spruce_planks",
-                            "amount_required": 3,
+                            "amount_required": 9,
                             "num_recipes": 1,
                             "recipes": [
                                 {
                                     "name": "spruce_planks",
                                     "type": "minecraft:crafting_shapeless",
-                                    "amount_required": 3,
-                                    "amount_created": 4,
+                                    "amount_required": 9,
+                                    "amount_created": 12,
                                     "ingredients": [
                                         [
                                             {
                                                 "name": "spruce_log",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 0,
                                                 "recipes": []
                                             },
                                             {
                                                 "name": "spruce_wood",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 1,
                                                 "recipes": [
                                                     {
                                                         "name": "spruce_wood",
                                                         "type": "minecraft:crafting_shaped",
-                                                        "amount_required": 1,
+                                                        "amount_required": 3,
                                                         "amount_created": 3,
                                                         "ingredients": [
                                                             {
@@ -881,19 +881,19 @@
                                             },
                                             {
                                                 "name": "stripped_spruce_log",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 0,
                                                 "recipes": []
                                             },
                                             {
                                                 "name": "stripped_spruce_wood",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 1,
                                                 "recipes": [
                                                     {
                                                         "name": "stripped_spruce_wood",
                                                         "type": "minecraft:crafting_shaped",
-                                                        "amount_required": 1,
+                                                        "amount_required": 3,
                                                         "amount_created": 3,
                                                         "ingredients": [
                                                             {
@@ -913,31 +913,31 @@
                         },
                         {
                             "name": "birch_planks",
-                            "amount_required": 3,
+                            "amount_required": 9,
                             "num_recipes": 1,
                             "recipes": [
                                 {
                                     "name": "birch_planks",
                                     "type": "minecraft:crafting_shapeless",
-                                    "amount_required": 3,
-                                    "amount_created": 4,
+                                    "amount_required": 9,
+                                    "amount_created": 12,
                                     "ingredients": [
                                         [
                                             {
                                                 "name": "birch_log",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 0,
                                                 "recipes": []
                                             },
                                             {
                                                 "name": "birch_wood",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 1,
                                                 "recipes": [
                                                     {
                                                         "name": "birch_wood",
                                                         "type": "minecraft:crafting_shaped",
-                                                        "amount_required": 1,
+                                                        "amount_required": 3,
                                                         "amount_created": 3,
                                                         "ingredients": [
                                                             {
@@ -952,19 +952,19 @@
                                             },
                                             {
                                                 "name": "stripped_birch_log",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 0,
                                                 "recipes": []
                                             },
                                             {
                                                 "name": "stripped_birch_wood",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 1,
                                                 "recipes": [
                                                     {
                                                         "name": "stripped_birch_wood",
                                                         "type": "minecraft:crafting_shaped",
-                                                        "amount_required": 1,
+                                                        "amount_required": 3,
                                                         "amount_created": 3,
                                                         "ingredients": [
                                                             {
@@ -984,31 +984,31 @@
                         },
                         {
                             "name": "jungle_planks",
-                            "amount_required": 3,
+                            "amount_required": 9,
                             "num_recipes": 1,
                             "recipes": [
                                 {
                                     "name": "jungle_planks",
                                     "type": "minecraft:crafting_shapeless",
-                                    "amount_required": 3,
-                                    "amount_created": 4,
+                                    "amount_required": 9,
+                                    "amount_created": 12,
                                     "ingredients": [
                                         [
                                             {
                                                 "name": "jungle_log",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 0,
                                                 "recipes": []
                                             },
                                             {
                                                 "name": "jungle_wood",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 1,
                                                 "recipes": [
                                                     {
                                                         "name": "jungle_wood",
                                                         "type": "minecraft:crafting_shaped",
-                                                        "amount_required": 1,
+                                                        "amount_required": 3,
                                                         "amount_created": 3,
                                                         "ingredients": [
                                                             {
@@ -1023,19 +1023,19 @@
                                             },
                                             {
                                                 "name": "stripped_jungle_log",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 0,
                                                 "recipes": []
                                             },
                                             {
                                                 "name": "stripped_jungle_wood",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 1,
                                                 "recipes": [
                                                     {
                                                         "name": "stripped_jungle_wood",
                                                         "type": "minecraft:crafting_shaped",
-                                                        "amount_required": 1,
+                                                        "amount_required": 3,
                                                         "amount_created": 3,
                                                         "ingredients": [
                                                             {
@@ -1055,31 +1055,31 @@
                         },
                         {
                             "name": "acacia_planks",
-                            "amount_required": 3,
+                            "amount_required": 9,
                             "num_recipes": 1,
                             "recipes": [
                                 {
                                     "name": "acacia_planks",
                                     "type": "minecraft:crafting_shapeless",
-                                    "amount_required": 3,
-                                    "amount_created": 4,
+                                    "amount_required": 9,
+                                    "amount_created": 12,
                                     "ingredients": [
                                         [
                                             {
                                                 "name": "acacia_log",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 0,
                                                 "recipes": []
                                             },
                                             {
                                                 "name": "acacia_wood",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 1,
                                                 "recipes": [
                                                     {
                                                         "name": "acacia_wood",
                                                         "type": "minecraft:crafting_shaped",
-                                                        "amount_required": 1,
+                                                        "amount_required": 3,
                                                         "amount_created": 3,
                                                         "ingredients": [
                                                             {
@@ -1094,19 +1094,19 @@
                                             },
                                             {
                                                 "name": "stripped_acacia_log",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 0,
                                                 "recipes": []
                                             },
                                             {
                                                 "name": "stripped_acacia_wood",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 1,
                                                 "recipes": [
                                                     {
                                                         "name": "stripped_acacia_wood",
                                                         "type": "minecraft:crafting_shaped",
-                                                        "amount_required": 1,
+                                                        "amount_required": 3,
                                                         "amount_created": 3,
                                                         "ingredients": [
                                                             {
@@ -1126,31 +1126,31 @@
                         },
                         {
                             "name": "dark_oak_planks",
-                            "amount_required": 3,
+                            "amount_required": 9,
                             "num_recipes": 1,
                             "recipes": [
                                 {
                                     "name": "dark_oak_planks",
                                     "type": "minecraft:crafting_shapeless",
-                                    "amount_required": 3,
-                                    "amount_created": 4,
+                                    "amount_required": 9,
+                                    "amount_created": 12,
                                     "ingredients": [
                                         [
                                             {
                                                 "name": "dark_oak_log",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 0,
                                                 "recipes": []
                                             },
                                             {
                                                 "name": "dark_oak_wood",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 1,
                                                 "recipes": [
                                                     {
                                                         "name": "dark_oak_wood",
                                                         "type": "minecraft:crafting_shaped",
-                                                        "amount_required": 1,
+                                                        "amount_required": 3,
                                                         "amount_created": 3,
                                                         "ingredients": [
                                                             {
@@ -1165,19 +1165,19 @@
                                             },
                                             {
                                                 "name": "stripped_dark_oak_log",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 0,
                                                 "recipes": []
                                             },
                                             {
                                                 "name": "stripped_dark_oak_wood",
-                                                "amount_required": 1,
+                                                "amount_required": 3,
                                                 "num_recipes": 1,
                                                 "recipes": [
                                                     {
                                                         "name": "stripped_dark_oak_wood",
                                                         "type": "minecraft:crafting_shaped",
-                                                        "amount_required": 1,
+                                                        "amount_required": 3,
                                                         "amount_created": 3,
                                                         "ingredients": [
                                                             {
@@ -1202,33 +1202,33 @@
                 "name": "red_bed_from_white_bed",
                 "type": "minecraft:crafting_shapeless",
                 "amount_required": 3,
-                "amount_created": 1,
+                "amount_created": 3,
                 "ingredients": [
                     {
                         "name": "white_bed",
-                        "amount_required": 1,
+                        "amount_required": 3,
                         "num_recipes": 1,
                         "recipes": [
                             {
                                 "name": "white_bed",
                                 "type": "minecraft:crafting_shaped",
-                                "amount_required": 1,
-                                "amount_created": 1,
+                                "amount_required": 3,
+                                "amount_created": 3,
                                 "ingredients": [
                                     {
                                         "name": "white_wool",
-                                        "amount_required": 3,
+                                        "amount_required": 9,
                                         "num_recipes": 1,
                                         "recipes": [
                                             {
                                                 "name": "white_wool_from_string",
                                                 "type": "minecraft:crafting_shaped",
-                                                "amount_required": 3,
-                                                "amount_created": 1,
+                                                "amount_required": 9,
+                                                "amount_created": 9,
                                                 "ingredients": [
                                                     {
                                                         "name": "string",
-                                                        "amount_required": 4,
+                                                        "amount_required": 36,
                                                         "num_recipes": 0,
                                                         "recipes": []
                                                     }
@@ -1239,31 +1239,31 @@
                                     [
                                         {
                                             "name": "oak_planks",
-                                            "amount_required": 3,
+                                            "amount_required": 9,
                                             "num_recipes": 1,
                                             "recipes": [
                                                 {
                                                     "name": "oak_planks",
                                                     "type": "minecraft:crafting_shapeless",
-                                                    "amount_required": 3,
-                                                    "amount_created": 4,
+                                                    "amount_required": 9,
+                                                    "amount_created": 12,
                                                     "ingredients": [
                                                         [
                                                             {
                                                                 "name": "oak_log",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 0,
                                                                 "recipes": []
                                                             },
                                                             {
                                                                 "name": "oak_wood",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 1,
                                                                 "recipes": [
                                                                     {
                                                                         "name": "oak_wood",
                                                                         "type": "minecraft:crafting_shaped",
-                                                                        "amount_required": 1,
+                                                                        "amount_required": 3,
                                                                         "amount_created": 3,
                                                                         "ingredients": [
                                                                             {
@@ -1278,19 +1278,19 @@
                                                             },
                                                             {
                                                                 "name": "stripped_oak_log",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 0,
                                                                 "recipes": []
                                                             },
                                                             {
                                                                 "name": "stripped_oak_wood",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 1,
                                                                 "recipes": [
                                                                     {
                                                                         "name": "stripped_oak_wood",
                                                                         "type": "minecraft:crafting_shaped",
-                                                                        "amount_required": 1,
+                                                                        "amount_required": 3,
                                                                         "amount_created": 3,
                                                                         "ingredients": [
                                                                             {
@@ -1310,31 +1310,31 @@
                                         },
                                         {
                                             "name": "spruce_planks",
-                                            "amount_required": 3,
+                                            "amount_required": 9,
                                             "num_recipes": 1,
                                             "recipes": [
                                                 {
                                                     "name": "spruce_planks",
                                                     "type": "minecraft:crafting_shapeless",
-                                                    "amount_required": 3,
-                                                    "amount_created": 4,
+                                                    "amount_required": 9,
+                                                    "amount_created": 12,
                                                     "ingredients": [
                                                         [
                                                             {
                                                                 "name": "spruce_log",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 0,
                                                                 "recipes": []
                                                             },
                                                             {
                                                                 "name": "spruce_wood",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 1,
                                                                 "recipes": [
                                                                     {
                                                                         "name": "spruce_wood",
                                                                         "type": "minecraft:crafting_shaped",
-                                                                        "amount_required": 1,
+                                                                        "amount_required": 3,
                                                                         "amount_created": 3,
                                                                         "ingredients": [
                                                                             {
@@ -1349,19 +1349,19 @@
                                                             },
                                                             {
                                                                 "name": "stripped_spruce_log",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 0,
                                                                 "recipes": []
                                                             },
                                                             {
                                                                 "name": "stripped_spruce_wood",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 1,
                                                                 "recipes": [
                                                                     {
                                                                         "name": "stripped_spruce_wood",
                                                                         "type": "minecraft:crafting_shaped",
-                                                                        "amount_required": 1,
+                                                                        "amount_required": 3,
                                                                         "amount_created": 3,
                                                                         "ingredients": [
                                                                             {
@@ -1381,31 +1381,31 @@
                                         },
                                         {
                                             "name": "birch_planks",
-                                            "amount_required": 3,
+                                            "amount_required": 9,
                                             "num_recipes": 1,
                                             "recipes": [
                                                 {
                                                     "name": "birch_planks",
                                                     "type": "minecraft:crafting_shapeless",
-                                                    "amount_required": 3,
-                                                    "amount_created": 4,
+                                                    "amount_required": 9,
+                                                    "amount_created": 12,
                                                     "ingredients": [
                                                         [
                                                             {
                                                                 "name": "birch_log",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 0,
                                                                 "recipes": []
                                                             },
                                                             {
                                                                 "name": "birch_wood",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 1,
                                                                 "recipes": [
                                                                     {
                                                                         "name": "birch_wood",
                                                                         "type": "minecraft:crafting_shaped",
-                                                                        "amount_required": 1,
+                                                                        "amount_required": 3,
                                                                         "amount_created": 3,
                                                                         "ingredients": [
                                                                             {
@@ -1420,19 +1420,19 @@
                                                             },
                                                             {
                                                                 "name": "stripped_birch_log",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 0,
                                                                 "recipes": []
                                                             },
                                                             {
                                                                 "name": "stripped_birch_wood",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 1,
                                                                 "recipes": [
                                                                     {
                                                                         "name": "stripped_birch_wood",
                                                                         "type": "minecraft:crafting_shaped",
-                                                                        "amount_required": 1,
+                                                                        "amount_required": 3,
                                                                         "amount_created": 3,
                                                                         "ingredients": [
                                                                             {
@@ -1452,31 +1452,31 @@
                                         },
                                         {
                                             "name": "jungle_planks",
-                                            "amount_required": 3,
+                                            "amount_required": 9,
                                             "num_recipes": 1,
                                             "recipes": [
                                                 {
                                                     "name": "jungle_planks",
                                                     "type": "minecraft:crafting_shapeless",
-                                                    "amount_required": 3,
-                                                    "amount_created": 4,
+                                                    "amount_required": 9,
+                                                    "amount_created": 12,
                                                     "ingredients": [
                                                         [
                                                             {
                                                                 "name": "jungle_log",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 0,
                                                                 "recipes": []
                                                             },
                                                             {
                                                                 "name": "jungle_wood",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 1,
                                                                 "recipes": [
                                                                     {
                                                                         "name": "jungle_wood",
                                                                         "type": "minecraft:crafting_shaped",
-                                                                        "amount_required": 1,
+                                                                        "amount_required": 3,
                                                                         "amount_created": 3,
                                                                         "ingredients": [
                                                                             {
@@ -1491,19 +1491,19 @@
                                                             },
                                                             {
                                                                 "name": "stripped_jungle_log",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 0,
                                                                 "recipes": []
                                                             },
                                                             {
                                                                 "name": "stripped_jungle_wood",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 1,
                                                                 "recipes": [
                                                                     {
                                                                         "name": "stripped_jungle_wood",
                                                                         "type": "minecraft:crafting_shaped",
-                                                                        "amount_required": 1,
+                                                                        "amount_required": 3,
                                                                         "amount_created": 3,
                                                                         "ingredients": [
                                                                             {
@@ -1523,31 +1523,31 @@
                                         },
                                         {
                                             "name": "acacia_planks",
-                                            "amount_required": 3,
+                                            "amount_required": 9,
                                             "num_recipes": 1,
                                             "recipes": [
                                                 {
                                                     "name": "acacia_planks",
                                                     "type": "minecraft:crafting_shapeless",
-                                                    "amount_required": 3,
-                                                    "amount_created": 4,
+                                                    "amount_required": 9,
+                                                    "amount_created": 12,
                                                     "ingredients": [
                                                         [
                                                             {
                                                                 "name": "acacia_log",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 0,
                                                                 "recipes": []
                                                             },
                                                             {
                                                                 "name": "acacia_wood",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 1,
                                                                 "recipes": [
                                                                     {
                                                                         "name": "acacia_wood",
                                                                         "type": "minecraft:crafting_shaped",
-                                                                        "amount_required": 1,
+                                                                        "amount_required": 3,
                                                                         "amount_created": 3,
                                                                         "ingredients": [
                                                                             {
@@ -1562,19 +1562,19 @@
                                                             },
                                                             {
                                                                 "name": "stripped_acacia_log",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 0,
                                                                 "recipes": []
                                                             },
                                                             {
                                                                 "name": "stripped_acacia_wood",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 1,
                                                                 "recipes": [
                                                                     {
                                                                         "name": "stripped_acacia_wood",
                                                                         "type": "minecraft:crafting_shaped",
-                                                                        "amount_required": 1,
+                                                                        "amount_required": 3,
                                                                         "amount_created": 3,
                                                                         "ingredients": [
                                                                             {
@@ -1594,31 +1594,31 @@
                                         },
                                         {
                                             "name": "dark_oak_planks",
-                                            "amount_required": 3,
+                                            "amount_required": 9,
                                             "num_recipes": 1,
                                             "recipes": [
                                                 {
                                                     "name": "dark_oak_planks",
                                                     "type": "minecraft:crafting_shapeless",
-                                                    "amount_required": 3,
-                                                    "amount_created": 4,
+                                                    "amount_required": 9,
+                                                    "amount_created": 12,
                                                     "ingredients": [
                                                         [
                                                             {
                                                                 "name": "dark_oak_log",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 0,
                                                                 "recipes": []
                                                             },
                                                             {
                                                                 "name": "dark_oak_wood",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 1,
                                                                 "recipes": [
                                                                     {
                                                                         "name": "dark_oak_wood",
                                                                         "type": "minecraft:crafting_shaped",
-                                                                        "amount_required": 1,
+                                                                        "amount_required": 3,
                                                                         "amount_created": 3,
                                                                         "ingredients": [
                                                                             {
@@ -1633,19 +1633,19 @@
                                                             },
                                                             {
                                                                 "name": "stripped_dark_oak_log",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 0,
                                                                 "recipes": []
                                                             },
                                                             {
                                                                 "name": "stripped_dark_oak_wood",
-                                                                "amount_required": 1,
+                                                                "amount_required": 3,
                                                                 "num_recipes": 1,
                                                                 "recipes": [
                                                                     {
                                                                         "name": "stripped_dark_oak_wood",
                                                                         "type": "minecraft:crafting_shaped",
-                                                                        "amount_required": 1,
+                                                                        "amount_required": 3,
                                                                         "amount_created": 3,
                                                                         "ingredients": [
                                                                             {
@@ -1670,18 +1670,18 @@
                     },
                     {
                         "name": "red_dye",
-                        "amount_required": 1,
+                        "amount_required": 3,
                         "num_recipes": 4,
                         "recipes": [
                             {
                                 "name": "red_dye_from_rose_bush",
                                 "type": "minecraft:crafting_shapeless",
-                                "amount_required": 1,
-                                "amount_created": 2,
+                                "amount_required": 3,
+                                "amount_created": 4,
                                 "ingredients": [
                                     {
                                         "name": "rose_bush",
-                                        "amount_required": 1,
+                                        "amount_required": 2,
                                         "num_recipes": 0,
                                         "recipes": []
                                     }
@@ -1690,12 +1690,12 @@
                             {
                                 "name": "red_dye_from_poppy",
                                 "type": "minecraft:crafting_shapeless",
-                                "amount_required": 1,
-                                "amount_created": 1,
+                                "amount_required": 3,
+                                "amount_created": 3,
                                 "ingredients": [
                                     {
                                         "name": "poppy",
-                                        "amount_required": 1,
+                                        "amount_required": 3,
                                         "num_recipes": 0,
                                         "recipes": []
                                     }
@@ -1704,12 +1704,12 @@
                             {
                                 "name": "red_dye_from_beetroot",
                                 "type": "minecraft:crafting_shapeless",
-                                "amount_required": 1,
-                                "amount_created": 1,
+                                "amount_required": 3,
+                                "amount_created": 3,
                                 "ingredients": [
                                     {
                                         "name": "beetroot",
-                                        "amount_required": 1,
+                                        "amount_required": 3,
                                         "num_recipes": 0,
                                         "recipes": []
                                     }
@@ -1718,12 +1718,12 @@
                             {
                                 "name": "red_dye_from_tulip",
                                 "type": "minecraft:crafting_shapeless",
-                                "amount_required": 1,
-                                "amount_created": 1,
+                                "amount_required": 3,
+                                "amount_created": 3,
                                 "ingredients": [
                                     {
                                         "name": "red_tulip",
-                                        "amount_required": 1,
+                                        "amount_required": 3,
                                         "num_recipes": 0,
                                         "recipes": []
                                     }
@@ -1744,11 +1744,11 @@
                 "name": "blue_dye",
                 "type": "minecraft:crafting_shapeless",
                 "amount_required": 4,
-                "amount_created": 1,
+                "amount_created": 4,
                 "ingredients": [
                     {
                         "name": "lapis_lazuli",
-                        "amount_required": 1,
+                        "amount_required": 4,
                         "num_recipes": 0,
                         "recipes": []
                     }
@@ -1758,11 +1758,11 @@
                 "name": "blue_dye_from_cornflower",
                 "type": "minecraft:crafting_shapeless",
                 "amount_required": 4,
-                "amount_created": 1,
+                "amount_created": 4,
                 "ingredients": [
                     {
                         "name": "cornflower",
-                        "amount_required": 1,
+                        "amount_required": 4,
                         "num_recipes": 0,
                         "recipes": []
                     }
@@ -1801,18 +1801,18 @@
                                                 "name": "glass",
                                                 "type": "minecraft:smelting",
                                                 "amount_required": 8,
-                                                "amount_created": 1,
+                                                "amount_created": 8,
                                                 "ingredients": [
                                                     [
                                                         {
                                                             "name": "sand",
-                                                            "amount_required": 1,
+                                                            "amount_required": 8,
                                                             "num_recipes": 0,
                                                             "recipes": []
                                                         },
                                                         {
                                                             "name": "red_sand",
-                                                            "amount_required": 1,
+                                                            "amount_required": 8,
                                                             "num_recipes": 0,
                                                             "recipes": []
                                                         }
@@ -1966,18 +1966,18 @@
                                                 "name": "glass",
                                                 "type": "minecraft:smelting",
                                                 "amount_required": 6,
-                                                "amount_created": 1,
+                                                "amount_created": 6,
                                                 "ingredients": [
                                                     [
                                                         {
                                                             "name": "sand",
-                                                            "amount_required": 1,
+                                                            "amount_required": 6,
                                                             "num_recipes": 0,
                                                             "recipes": []
                                                         },
                                                         {
                                                             "name": "red_sand",
-                                                            "amount_required": 1,
+                                                            "amount_required": 6,
                                                             "num_recipes": 0,
                                                             "recipes": []
                                                         }

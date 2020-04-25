@@ -147,7 +147,7 @@ def is_supported_recipe(recipe):
 def get_supported_recipe_results(recipes):
     grouped_by_result = defaultdict(list)
 
-    for recipe_key, recipe in recipes.items():
+    for recipe_name, recipe in recipes.items():
         if not is_supported_recipe(recipe):
             continue
 
@@ -159,7 +159,7 @@ def get_supported_recipe_results(recipes):
 
             recipe_result = parse_item_name(recipe_result)
 
-        grouped_by_result[recipe_result].append(recipe_key)
+        grouped_by_result[recipe_result].append(recipe_name)
 
     return grouped_by_result
 
@@ -325,11 +325,15 @@ def create_recipe_tree(
             new_ancestors = ancestors.copy()
             new_ancestors.append(curr_item_name)
 
-            for recipe_key in found_recipes:
-                recipe = all_recipes[recipe_key]
+            for recipe_name in found_recipes:
+                recipe = all_recipes[recipe_name]
 
                 if not is_supported_recipe(recipe):
                     continue
+
+                recipe_result_count = recipe["result"].get("count", 1)
+                recipe_multiplier = math.ceil(amount_required / recipe_result_count)
+                amount_created = recipe_result_count * recipe_multiplier
 
                 ingredient_list = get_ingredients(recipe, all_item_tags)
                 ingredient_recipe_tree = []
@@ -352,6 +356,8 @@ def create_recipe_tree(
                                 "type": ERROR_CIRCULAR_REF,
                                 "data": nested_ingredient["name"],
                             }
+
+                        nested_ingredient["amount_required"] *= recipe_multiplier
 
                         new_recipe_tree = create_recipe_tree(
                             all_recipes,
@@ -387,10 +393,10 @@ def create_recipe_tree(
                     break
 
                 recipe_node = {
-                    "name": recipe_key,
+                    "name": recipe_name,
                     "type": recipe["type"],
                     "amount_required": amount_required,
-                    "amount_created": recipe["result"].get("count", 1),
+                    "amount_created": amount_created,
                     "ingredients": ingredient_recipe_tree,
                 }
                 recipe_tree.append(recipe_node)
