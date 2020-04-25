@@ -132,6 +132,18 @@ def group_recipes_by_result(recipes):
     return grouped_by_result
 
 
+def get_is_supported_recipe(recipe):
+    recipe_type = recipe["type"]
+    supported_types = [
+        "minecraft:smelting",
+        "minecraft:blasting",
+        "minecraft:crafting_shapeless",
+        "minecraft:crafting_shaped",
+    ]
+
+    return recipe_type in supported_types
+
+
 def get_ingredients(recipe):
     ingredient_list = []
     recipe_type = recipe["type"]
@@ -163,6 +175,12 @@ def create_recipe_tree(
         if found_recipes is not None:
             for recipe_key in found_recipes:
                 recipe = all_recipes[recipe_key]
+
+                is_supported_recipe = get_is_supported_recipe(recipe)
+
+                if not is_supported_recipe:
+                    continue
+
                 ingredient_list = get_ingredients(recipe)
                 ingredient_recipe_tree = []
 
@@ -268,7 +286,7 @@ def main():
         {"name": "blue_dye", "require": 4},
         {"name": "purple_stained_glass_pane", "require": 5},
     ]
-
+    # nodes = [{"name": item_name} for item_name in recipe_result_names]
     recipe_tree = create_recipe_tree(
         all_recipes, all_item_tags, recipes_by_result, nodes
     )
