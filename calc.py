@@ -144,6 +144,9 @@ def get_is_supported_recipe(recipe):
         "minecraft:stonecutting",
     ]
 
+    if recipe_type not in supported_types:
+        print(recipe)
+
     return recipe_type in supported_types
 
 
