@@ -10,12 +10,12 @@ import json
 from collections import defaultdict
 import math
 
-RECIPES_FILES_DIR = "data/minecraft/recipes/*"
-ITEM_TAGS_FILES_DIR = "data/minecraft/tags/items/*"
+RECIPES_FILES_DIR = "data/minecraft/{version}/recipes/*"
+ITEM_TAGS_FILES_DIR = "data/minecraft/{version}/tags/items/*"
 GENERATED_FILES_DIR = "data/generated"
-ALL_RECIPES_FILE = f"{GENERATED_FILES_DIR}/all_recipes.json"
-ALL_ITEM_TAGS_FILE = f"{GENERATED_FILES_DIR}/all_item_tags.json"
-CALCULATION_OUTPUT_FILE = f"{GENERATED_FILES_DIR}/calculation_output.json"
+ALL_RECIPES_FILE = "{generated_files_dir}/{version}/all_recipes.json"
+ALL_ITEM_TAGS_FILE = "{generated_files_dir}/{version}/all_item_tags.json"
+CALCULATION_OUTPUT_FILE = "{generated_files_dir}/{version}/calculation_output.json"
 
 UNKNOWN_RESULT = "result:unknown"
 ERROR_CIRCULAR_REF = "error_circular_ref_on"
@@ -32,10 +32,35 @@ def get_filename_from_path(fullpath):
     return filename
 
 
-def create_all_recipes():
+def fetch_all_recipes(version, force_create=False):
+    if force_create:
+        return create_all_recipes(version)
+
+    recipes = {}
+    try:
+        target_file = ALL_RECIPES_FILE.format(
+            generated_files_dir=GENERATED_FILES_DIR, version=version
+        )
+        with open(target_file, "r") as f:
+            data = f.read()
+
+            try:
+                recipes = json.loads(data)
+            except Exception:
+                raise
+
+    except Exception:
+        # print(traceback.print_exc())
+        recipes = create_all_recipes(version)
+
+    return recipes
+
+
+def create_all_recipes(version):
     print("CREATING ALL RECIPES COLLECTION FROM FILE SYSTEM")
     recipes = {}
-    recipe_files = glob.glob(RECIPES_FILES_DIR)
+    recipes_file_dir = RECIPES_FILES_DIR.format(version=version)
+    recipe_files = glob.glob(recipes_file_dir)
     for filepath in recipe_files:
         with open(filepath, "r") as f:
             data = f.read()
@@ -48,59 +73,26 @@ def create_all_recipes():
 
             recipes[filename] = recipe_data
 
-    os.makedirs(os.path.dirname(ALL_RECIPES_FILE), exist_ok=True)
-    with open(ALL_RECIPES_FILE, "w") as write_file:
+    target_file = ALL_RECIPES_FILE.format(
+        generated_files_dir=GENERATED_FILES_DIR, version=version
+    )
+    os.makedirs(os.path.dirname(target_file), exist_ok=True)
+    with open(target_file, "w") as write_file:
         json.dump(recipes, write_file)
 
     return recipes
 
 
-def fetch_all_recipes(force_create=False):
+def fetch_all_item_tags(version, force_create=False):
     if force_create:
-        return create_all_recipes()
-
-    recipes = {}
-    try:
-        with open(ALL_RECIPES_FILE, "r") as f:
-            data = f.read()
-
-            try:
-                recipes = json.loads(data)
-            except Exception:
-                raise
-
-    except Exception:
-        # print(traceback.print_exc())
-        recipes = create_all_recipes()
-
-    return recipes
-
-
-def create_all_item_tags():
-    print("CREATING ALL ITEM TAGS COLLECTION FROM FILE SYSTEM")
-    item_tags = {}
-    item_tag_files = glob.glob(ITEM_TAGS_FILES_DIR)
-    for filepath in item_tag_files:
-        with open(filepath, "r") as f:
-            data = f.read()
-            item_tag_data = json.loads(data)
-            filename = get_filename_from_path(filepath)
-            item_tags[filename] = item_tag_data
-
-    os.makedirs(os.path.dirname(ALL_ITEM_TAGS_FILE), exist_ok=True)
-    with open(ALL_ITEM_TAGS_FILE, "w") as write_file:
-        json.dump(item_tags, write_file)
-
-    return item_tags
-
-
-def fetch_all_item_tags(force_create=False):
-    if force_create:
-        return create_all_item_tags()
+        return create_all_item_tags(version)
 
     item_tags = {}
     try:
-        with open(ALL_ITEM_TAGS_FILE, "r") as f:
+        target_file = ALL_ITEM_TAGS_FILE.format(
+            generated_files_dir=GENERATED_FILES_DIR, version=version
+        )
+        with open(target_file, "r") as f:
             data = f.read()
 
             try:
@@ -110,7 +102,29 @@ def fetch_all_item_tags(force_create=False):
 
     except Exception:
         # print(traceback.print_exc())
-        item_tags = create_all_item_tags()
+        item_tags = create_all_item_tags(version)
+
+    return item_tags
+
+
+def create_all_item_tags(version):
+    print("CREATING ALL ITEM TAGS COLLECTION FROM FILE SYSTEM")
+    item_tags = {}
+    item_tags_file_dir = ITEM_TAGS_FILES_DIR.format(version=version)
+    item_tag_files = glob.glob(item_tags_file_dir)
+    for filepath in item_tag_files:
+        with open(filepath, "r") as f:
+            data = f.read()
+            item_tag_data = json.loads(data)
+            filename = get_filename_from_path(filepath)
+            item_tags[filename] = item_tag_data
+
+    target_file = ALL_ITEM_TAGS_FILE.format(
+        generated_files_dir=GENERATED_FILES_DIR, version=version
+    )
+    os.makedirs(os.path.dirname(target_file), exist_ok=True)
+    with open(target_file, "w") as write_file:
+        json.dump(item_tags, write_file)
 
     return item_tags
 
@@ -394,8 +408,9 @@ def create_recipe_tree(
 
 
 def main():
-    all_recipes = fetch_all_recipes(force_create=True)
-    all_item_tags = fetch_all_item_tags(force_create=True)
+    version = 1.15
+    all_recipes = fetch_all_recipes(version=version, force_create=True)
+    all_item_tags = fetch_all_item_tags(version=version, force_create=True)
     recipes_by_result = group_recipes_by_result(recipes=all_recipes)
     recipe_result_names = list(recipes_by_result.keys())
     recipe_result_names.sort()
@@ -412,7 +427,10 @@ def main():
         all_recipes, all_item_tags, recipes_by_result, nodes
     )
 
-    with open(CALCULATION_OUTPUT_FILE, "w") as write_file:
+    output_file = CALCULATION_OUTPUT_FILE.format(
+        generated_files_dir=GENERATED_FILES_DIR, version=version
+    )
+    with open(output_file, "w") as write_file:
         json.dump(recipe_tree, write_file, indent=4, sort_keys=False)
 
 
