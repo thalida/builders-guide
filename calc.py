@@ -129,10 +129,28 @@ def create_all_item_tags(version):
     return item_tags
 
 
-def group_recipes_by_result(recipes):
+def is_supported_recipe(recipe):
+    recipe_type = recipe["type"]
+    supported_types = [
+        "minecraft:blasting",
+        "minecraft:campfire_cooking",
+        "minecraft:crafting_shaped",
+        "minecraft:crafting_shapeless",
+        "minecraft:smelting",
+        "minecraft:smoking",
+        "minecraft:stonecutting",
+    ]
+
+    return recipe_type in supported_types
+
+
+def get_supported_recipe_results(recipes):
     grouped_by_result = defaultdict(list)
 
     for recipe_key, recipe in recipes.items():
+        if not is_supported_recipe(recipe):
+            continue
+
         recipe_result = recipe.get("result", UNKNOWN_RESULT)
 
         if recipe_result != UNKNOWN_RESULT:
@@ -146,26 +164,8 @@ def group_recipes_by_result(recipes):
     return grouped_by_result
 
 
-def get_is_supported_recipe(recipe):
-    recipe_type = recipe["type"]
-    supported_types = [
-        "minecraft:blasting",
-        "minecraft:campfire_cooking",
-        "minecraft:crafting_shaped",
-        "minecraft:crafting_shapeless",
-        "minecraft:smelting",
-        "minecraft:smoking",
-        "minecraft:stonecutting",
-    ]
-
-    if recipe_type not in supported_types:
-        print(recipe)
-
-    return recipe_type in supported_types
-
-
 def get_ingredients(recipe, all_item_tags):
-    if not get_is_supported_recipe(recipe):
+    if not is_supported_recipe(recipe):
         return []
 
     ingredients = []
@@ -307,7 +307,7 @@ def get_shaped_recipe_ingredients(recipe, all_item_tags):
 
 
 def create_recipe_tree(
-    all_recipes, all_item_tags, recipes_by_result, items, ancestors=None,
+    all_recipes, all_item_tags, supported_recipe_results, items, ancestors=None,
 ):
     tree = []
     for item in items:
@@ -317,7 +317,7 @@ def create_recipe_tree(
         recipe_tree = []
         node_has_circular_ref = False
 
-        found_recipes = recipes_by_result.get(curr_item_name)
+        found_recipes = supported_recipe_results.get(curr_item_name)
         if found_recipes is not None:
             if ancestors is None:
                 ancestors = []
@@ -328,9 +328,7 @@ def create_recipe_tree(
             for recipe_key in found_recipes:
                 recipe = all_recipes[recipe_key]
 
-                is_supported_recipe = get_is_supported_recipe(recipe)
-
-                if not is_supported_recipe:
+                if not is_supported_recipe(recipe):
                     continue
 
                 ingredient_list = get_ingredients(recipe, all_item_tags)
@@ -358,7 +356,7 @@ def create_recipe_tree(
                         new_recipe_tree = create_recipe_tree(
                             all_recipes,
                             all_item_tags,
-                            recipes_by_result,
+                            supported_recipe_results,
                             items=[nested_ingredient],
                             ancestors=new_ancestors,
                         )
@@ -411,9 +409,9 @@ def main():
     version = 1.15
     all_recipes = fetch_all_recipes(version=version, force_create=True)
     all_item_tags = fetch_all_item_tags(version=version, force_create=True)
-    recipes_by_result = group_recipes_by_result(recipes=all_recipes)
-    recipe_result_names = list(recipes_by_result.keys())
-    recipe_result_names.sort()
+    supported_recipe_results = get_supported_recipe_results(recipes=all_recipes)
+    supported_result_names = list(supported_recipe_results.keys())
+    supported_result_names.sort()
 
     nodes = [
         {"name": "torch", "amount_required": 1},
@@ -422,9 +420,9 @@ def main():
         {"name": "blue_dye", "amount_required": 4},
         {"name": "purple_stained_glass_pane", "amount_required": 5},
     ]
-    # nodes = [{"name": item_name} for item_name in recipe_result_names]
+    # nodes = [{"name": item_name} for item_name in supported_result_names]
     recipe_tree = create_recipe_tree(
-        all_recipes, all_item_tags, recipes_by_result, nodes
+        all_recipes, all_item_tags, supported_recipe_results, nodes
     )
 
     output_file = CALCULATION_OUTPUT_FILE.format(
