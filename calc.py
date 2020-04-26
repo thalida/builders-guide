@@ -15,7 +15,8 @@ ITEM_TAGS_FILES_DIR = "data/minecraft/{version}/tags/items/*"
 GENERATED_FILES_DIR = "data/generated"
 ALL_RECIPES_FILE = "{generated_files_dir}/{version}/all_recipes.json"
 ALL_ITEM_TAGS_FILE = "{generated_files_dir}/{version}/all_item_tags.json"
-CALCULATION_OUTPUT_FILE = "{generated_files_dir}/{version}/calculation_output.json"
+RECIPE_TREE_OUTPUT_FILE = "{generated_files_dir}/{version}/recipe_tree.json"
+SHOPPING_LIST_OUTPUT_FILE = "{generated_files_dir}/{version}/shopping_list.json"
 
 UNKNOWN_RESULT = "result:unknown"
 ERROR_CIRCULAR_REF = "error_circular_ref_on"
@@ -411,6 +412,10 @@ def create_recipe_tree(
     return tree
 
 
+def create_shopping_list(tree, path):
+    pass
+
+
 def main():
     version = 1.15
     all_recipes = fetch_all_recipes(version=version, force_create=True)
@@ -430,12 +435,19 @@ def main():
     recipe_tree = create_recipe_tree(
         all_recipes, all_item_tags, supported_recipe_results, nodes
     )
-
-    output_file = CALCULATION_OUTPUT_FILE.format(
+    recipe_tree_file = RECIPE_TREE_OUTPUT_FILE.format(
         generated_files_dir=GENERATED_FILES_DIR, version=version
     )
-    with open(output_file, "w") as write_file:
+    with open(recipe_tree_file, "w") as write_file:
         json.dump(recipe_tree, write_file, indent=4, sort_keys=False)
+
+    path = []
+    shopping_list = create_shopping_list(recipe_tree, path)
+    shopping_list_file = SHOPPING_LIST_OUTPUT_FILE.format(
+        generated_files_dir=GENERATED_FILES_DIR, version=version
+    )
+    with open(shopping_list_file, "w") as write_file:
+        json.dump(shopping_list, write_file, indent=4, sort_keys=False)
 
 
 if __name__ == "__main__":
