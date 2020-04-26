@@ -12,11 +12,13 @@ import math
 
 RECIPES_FILES_DIR = "data/minecraft/{version}/recipes/*"
 ITEM_TAGS_FILES_DIR = "data/minecraft/{version}/tags/items/*"
-GENERATED_FILES_DIR = "data/generated"
-ALL_RECIPES_FILE = "{generated_files_dir}/{version}/all_recipes.json"
-ALL_ITEM_TAGS_FILE = "{generated_files_dir}/{version}/all_item_tags.json"
-RECIPE_TREE_OUTPUT_FILE = "{generated_files_dir}/{version}/recipe_tree.json"
-SHOPPING_LIST_OUTPUT_FILE = "{generated_files_dir}/{version}/shopping_list.json"
+
+CALCULATOR_RECIPES_FILES_DIR = "data/calculator/{version}/recipes/*"
+
+ALL_RECIPES_FILE = "data/generated/{version}/all_recipes.json"
+ALL_ITEM_TAGS_FILE = "data/generated/{version}/all_item_tags.json"
+RECIPE_TREE_OUTPUT_FILE = "data/generated/{version}/recipe_tree.json"
+SHOPPING_LIST_OUTPUT_FILE = "data/generated/{version}/shopping_list.json"
 
 UNKNOWN_RESULT = "result:unknown"
 ERROR_CIRCULAR_REF = "error_circular_ref_on"
@@ -39,9 +41,7 @@ def fetch_all_recipes(version, force_create=False):
 
     recipes = {}
     try:
-        target_file = ALL_RECIPES_FILE.format(
-            generated_files_dir=GENERATED_FILES_DIR, version=version
-        )
+        target_file = ALL_RECIPES_FILE.format(version=version)
         with open(target_file, "r") as f:
             data = f.read()
 
@@ -59,10 +59,16 @@ def fetch_all_recipes(version, force_create=False):
 
 def create_all_recipes(version):
     print("CREATING ALL RECIPES COLLECTION FROM FILE SYSTEM")
+
     recipes = {}
     recipes_file_dir = RECIPES_FILES_DIR.format(version=version)
     recipe_files = glob.glob(recipes_file_dir)
-    for filepath in recipe_files:
+
+    calculator_recipes_file_dir = CALCULATOR_RECIPES_FILES_DIR.format(version=version)
+    calculator_recipe_files = glob.glob(calculator_recipes_file_dir)
+
+    all_recipe_files = calculator_recipe_files + recipe_files
+    for filepath in all_recipe_files:
         with open(filepath, "r") as f:
             data = f.read()
             recipe_data = json.loads(data)
@@ -74,9 +80,7 @@ def create_all_recipes(version):
 
             recipes[filename] = recipe_data
 
-    target_file = ALL_RECIPES_FILE.format(
-        generated_files_dir=GENERATED_FILES_DIR, version=version
-    )
+    target_file = ALL_RECIPES_FILE.format(version=version)
     os.makedirs(os.path.dirname(target_file), exist_ok=True)
     with open(target_file, "w") as write_file:
         json.dump(recipes, write_file)
@@ -90,9 +94,7 @@ def fetch_all_item_tags(version, force_create=False):
 
     item_tags = {}
     try:
-        target_file = ALL_ITEM_TAGS_FILE.format(
-            generated_files_dir=GENERATED_FILES_DIR, version=version
-        )
+        target_file = ALL_ITEM_TAGS_FILE.format(version=version)
         with open(target_file, "r") as f:
             data = f.read()
 
@@ -120,9 +122,7 @@ def create_all_item_tags(version):
             filename = get_filename_from_path(filepath)
             item_tags[filename] = item_tag_data
 
-    target_file = ALL_ITEM_TAGS_FILE.format(
-        generated_files_dir=GENERATED_FILES_DIR, version=version
-    )
+    target_file = ALL_ITEM_TAGS_FILE.format(version=version)
     os.makedirs(os.path.dirname(target_file), exist_ok=True)
     with open(target_file, "w") as write_file:
         json.dump(item_tags, write_file)
@@ -142,7 +142,14 @@ def is_supported_recipe(recipe):
         "minecraft:stonecutting",
     ]
 
-    return recipe_type in supported_types
+    return recipe_type in supported_types or is_custom_recipe(recipe)
+
+
+def is_custom_recipe(recipe):
+    recipe_type = recipe["type"]
+    custom_types = ["calculator:naturally_occurring"]
+
+    return recipe_type in custom_types
 
 
 def get_supported_recipe_results(recipes):
@@ -396,6 +403,7 @@ def create_recipe_tree(
                 recipe_node = {
                     "name": recipe_name,
                     "type": recipe["type"],
+                    "recipe_result_count": recipe_result_count,
                     "amount_required": amount_required,
                     "amount_created": amount_created,
                     "ingredients": ingredient_recipe_tree,
@@ -412,8 +420,65 @@ def create_recipe_tree(
     return tree
 
 
-def create_shopping_list(tree, path):
-    pass
+def create_shopping_list(tree, path, parent_node=None, shopping_list=None):
+    if shopping_list is None:
+        shopping_list = {}
+
+    for node in tree:
+        node_name = node["name"]
+        amount_required = node["amount_required"]
+
+        if node_name not in shopping_list:
+            shopping_list[node_name] = {
+                "amount_required": 0,
+                "amount_used_for": {},
+                "amount_recipe_creates": None,
+            }
+
+        if parent_node:
+            shopping_list[node_name]["amount_used_for"][parent_node] = amount_required
+
+        have_amount = shopping_list[node_name].get("amount_remaining", 0)
+        amount_remaining = have_amount - amount_required
+        shopping_list[node_name]["amount_required"] += amount_required
+
+        if amount_remaining >= 0:
+            shopping_list[node_name]["amount_remaining"] = amount_remaining
+            continue
+
+        if node["num_recipes"] == 0:
+            continue
+
+        # TODO: Add support for choosing recipe
+        chosen_recipe = node["recipes"][0]
+        recipe_amount_created = chosen_recipe.get("amount_created", 0)
+        shopping_list[node_name]["amount_recipe_creates"] = chosen_recipe.get(
+            "recipe_result_count"
+        )
+
+        missing_amount = abs(amount_remaining)
+        recipe_multiplier = math.ceil(missing_amount / recipe_amount_created)
+        amount_created = recipe_amount_created * recipe_multiplier
+        shopping_list[node_name]["amount_created"] = amount_created
+        shopping_list[node_name]["amount_remaining"] = amount_created - missing_amount
+
+        ingredients = chosen_recipe["ingredients"]
+        for ingredient in ingredients:
+            if isinstance(ingredient, list):
+                # TODO: Add support for choosing ingredient
+                ingredient_item = ingredient[0]
+            else:
+                ingredient_item = ingredient
+
+            new_shopping_list = create_shopping_list(
+                [ingredient_item],
+                path,
+                parent_node=node_name,
+                shopping_list=shopping_list,
+            )
+            shopping_list.update(new_shopping_list)
+
+    return shopping_list
 
 
 def main():
@@ -435,17 +500,13 @@ def main():
     recipe_tree = create_recipe_tree(
         all_recipes, all_item_tags, supported_recipe_results, nodes
     )
-    recipe_tree_file = RECIPE_TREE_OUTPUT_FILE.format(
-        generated_files_dir=GENERATED_FILES_DIR, version=version
-    )
+    recipe_tree_file = RECIPE_TREE_OUTPUT_FILE.format(version=version)
     with open(recipe_tree_file, "w") as write_file:
         json.dump(recipe_tree, write_file, indent=4, sort_keys=False)
 
     path = []
     shopping_list = create_shopping_list(recipe_tree, path)
-    shopping_list_file = SHOPPING_LIST_OUTPUT_FILE.format(
-        generated_files_dir=GENERATED_FILES_DIR, version=version
-    )
+    shopping_list_file = SHOPPING_LIST_OUTPUT_FILE.format(version=version)
     with open(shopping_list_file, "w") as write_file:
         json.dump(shopping_list, write_file, indent=4, sort_keys=False)
 
