@@ -194,90 +194,37 @@ def get_ingredients(recipe, all_item_tags):
     return ingredients
 
 
-def get_simple_recipe_ingredients(recipe, all_item_tags):
-    ingredient_list = []
+def get_tag_values(tag, all_item_tags):
+    found_values = []
+    tag_name = parse_item_name(tag)
+    ingredients = all_item_tags[tag_name]["values"]
 
-    if isinstance(recipe["ingredient"], dict):
-        if recipe["ingredient"].get("item") is not None:
-            is_group = False
-            ingredients = [recipe["ingredient"]]
-        elif recipe["ingredient"].get("tag") is not None:
-            is_group = True
-            tag_name = parse_item_name(recipe["ingredient"].get("tag"))
-            ingredients = all_item_tags[tag_name]["values"]
-    elif isinstance(recipe["ingredient"], list):
-        is_group = True
-        ingredients = recipe["ingredient"]
-
-    collected_ingredients = []
     for ingredient in ingredients:
-        if isinstance(ingredient, dict):
-            item = ingredient.get("item")
+        is_tag = is_tag_name(ingredient)
+        if is_tag:
+            found_values.append(get_tag_values(ingredient, all_item_tags))
         else:
-            item = ingredient
+            found_values.append(ingredient)
 
-        name = parse_item_name(item)
-        collected_ingredients.append({"name": name, "amount_required": 1})
+    return found_values
 
-    if is_group:
-        ingredient_list.append(collected_ingredients)
-    else:
-        ingredient_list += collected_ingredients
 
+def get_simple_recipe_ingredients(recipe, all_item_tags):
+    ingredient_list = parse_recipe_ingredients(recipe["ingredient"], all_item_tags)
     return ingredient_list
 
 
 def get_shapeless_recipe_ingredients(recipe, all_item_tags):
-    ingredient_list = []
-    ingredient_collection = defaultdict(dict)
-    for ingredient in recipe["ingredients"]:
-        is_group = False
-        if isinstance(ingredient, dict):
-            if ingredient.get("item") is not None:
-                ingredients = [ingredient]
-                is_group = False
-            if ingredient.get("tag") is not None:
-                tag_name = parse_item_name(ingredient.get("tag"))
-                ingredients = all_item_tags[tag_name]["values"]
-                is_group = True
-        elif isinstance(ingredient, list):
-            ingredients = ingredient
-            is_group = True
-
-        collection_idx = len(ingredient_collection.keys()) + 1 if is_group else 0
-        for nested_ingredient in ingredients:
-            if isinstance(nested_ingredient, dict):
-                item = nested_ingredient.get("item")
-            else:
-                item = nested_ingredient
-
-            name = parse_item_name(item)
-
-            if item not in ingredient_collection[collection_idx]:
-                ingredient_collection[collection_idx][item] = {
-                    "name": name,
-                    "amount_required": 1,
-                }
-            else:
-                ingredient_collection[collection_idx][item]["amount_required"] += 1
-
-        if collection_idx > 0:
-            items = list(ingredient_collection[collection_idx].values())
-            ingredient_list.append(items)
-
-    ingredient_list = list(ingredient_collection[0].values()) + ingredient_list
-
+    ingredient_list = parse_recipe_ingredients(recipe["ingredients"], all_item_tags)
     return ingredient_list
 
 
 def get_shaped_recipe_ingredients(recipe, all_item_tags):
-    pattern = recipe["pattern"]
-    pattern_key = recipe["key"]
     ingredient_list = []
     pattern_counts = {}
-    for row in pattern:
+    for row in recipe["pattern"]:
         for cell in row:
-            if cell not in pattern_key:
+            if cell not in recipe["key"]:
                 continue
 
             if cell not in pattern_counts:
@@ -286,36 +233,68 @@ def get_shaped_recipe_ingredients(recipe, all_item_tags):
                 pattern_counts[cell] += 1
 
     for key, count in pattern_counts.items():
-        ingredient = pattern_key[key]
-
-        if isinstance(ingredient, dict):
-            if ingredient.get("item") is not None:
-                is_group = False
-                ingredients = [ingredient]
-            elif ingredient.get("tag") is not None:
-                is_group = True
-                tag_name = parse_item_name(ingredient.get("tag"))
-                ingredients = all_item_tags[tag_name]["values"]
-        elif isinstance(ingredient, list):
-            is_group = True
-            ingredients = ingredient
-
-        collected_ingredients = []
-        for nested_ingredient in ingredients:
-            if isinstance(nested_ingredient, dict):
-                item = nested_ingredient.get("item")
-            else:
-                item = nested_ingredient
-
-            name = parse_item_name(item)
-            collected_ingredients.append({"name": name, "amount_required": count})
-
-        if is_group:
-            ingredient_list.append(collected_ingredients)
-        else:
-            ingredient_list += collected_ingredients
+        ingredient = recipe["key"][key]
+        new_ingredient_list = parse_recipe_ingredients(
+            ingredient, all_item_tags, force_amount_required=count
+        )
+        ingredient_list += new_ingredient_list
 
     return ingredient_list
+
+
+def parse_recipe_ingredients(ingredients, all_item_tags, force_amount_required=None):
+    collected_ingredients = []
+    found_ingredients = {}
+
+    is_group = isinstance(ingredients, list)
+
+    if not is_group:
+        ingredients = [ingredients]
+
+    for ingredient in ingredients:
+        if isinstance(ingredient, list) or (
+            isinstance(ingredient, dict) and ingredient.get("tag") is not None
+        ):
+            if isinstance(ingredient, dict):
+                next_ingredients = get_tag_values(ingredient.get("tag"), all_item_tags)
+            else:
+                next_ingredients = ingredient
+
+            nested_ingredients = parse_recipe_ingredients(
+                next_ingredients,
+                all_item_tags,
+                force_amount_required=force_amount_required,
+            )
+            collected_ingredients.append(nested_ingredients)
+            continue
+
+        if isinstance(ingredient, dict):
+            item = ingredient.get("item")
+        else:
+            item = ingredient
+
+        name = parse_item_name(item)
+
+        if force_amount_required is not None:
+            found_ingredients[name] = {
+                "name": name,
+                "amount_required": force_amount_required,
+            }
+        else:
+            if name not in found_ingredients:
+                found_ingredients[name] = {
+                    "name": name,
+                    "amount_required": 1,
+                }
+            else:
+                found_ingredients[name]["amount_required"] += 1
+
+    collected_ingredients = list(found_ingredients.values()) + collected_ingredients
+
+    if is_group:
+        collected_ingredients = [collected_ingredients]
+
+    return collected_ingredients
 
 
 def create_recipe_tree(
@@ -362,6 +341,13 @@ def create_recipe_tree(
 
                     tmp_ingredient_tree = []
                     for nested_ingredient in ingredients:
+                        if isinstance(nested_ingredient, list):
+                            # TODO: add support for many nested ingredients
+                            new_nested_ingredient = dig_for_ingredient(
+                                nested_ingredient
+                            )
+                            nested_ingredient = new_nested_ingredient
+
                         if nested_ingredient["name"] in ancestors:
                             return {
                                 "error": True,
@@ -422,6 +408,16 @@ def create_recipe_tree(
         tree.append(node)
 
     return tree
+
+
+def dig_for_ingredient(ingredients):
+    for ingredient in ingredients:
+        if isinstance(ingredient, list):
+            return dig_for_ingredient(ingredient)
+
+        found_ingredient = ingredient
+        break
+    return found_ingredient
 
 
 # def create_ingredient_tree(
@@ -587,7 +583,7 @@ def create_shopping_list(tree, path, parent_node=None, shopping_list=None):
                 ingredient_item = ingredient
 
             if ingredient_item is None:
-                print("Ooops! There is no ingredient_item")
+                print("Ooops! There is no ingredient_item for", ingredient)
                 continue
 
             new_shopping_list = create_shopping_list(
@@ -628,12 +624,8 @@ def main():
         "torch": {
             "recipe": "torch",
             "ingredients": [
-                {
-                    "charcoal": {
-                        "recipe": "charcoal",
-                        "ingredients": [{"oak_logs": {}}],
-                    }
-                },
+                None,
+                # {"charcoal": {"recipe": "charcoal", "ingredients": [{"oak_log": {}}],}},
                 {"stick": {"recipe": "stick_from_bamboo_item"}},
             ],
         },
