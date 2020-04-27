@@ -6,10 +6,20 @@
         "amount_created": 4,
         "amount_remaining": 3
     },
-    "coal": {
+    "charcoal": {
         "amount_required": 1,
         "amount_used_for": {
             "torch": 1
+        },
+        "amount_recipe_creates": 1,
+        "amount_created": 1,
+        "amount_remaining": 0
+    },
+    "oak_log": {
+        "amount_required": 4,
+        "amount_used_for": {
+            "charcoal": 1,
+            "oak_planks": 3
         },
         "amount_recipe_creates": null
     },
@@ -52,6 +62,21 @@
         },
         "amount_recipe_creates": null
     },
+    "sand": {
+        "amount_required": 12,
+        "amount_used_for": {
+            "light_blue_concrete_powder": 4,
+            "glass": 8
+        },
+        "amount_recipe_creates": null
+    },
+    "gravel": {
+        "amount_required": 4,
+        "amount_used_for": {
+            "light_blue_concrete_powder": 4
+        },
+        "amount_recipe_creates": null
+    },
     "red_bed": {
         "amount_required": 3,
         "amount_used_for": {},
@@ -69,18 +94,26 @@
         "amount_remaining": 0
     },
     "red_dye": {
-        "amount_required": 9,
+        "amount_required": 10,
         "amount_used_for": {
-            "red_wool": 9
+            "red_wool": 9,
+            "purple_dye": 1
         },
         "amount_recipe_creates": 2,
         "amount_created": 10,
-        "amount_remaining": 1
+        "amount_remaining": 0
     },
     "rose_bush": {
         "amount_required": 5,
         "amount_used_for": {
             "red_dye": 5
+        },
+        "amount_recipe_creates": null
+    },
+    "white_wool": {
+        "amount_required": 9,
+        "amount_used_for": {
+            "red_wool": 9
         },
         "amount_recipe_creates": null
     },
@@ -92,13 +125,6 @@
         "amount_recipe_creates": 4,
         "amount_created": 12,
         "amount_remaining": 3
-    },
-    "oak_log": {
-        "amount_required": 3,
-        "amount_used_for": {
-            "oak_planks": 3
-        },
-        "amount_recipe_creates": null
     },
     "blue_dye": {
         "amount_required": 5,
@@ -140,13 +166,6 @@
         "amount_recipe_creates": 1,
         "amount_created": 8,
         "amount_remaining": 0
-    },
-    "sand": {
-        "amount_required": 8,
-        "amount_used_for": {
-            "glass": 8
-        },
-        "amount_recipe_creates": null
     },
     "purple_dye": {
         "amount_required": 1,
