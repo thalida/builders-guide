@@ -182,14 +182,15 @@ def get_ingredients(recipe, all_item_tags):
 
     ingredients = []
     recipe_type = recipe["type"]
-    if recipe_type == "minecraft:crafting_shapeless":
-        ingredients = get_shapeless_recipe_ingredients(recipe, all_item_tags)
 
-    elif recipe_type == "minecraft:crafting_shaped":
+    if recipe_type == "minecraft:crafting_shaped":
         ingredients = get_shaped_recipe_ingredients(recipe, all_item_tags)
 
+    elif recipe_type == "minecraft:crafting_shapeless":
+        ingredients = parse_recipe_ingredients(recipe["ingredients"], all_item_tags)
+
     else:
-        ingredients = get_simple_recipe_ingredients(recipe, all_item_tags)
+        ingredients = parse_recipe_ingredients(recipe["ingredient"], all_item_tags)
 
     return ingredients
 
@@ -207,16 +208,6 @@ def get_tag_values(tag, all_item_tags):
             found_values.append(ingredient)
 
     return found_values
-
-
-def get_simple_recipe_ingredients(recipe, all_item_tags):
-    ingredient_list = parse_recipe_ingredients(recipe["ingredient"], all_item_tags)
-    return ingredient_list
-
-
-def get_shapeless_recipe_ingredients(recipe, all_item_tags):
-    ingredient_list = parse_recipe_ingredients(recipe["ingredients"], all_item_tags)
-    return ingredient_list
 
 
 def get_shaped_recipe_ingredients(recipe, all_item_tags):
@@ -300,6 +291,10 @@ def parse_recipe_ingredients(
     return collected_ingredients
 
 
+def is_recipe_error(result):
+    return isinstance(result, dict) and result.get("error")
+
+
 def create_recipe_tree(
     all_recipes, all_item_tags, supported_recipe_results, items, ancestors=None,
 ):
@@ -348,7 +343,7 @@ def create_recipe_tree(
             amount_created = recipe_result_count * recipe_multiplier
 
             ingredients = get_ingredients(recipe, all_item_tags)
-            ingredient_tree = create_ingredient_tree(
+            response = create_ingredient_tree(
                 ingredients,
                 all_recipes,
                 all_item_tags,
@@ -357,12 +352,12 @@ def create_recipe_tree(
                 ancestors=new_ancestors,
             )
 
-            if isinstance(ingredient_tree, dict):
-                if ingredient_tree.get("data") == curr_item_name:
+            if is_recipe_error(response):
+                if response.get("data") == curr_item_name:
                     node_has_circular_ref = True
                     break
                 else:
-                    return ingredient_tree
+                    return response
 
             recipe_node = {
                 "name": recipe_name,
@@ -370,7 +365,7 @@ def create_recipe_tree(
                 "recipe_result_count": recipe_result_count,
                 "amount_required": amount_required,
                 "amount_created": amount_created,
-                "ingredients": ingredient_tree,
+                "ingredients": response,
             }
             recipe_tree.append(recipe_node)
 
@@ -396,7 +391,8 @@ def create_ingredient_tree(
 
     for ingredient in ingredients:
         if isinstance(ingredient, list):
-            new_ingredient_tree = create_ingredient_tree(
+            is_nested_ingredient = True
+            response = create_ingredient_tree(
                 ingredient,
                 all_recipes,
                 all_item_tags,
@@ -404,35 +400,30 @@ def create_ingredient_tree(
                 recipe_multiplier,
                 ancestors=ancestors,
             )
+        else:
+            is_nested_ingredient = False
+            ingredient["amount_required"] *= recipe_multiplier
+            response = create_recipe_tree(
+                all_recipes,
+                all_item_tags,
+                supported_recipe_results,
+                items=[ingredient],
+                ancestors=ancestors,
+            )
 
-            if isinstance(new_ingredient_tree, dict):
-                ingredient_tree = new_ingredient_tree
-                break
-
-            ingredient_tree.append(new_ingredient_tree)
-            continue
-
-        ingredient["amount_required"] *= recipe_multiplier
-
-        new_recipe_tree = create_recipe_tree(
-            all_recipes,
-            all_item_tags,
-            supported_recipe_results,
-            items=[ingredient],
-            ancestors=ancestors,
-        )
-
-        if isinstance(new_recipe_tree, dict):
-            ingredient_tree = new_recipe_tree
+        if is_recipe_error(response):
+            ingredient_tree = response
             break
 
-        ingredient_tree += new_recipe_tree
+        if is_nested_ingredient:
+            ingredient_tree.append(response)
+        else:
+            ingredient_tree += response
 
     return ingredient_tree
 
 
 def create_shopping_list(tree, path={}, parent_node=None, shopping_list=None):
-    # print(tree)
     if shopping_list is None:
         shopping_list = {}
 
