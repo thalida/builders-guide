@@ -24,6 +24,10 @@ UNKNOWN_RESULT = "result:unknown"
 ERROR_CIRCULAR_REF = "error_circular_ref_on"
 
 
+def is_tag_name(orig_item_name):
+    return orig_item_name.find("#") != -1
+
+
 def parse_item_name(orig_item_name):
     return orig_item_name.split(":", 1)[-1]
 
@@ -420,6 +424,91 @@ def create_recipe_tree(
     return tree
 
 
+# def create_ingredient_tree(
+#     curr_item_name,
+#     ingredient_list,
+#     ancestors,
+#     recipe_multiplier,
+#     all_recipes,
+#     all_item_tags,
+#     supported_recipe_results,
+# ):
+#     new_ancestors = ancestors.copy()
+#     new_ancestors.append(curr_item_name)
+
+#     ingredient_recipe_tree = []
+#     node_has_circular_ref = False
+#     tmp_ingredient_tree = []
+
+#     for ingredient in ingredient_list:
+#         if isinstance(ingredient, list):
+#             has_options = True
+#             (
+#                 return_type,
+#                 new_ingredient_tree,
+#                 node_has_circular_ref,
+#             ) = create_ingredient_tree(
+#                 curr_item_name,
+#                 ingredient,
+#                 ancestors,
+#                 recipe_multiplier,
+#                 all_recipes,
+#                 all_item_tags,
+#                 supported_recipe_results,
+#             )
+
+#             if return_type == "return":
+#                 return return_type, new_ingredient_tree, node_has_circular_ref
+
+#             tmp_ingredient_tree += new_ingredient_tree
+
+#         else:
+#             has_options = False
+#             if ingredient["name"] in ancestors:
+#                 return (
+#                     "return",
+#                     {
+#                         "error": True,
+#                         "type": ERROR_CIRCULAR_REF,
+#                         "data": ingredient["name"],
+#                     },
+#                     node_has_circular_ref,
+#                 )
+
+#             ingredient["amount_required"] *= recipe_multiplier
+#             new_recipe_tree = create_recipe_tree(
+#                 all_recipes,
+#                 all_item_tags,
+#                 supported_recipe_results,
+#                 items=[ingredient],
+#                 ancestors=new_ancestors,
+#             )
+
+#             if isinstance(new_recipe_tree, list):
+#                 tmp_ingredient_tree += new_recipe_tree
+#                 continue
+
+#             if (
+#                 new_recipe_tree.get("error")
+#                 and new_recipe_tree.get("type") == ERROR_CIRCULAR_REF
+#             ):
+#                 if new_recipe_tree.get("data") == curr_item_name:
+#                     node_has_circular_ref = True
+#                     break
+#                 else:
+#                     return "return", new_recipe_tree, node_has_circular_ref
+
+#         if node_has_circular_ref:
+#             break
+
+#     if has_options:
+#         ingredient_recipe_tree.append(tmp_ingredient_tree)
+#     else:
+#         ingredient_recipe_tree += tmp_ingredient_tree
+
+#     return "continue", ingredient_recipe_tree, node_has_circular_ref
+
+
 def create_shopping_list(tree, path, parent_node=None, shopping_list=None):
     if shopping_list is None:
         shopping_list = {}
@@ -449,8 +538,20 @@ def create_shopping_list(tree, path, parent_node=None, shopping_list=None):
         if node["num_recipes"] == 0:
             continue
 
-        # TODO: Add support for choosing recipe
-        chosen_recipe = node["recipes"][0]
+        if node_name in path:
+            chosen_recipe_name = path[node_name]["recipe"]
+            chosen_recipe = None
+            for recipe in node["recipes"]:
+                if recipe["name"] == chosen_recipe_name:
+                    chosen_recipe = recipe
+                    break
+        else:
+            chosen_recipe = node["recipes"][0]
+
+        if chosen_recipe is None:
+            print("Ooops! An invalid recipe was chosen")
+            continue
+
         recipe_amount_created = chosen_recipe.get("amount_created", 0)
         shopping_list[node_name]["amount_recipe_creates"] = chosen_recipe.get(
             "recipe_result_count"
@@ -462,17 +563,36 @@ def create_shopping_list(tree, path, parent_node=None, shopping_list=None):
         shopping_list[node_name]["amount_created"] = amount_created
         shopping_list[node_name]["amount_remaining"] = amount_created - missing_amount
 
+        path_ingredients = path.get(node_name, {}).get("ingredients", [])
         ingredients = chosen_recipe["ingredients"]
-        for ingredient in ingredients:
+
+        for idx, ingredient in enumerate(ingredients):
+            ingredient_item = None
+            ingredient_in_path = idx < len(path_ingredients)
+            if ingredient_in_path:
+                new_path = path_ingredients[idx]
+            else:
+                new_path = {}.copy()
+
             if isinstance(ingredient, list):
-                # TODO: Add support for choosing ingredient
-                ingredient_item = ingredient[0]
+                if ingredient_in_path and path_ingredients[idx] is not None:
+                    path_ingredient = list(path_ingredients[idx].keys())
+                    chosen_ingredient = path_ingredient[0]
+                    for nested_ingredient in ingredient:
+                        if nested_ingredient["name"] == chosen_ingredient:
+                            ingredient_item = nested_ingredient
+                else:
+                    ingredient_item = ingredient[0]
             else:
                 ingredient_item = ingredient
 
+            if ingredient_item is None:
+                print("Ooops! There is no ingredient_item")
+                continue
+
             new_shopping_list = create_shopping_list(
                 [ingredient_item],
-                path,
+                new_path,
                 parent_node=node_name,
                 shopping_list=shopping_list,
             )
@@ -504,7 +624,20 @@ def main():
     with open(recipe_tree_file, "w") as write_file:
         json.dump(recipe_tree, write_file, indent=4, sort_keys=False)
 
-    path = []
+    path = {
+        "torch": {
+            "recipe": "torch",
+            "ingredients": [
+                {
+                    "charcoal": {
+                        "recipe": "charcoal",
+                        "ingredients": [{"oak_logs": {}}],
+                    }
+                },
+                {"stick": {"recipe": "stick_from_bamboo_item"}},
+            ],
+        },
+    }
     shopping_list = create_shopping_list(recipe_tree, path)
     shopping_list_file = SHOPPING_LIST_OUTPUT_FILE.format(version=version)
     with open(shopping_list_file, "w") as write_file:
