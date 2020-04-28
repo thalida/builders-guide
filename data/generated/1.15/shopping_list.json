@@ -308,9 +308,20 @@
         "amount_recipe_creates": 1,
         "total_created": 16
     },
-    "carpets": {
+    "white_carpet": {
         "amount_required": 15,
         "amount_used_for": {},
+        "amount_available": 0,
+        "started_with": 0,
+        "has_recipe": true,
+        "amount_recipe_creates": 3,
+        "total_created": 15
+    },
+    "white_wool": {
+        "amount_required": 11,
+        "amount_used_for": {
+            "white_carpet": 10
+        },
         "amount_available": 0,
         "started_with": 0,
         "has_recipe": false
@@ -469,13 +480,6 @@
         "has_recipe": false
     },
     "spruce_sapling": {
-        "amount_required": 1,
-        "amount_used_for": {},
-        "amount_available": 0,
-        "started_with": 0,
-        "has_recipe": false
-    },
-    "white_wool": {
         "amount_required": 1,
         "amount_used_for": {},
         "amount_available": 0,

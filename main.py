@@ -264,7 +264,7 @@ def get_ingredients(recipe, all_item_tags):
     return ingredients
 
 
-def get_tag_values(tag, all_item_tags):
+def get_tag_values(tag, all_item_tags, amount_required=None):
     found_values = []
     tag_name = parse_item_name(tag)
     ingredients = all_item_tags[tag_name]["values"]
@@ -272,9 +272,14 @@ def get_tag_values(tag, all_item_tags):
     for ingredient in ingredients:
         is_tag = is_tag_name(ingredient)
         if is_tag:
-            found_values += get_tag_values(ingredient, all_item_tags)
+            found_values += get_tag_values(
+                ingredient, all_item_tags, amount_required=amount_required
+            )
         else:
-            found_values.append({"item": ingredient, "group": tag_name})
+            item = {"item": ingredient, "group": tag_name}
+            if amount_required is not None:
+                item["amount_required"] = amount_required
+            found_values.append(item)
 
     return found_values
 
@@ -369,7 +374,12 @@ def is_recipe_error(result):
 
 
 def create_resource_tree(
-    all_recipes, all_item_tags, supported_recipe_results, items, ancestors=None,
+    all_recipes,
+    all_item_tags,
+    supported_recipe_results,
+    items,
+    ancestors=None,
+    force_parse=False,
 ):
 
     if ancestors is None:
@@ -378,8 +388,34 @@ def create_resource_tree(
     tree = []
 
     for item in items:
-        curr_item_name = item["name"]
+        if (isinstance(item, dict) and item.get("tag") is not None) or isinstance(
+            item, list
+        ):
+            if isinstance(item, dict):
+                amount_required = item.get("amount_required", 1)
+            else:
+                amount_required = 1
 
+            if force_parse:
+                nested_items = parse_recipe_ingredients(
+                    item, all_item_tags, force_amount_required=amount_required
+                )
+            else:
+                nested_items = item
+            nested_tree = create_resource_tree(
+                all_recipes,
+                all_item_tags,
+                supported_recipe_results,
+                nested_items,
+                ancestors=ancestors,
+            )
+            if isinstance(item, dict):
+                tree += nested_tree
+            else:
+                tree.append(nested_tree)
+            continue
+
+        curr_item_name = item["name"]
         if curr_item_name in ancestors:
             return {
                 "error": True,
@@ -510,6 +546,18 @@ def create_shopping_list(
         have_already = {}
 
     for node in tree:
+        if isinstance(node, list):
+            chosen_node = node[0]
+            new_shopping_list = create_shopping_list(
+                [chosen_node],
+                path=path,
+                parent_node=parent_node,
+                shopping_list=shopping_list,
+                have_already=have_already,
+            )
+            shopping_list.update(new_shopping_list)
+            continue
+
         node_name = node["name"]
         amount_required = node["amount_required"]
 
@@ -682,9 +730,11 @@ def main():
         "data/input1.txt", all_recipes, all_items, all_item_tags, version
     )
     requested_items = response["nodes"]
-    print(requested_items)
     errors = response["errors"]
     pprint(errors)
+
+    # requested_items = [[{"item": "coal"}, {"item": "charcoal"}, {"tag": "planks"}]]
+    # requested_items = [{"tag": "planks"}]
 
     # requested_items = [
     #     {"name": "torch", "amount_required": 1},
@@ -701,7 +751,11 @@ def main():
     # ]
     # requested_items = [{"name": item_name} for item_name in supported_result_names]
     recipe_tree = create_resource_tree(
-        all_recipes, all_item_tags, supported_recipe_results, requested_items
+        all_recipes,
+        all_item_tags,
+        supported_recipe_results,
+        requested_items,
+        force_parse=True,
     )
     recipe_tree_file = RECIPE_TREE_OUTPUT_FILE.format(version=version)
     with open(recipe_tree_file, "w") as write_file:
