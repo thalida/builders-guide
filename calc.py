@@ -9,13 +9,17 @@ import glob
 import json
 from collections import defaultdict
 import math
+import re
 
 MINECRAFT_DATA_DIR = "data/minecraft"
+ITEM_FILES_DIR = "data/minecraft/{version}/models/item/*"
 RECIPES_FILES_DIR = "data/minecraft/{version}/recipes/*"
 ITEM_TAGS_FILES_DIR = "data/minecraft/{version}/tags/items/*"
 CALCULATOR_DATA_DIR = "data/calculator"
 CALCULATOR_RECIPES_FILES_DIR = "data/calculator/{version}/recipes/*"
+ITEM_MAPPINGS_FILE = "data/calculator/{version}/item_mappings.json"
 
+ALL_ITEMS_FILE = "data/generated/{version}/all_items.json"
 ALL_RECIPES_FILE = "data/generated/{version}/all_recipes.json"
 ALL_ITEM_TAGS_FILE = "data/generated/{version}/all_item_tags.json"
 RECIPE_TREE_OUTPUT_FILE = "data/generated/{version}/recipe_tree.json"
@@ -23,6 +27,11 @@ SHOPPING_LIST_OUTPUT_FILE = "data/generated/{version}/shopping_list.json"
 
 UNKNOWN_RESULT = "result:unknown"
 ERROR_CIRCULAR_REF = "error_circular_ref_on"
+
+ITEM_LIST_REGEX = (
+    r"^(?P<amount1>[\d,]+)?(.*?)(?P<name>[A-Za-z\-_ ]+)(.*?)(?P<amount2>[\d,]+)?$"
+)
+WORD_SEPERATORS_REGEX = r"[\W_]+"
 
 
 def is_tag_name(orig_item_name):
@@ -38,6 +47,63 @@ def get_filename_from_path(fullpath):
     filename = os.path.splitext(base)[0]
 
     return filename
+
+
+def fetch_item_mappings(version):
+    item_mappings = {}
+    try:
+        target_file = ITEM_MAPPINGS_FILE.format(version=version)
+        with open(target_file, "r") as f:
+            data = f.read()
+            item_mappings = json.loads(data)
+    except Exception:
+        # print(traceback.print_exc())
+        pass
+
+    return item_mappings
+
+
+def fetch_all_items(version, force_create=False):
+    if force_create:
+        return create_all_items(version)
+
+    items = {}
+    try:
+        target_file = ALL_ITEMS_FILE.format(version=version)
+        with open(target_file, "r") as f:
+            data = f.read()
+
+            try:
+                items = json.loads(data)
+            except Exception:
+                raise
+
+    except Exception:
+        # print(traceback.print_exc())
+        recipes = create_all_recipes(version)
+
+    return recipes
+
+
+def create_all_items(version):
+    print("CREATING ALL ITEMS FROM FILE SYSTEM")
+
+    items = {}
+    items_file_dir = ITEM_FILES_DIR.format(version=version)
+    item_files = glob.glob(items_file_dir)
+    for filepath in item_files:
+        with open(filepath, "r") as f:
+            data = f.read()
+            item_data = json.loads(data)
+            filename = get_filename_from_path(filepath)
+            items[filename] = item_data
+
+    target_file = ALL_ITEMS_FILE.format(version=version)
+    os.makedirs(os.path.dirname(target_file), exist_ok=True)
+    with open(target_file, "w") as write_file:
+        json.dump(items, write_file)
+
+    return items
 
 
 def fetch_all_recipes(version, force_create=False):
@@ -539,30 +605,89 @@ def create_shopping_list(
     return shopping_list
 
 
+def load_items_from_file(input_file, all_recipes, all_items, version):
+    nodes = []
+    no_name_lines = []
+    no_recipe_lines = []
+    not_item_lines = []
+    item_mappings = fetch_item_mappings(version=version)
+
+    try:
+        with open(input_file, "r") as f:
+            lines = f.readlines()
+
+            for line in lines:
+                matches = re.match(ITEM_LIST_REGEX, line, re.MULTILINE | re.IGNORECASE)
+                groups = matches.groupdict()
+
+                if groups.get("name") is None:
+                    no_name_lines.append(line)
+                    continue
+
+                if groups.get("amount1") is not None:
+                    amount = groups.get("amount1")
+                elif groups.get("amount2") is not None:
+                    amount = groups.get("amount2")
+                else:
+                    amount = 1
+
+                amount = int(amount)
+                name_parts = re.split(WORD_SEPERATORS_REGEX, groups.get("name"))
+                name_parts = [word for word in name_parts if len(word) > 0]
+                name = "_".join(name_parts).lower()
+                name = item_mappings.get(name, name)
+                node = {"name": name, "amount_required": amount}
+                nodes.append(node)
+
+                if all_recipes.get(name) is None:
+                    no_recipe_lines.append(node)
+
+                if all_items.get(name) is None:
+                    not_item_lines.append(node)
+
+    except Exception:
+        print(traceback.print_exc())
+
+    return {
+        "nodes": nodes,
+        "errors": {
+            "no_name_lines": no_name_lines,
+            "no_recipe_lines": no_recipe_lines,
+            "not_item_lines": not_item_lines,
+        },
+    }
+
+
 def main():
     version = 1.15
+    all_items = fetch_all_items(version=version, force_create=True)
     all_recipes = fetch_all_recipes(version=version, force_create=True)
     all_item_tags = fetch_all_item_tags(version=version, force_create=True)
     supported_recipe_results = get_supported_recipe_results(recipes=all_recipes)
     supported_result_names = list(supported_recipe_results.keys())
     supported_result_names.sort()
 
-    nodes = [
-        {"name": "torch", "amount_required": 1},
-        {"name": "light_blue_concrete_powder", "amount_required": 2},
-        {"name": "red_bed", "amount_required": 3},
-        {"name": "blue_dye", "amount_required": 4},
-        {"name": "purple_stained_glass_pane", "amount_required": 5},
-    ]
-    # nodes = [
+    response = load_items_from_file("data/input2.txt", all_recipes, all_items, version)
+    requested_items = response["nodes"]
+    errors = response["errors"]
+    pprint(errors)
+
+    # requested_items = [
+    #     {"name": "torch", "amount_required": 1},
+    #     {"name": "light_blue_concrete_powder", "amount_required": 2},
+    #     {"name": "red_bed", "amount_required": 3},
+    #     {"name": "blue_dye", "amount_required": 4},
+    #     {"name": "purple_stained_glass_pane", "amount_required": 5},
+    # ]
+    # requested_items = [
     #     {"name": "observer", "amount_required": 8},
     #     {"name": "redstone", "amount_required": 3},
     #     {"name": "comparator", "amount_required": 2},
     #     {"name": "hopper", "amount_required": 5},
     # ]
-    # nodes = [{"name": item_name} for item_name in supported_result_names]
+    # requested_items = [{"name": item_name} for item_name in supported_result_names]
     recipe_tree = create_recipe_tree(
-        all_recipes, all_item_tags, supported_recipe_results, nodes
+        all_recipes, all_item_tags, supported_recipe_results, requested_items
     )
     recipe_tree_file = RECIPE_TREE_OUTPUT_FILE.format(version=version)
     with open(recipe_tree_file, "w") as write_file:
