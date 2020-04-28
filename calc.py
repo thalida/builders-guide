@@ -208,7 +208,7 @@ def get_tag_values(tag, all_item_tags):
         if is_tag:
             found_values += get_tag_values(ingredient, all_item_tags)
         else:
-            found_values.append(ingredient)
+            found_values.append({"item": ingredient, "group": tag_name})
 
     return found_values
 
@@ -267,6 +267,7 @@ def parse_recipe_ingredients(
 
         if isinstance(ingredient, dict):
             item = ingredient.get("item")
+            group = ingredient.get("group")
         else:
             item = ingredient
 
@@ -285,6 +286,9 @@ def parse_recipe_ingredients(
                 }
             else:
                 found_ingredients[name]["amount_required"] += 1
+
+        if group is not None:
+            found_ingredients[name]["group"] = group
 
     collected_ingredients = list(found_ingredients.values()) + collected_ingredients
 
@@ -320,6 +324,7 @@ def create_recipe_tree(
         amount_required = item.get("amount_required", 1)
         node = {
             "name": curr_item_name,
+            "group": item.get("group"),
             "amount_required": amount_required,
             "num_recipes": 0,
             "recipes": [],
@@ -542,19 +547,19 @@ def main():
     supported_result_names = list(supported_recipe_results.keys())
     supported_result_names.sort()
 
-    # nodes = [
-    #     {"name": "torch", "amount_required": 1},
-    #     {"name": "light_blue_concrete_powder", "amount_required": 2},
-    #     {"name": "red_bed", "amount_required": 3},
-    #     {"name": "blue_dye", "amount_required": 4},
-    #     {"name": "purple_stained_glass_pane", "amount_required": 5},
-    # ]
     nodes = [
-        {"name": "observer", "amount_required": 8},
-        {"name": "redstone", "amount_required": 3},
-        {"name": "comparator", "amount_required": 2},
-        {"name": "hopper", "amount_required": 5},
+        {"name": "torch", "amount_required": 1},
+        {"name": "light_blue_concrete_powder", "amount_required": 2},
+        {"name": "red_bed", "amount_required": 3},
+        {"name": "blue_dye", "amount_required": 4},
+        {"name": "purple_stained_glass_pane", "amount_required": 5},
     ]
+    # nodes = [
+    #     {"name": "observer", "amount_required": 8},
+    #     {"name": "redstone", "amount_required": 3},
+    #     {"name": "comparator", "amount_required": 2},
+    #     {"name": "hopper", "amount_required": 5},
+    # ]
     # nodes = [{"name": item_name} for item_name in supported_result_names]
     recipe_tree = create_recipe_tree(
         all_recipes, all_item_tags, supported_recipe_results, nodes
