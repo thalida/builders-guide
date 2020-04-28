@@ -605,7 +605,7 @@ def create_shopping_list(
     return shopping_list
 
 
-def load_items_from_file(input_file, all_recipes, all_items, version):
+def load_items_from_file(input_file, all_recipes, all_items, all_item_tags, version):
     nodes = []
     no_name_found = []
     no_recipe_found = []
@@ -636,14 +636,25 @@ def load_items_from_file(input_file, all_recipes, all_items, version):
                 name_parts = [word for word in name_parts if len(word) > 0]
                 name = "_".join(name_parts).lower()
                 name = item_mappings.get(name, name)
-                node = {"name": name, "amount_required": amount}
-                nodes.append(node)
 
                 if all_recipes.get(name) is None:
-                    no_recipe_found.append(node)
+                    no_recipe_found.append(name)
 
                 if all_items.get(name) is None:
-                    no_item_found.append(node)
+                    no_item_found.append(name)
+
+                node = {"amount_required": amount}
+
+                if (
+                    all_recipes.get(name) is None
+                    and all_item_tags.get(name) is not None
+                ):
+                    node["tag"] = name
+                    node["name"] = name
+                else:
+                    node["name"] = name
+
+                nodes.append(node)
 
     except Exception:
         print(traceback.print_exc())
@@ -667,8 +678,11 @@ def main():
     supported_result_names = list(supported_recipe_results.keys())
     supported_result_names.sort()
 
-    response = load_items_from_file("data/input2.txt", all_recipes, all_items, version)
+    response = load_items_from_file(
+        "data/input1.txt", all_recipes, all_items, all_item_tags, version
+    )
     requested_items = response["nodes"]
+    print(requested_items)
     errors = response["errors"]
     pprint(errors)
 
