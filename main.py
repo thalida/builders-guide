@@ -368,7 +368,7 @@ def is_recipe_error(result):
     return isinstance(result, dict) and result.get("error")
 
 
-def create_recipe_tree(
+def create_resource_tree(
     all_recipes, all_item_tags, supported_recipe_results, items, ancestors=None,
 ):
 
@@ -477,7 +477,7 @@ def create_ingredient_tree(
         else:
             is_nested_ingredient = False
             ingredient["amount_required"] *= recipe_multiplier
-            response = create_recipe_tree(
+            response = create_resource_tree(
                 all_recipes,
                 all_item_tags,
                 supported_recipe_results,
@@ -700,7 +700,7 @@ def main():
     #     {"name": "hopper", "amount_required": 5},
     # ]
     # requested_items = [{"name": item_name} for item_name in supported_result_names]
-    recipe_tree = create_recipe_tree(
+    recipe_tree = create_resource_tree(
         all_recipes, all_item_tags, supported_recipe_results, requested_items
     )
     recipe_tree_file = RECIPE_TREE_OUTPUT_FILE.format(version=version)
