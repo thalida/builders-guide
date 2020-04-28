@@ -1,0 +1,9 @@
+{
+  "type": "calculator:naturally_occurring",
+  "ingredient": {
+    "item": "minecraft:quartz"
+  },
+  "result": {
+    "item": "minecraft:quartz"
+  }
+}

@@ -10,9 +10,10 @@ import json
 from collections import defaultdict
 import math
 
+MINECRAFT_DATA_DIR = "data/minecraft"
 RECIPES_FILES_DIR = "data/minecraft/{version}/recipes/*"
 ITEM_TAGS_FILES_DIR = "data/minecraft/{version}/tags/items/*"
-
+CALCULATOR_DATA_DIR = "data/calculator"
 CALCULATOR_RECIPES_FILES_DIR = "data/calculator/{version}/recipes/*"
 
 ALL_RECIPES_FILE = "data/generated/{version}/all_recipes.json"
@@ -73,16 +74,18 @@ def create_all_recipes(version):
 
     all_recipe_files = calculator_recipe_files + recipe_files
     for filepath in all_recipe_files:
+        prefix = "calculator-" if CALCULATOR_DATA_DIR in filepath else ""
         with open(filepath, "r") as f:
             data = f.read()
             recipe_data = json.loads(data)
             filename = get_filename_from_path(filepath)
+            recipe_name = prefix + filename
 
             recipe_result = recipe_data.get("result")
             if isinstance(recipe_result, str):
                 recipe_data["result"] = {"item": recipe_result}
 
-            recipes[filename] = recipe_data
+            recipes[recipe_name] = recipe_data
 
     target_file = ALL_RECIPES_FILE.format(version=version)
     os.makedirs(os.path.dirname(target_file), exist_ok=True)
@@ -423,59 +426,74 @@ def create_ingredient_tree(
     return ingredient_tree
 
 
-def create_shopping_list(tree, path={}, parent_node=None, shopping_list=None):
+def create_shopping_list(
+    tree, path=None, have_already=None, parent_node=None, shopping_list=None
+):
     if shopping_list is None:
         shopping_list = {}
+
+    if path is None:
+        path = {}
+
+    if have_already is None:
+        have_already = {}
 
     for node in tree:
         node_name = node["name"]
         amount_required = node["amount_required"]
 
         if node_name not in shopping_list:
+            amount_available = have_already.get(node_name, 0)
             shopping_list[node_name] = {
                 "amount_required": 0,
                 "amount_used_for": {},
-                "amount_recipe_creates": None,
+                "amount_available": amount_available,
+                "started_with": amount_available,
+                "has_recipe": node["num_recipes"] > 0,
             }
 
         if parent_node:
             shopping_list[node_name]["amount_used_for"][parent_node] = amount_required
 
-        have_amount = shopping_list[node_name].get("amount_remaining", 0)
-        amount_remaining = have_amount - amount_required
+        have_amount = shopping_list[node_name].get("amount_available", 0)
+        amount_available = have_amount - amount_required
         shopping_list[node_name]["amount_required"] += amount_required
 
-        if amount_remaining >= 0:
-            shopping_list[node_name]["amount_remaining"] = amount_remaining
+        if amount_available >= 0:
+            shopping_list[node_name]["amount_available"] = amount_available
             continue
 
         if node["num_recipes"] == 0:
             continue
 
+        chosen_recipe = None
         if node_name in path:
             chosen_recipe_name = path[node_name]["recipe"]
-            chosen_recipe = None
             for recipe in node["recipes"]:
                 if recipe["name"] == chosen_recipe_name:
                     chosen_recipe = recipe
                     break
-        else:
-            chosen_recipe = node["recipes"][0]
 
         if chosen_recipe is None:
-            print("Ooops! An invalid recipe was chosen")
-            continue
+            chosen_recipe = node["recipes"][0]
 
         recipe_amount_created = chosen_recipe.get("amount_created", 0)
-        shopping_list[node_name]["amount_recipe_creates"] = chosen_recipe.get(
-            "recipe_result_count"
-        )
+        recipe_result_count = chosen_recipe.get("recipe_result_count")
 
-        missing_amount = abs(amount_remaining)
+        if recipe_result_count is not None:
+            shopping_list[node_name]["amount_recipe_creates"] = chosen_recipe.get(
+                "recipe_result_count"
+            )
+
+        missing_amount = abs(amount_available)
         recipe_multiplier = math.ceil(missing_amount / recipe_amount_created)
         amount_created = recipe_amount_created * recipe_multiplier
-        shopping_list[node_name]["amount_created"] = amount_created
-        shopping_list[node_name]["amount_remaining"] = amount_created - missing_amount
+
+        if "total_created" not in shopping_list[node_name]:
+            shopping_list[node_name]["total_created"] = 0
+
+        shopping_list[node_name]["total_created"] += amount_created
+        shopping_list[node_name]["amount_available"] = amount_created - missing_amount
 
         path_ingredients = path.get(node_name, {}).get("ingredients", [])
         ingredients = chosen_recipe["ingredients"]
@@ -488,27 +506,28 @@ def create_shopping_list(tree, path={}, parent_node=None, shopping_list=None):
             else:
                 new_path = {}.copy()
 
-            if isinstance(ingredient, list):
-                if ingredient_in_path and path_ingredients[idx] is not None:
-                    path_ingredient = list(path_ingredients[idx].keys())
-                    chosen_ingredient = path_ingredient[0]
-                    for nested_ingredient in ingredient:
-                        if nested_ingredient["name"] == chosen_ingredient:
-                            ingredient_item = nested_ingredient
-                else:
-                    ingredient_item = ingredient[0]
-            else:
+            if (
+                isinstance(ingredient, list)
+                and ingredient_in_path
+                and path_ingredients[idx] is not None
+            ):
+                path_ingredient = list(path_ingredients[idx].keys())
+                chosen_ingredient = path_ingredient[0]
+                for nested_ingredient in ingredient:
+                    if nested_ingredient["name"] == chosen_ingredient:
+                        ingredient_item = nested_ingredient
+            elif isinstance(ingredient, dict):
                 ingredient_item = ingredient
 
             if ingredient_item is None:
-                print("Ooops! There is no ingredient_item for", ingredient)
-                continue
+                ingredient_item = ingredient[0]
 
             new_shopping_list = create_shopping_list(
                 [ingredient_item],
-                new_path,
+                path=new_path,
                 parent_node=node_name,
                 shopping_list=shopping_list,
+                have_already=have_already,
             )
             shopping_list.update(new_shopping_list)
 
@@ -523,20 +542,26 @@ def main():
     supported_result_names = list(supported_recipe_results.keys())
     supported_result_names.sort()
 
+    # nodes = [
+    #     {"name": "torch", "amount_required": 1},
+    #     {"name": "light_blue_concrete_powder", "amount_required": 2},
+    #     {"name": "red_bed", "amount_required": 3},
+    #     {"name": "blue_dye", "amount_required": 4},
+    #     {"name": "purple_stained_glass_pane", "amount_required": 5},
+    # ]
     nodes = [
-        {"name": "torch", "amount_required": 1},
-        {"name": "light_blue_concrete_powder", "amount_required": 2},
-        {"name": "red_bed", "amount_required": 3},
-        {"name": "blue_dye", "amount_required": 4},
-        {"name": "purple_stained_glass_pane", "amount_required": 5},
+        {"name": "observer", "amount_required": 8},
+        {"name": "redstone", "amount_required": 3},
+        {"name": "comparator", "amount_required": 2},
+        {"name": "hopper", "amount_required": 5},
     ]
     # nodes = [{"name": item_name} for item_name in supported_result_names]
-    new_recipe_tree = create_recipe_tree(
+    recipe_tree = create_recipe_tree(
         all_recipes, all_item_tags, supported_recipe_results, nodes
     )
     recipe_tree_file = RECIPE_TREE_OUTPUT_FILE.format(version=version)
     with open(recipe_tree_file, "w") as write_file:
-        json.dump(new_recipe_tree, write_file, indent=4, sort_keys=False)
+        json.dump(recipe_tree, write_file, indent=4, sort_keys=False)
 
     path = {
         "torch": {
@@ -547,8 +572,13 @@ def main():
             ],
         },
     }
+    have_already = {
+        "oak_log": 5,
+    }
     # path = {}
-    shopping_list = create_shopping_list(new_recipe_tree, path)
+    shopping_list = create_shopping_list(
+        recipe_tree, path=path, have_already=have_already
+    )
     shopping_list_file = SHOPPING_LIST_OUTPUT_FILE.format(version=version)
     with open(shopping_list_file, "w") as write_file:
         json.dump(shopping_list, write_file, indent=4, sort_keys=False)

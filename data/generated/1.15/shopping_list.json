@@ -1,179 +1,133 @@
 {
-    "torch": {
-        "amount_required": 1,
+    "observer": {
+        "amount_required": 8,
         "amount_used_for": {},
-        "amount_recipe_creates": 4,
-        "amount_created": 4,
-        "amount_remaining": 3
-    },
-    "charcoal": {
-        "amount_required": 1,
-        "amount_used_for": {
-            "torch": 1
-        },
+        "amount_available": 0,
+        "started_with": 0,
+        "has_recipe": true,
         "amount_recipe_creates": 1,
-        "amount_created": 1,
-        "amount_remaining": 0
+        "total_created": 8
     },
-    "oak_log": {
-        "amount_required": 4,
+    "cobblestone": {
+        "amount_required": 54,
         "amount_used_for": {
-            "charcoal": 1,
-            "oak_planks": 3
+            "observer": 48,
+            "stone": 6
         },
-        "amount_recipe_creates": null
+        "amount_available": 0,
+        "started_with": 0,
+        "has_recipe": false
     },
-    "stick": {
-        "amount_required": 1,
+    "redstone": {
+        "amount_required": 25,
         "amount_used_for": {
-            "torch": 1
+            "observer": 16,
+            "redstone_torch": 6
         },
-        "amount_recipe_creates": 1,
-        "amount_created": 1,
-        "amount_remaining": 0
+        "amount_available": 0,
+        "started_with": 0,
+        "has_recipe": false
     },
-    "bamboo": {
-        "amount_required": 2,
-        "amount_used_for": {
-            "stick": 2
-        },
-        "amount_recipe_creates": null
-    },
-    "light_blue_concrete_powder": {
-        "amount_required": 2,
-        "amount_used_for": {},
-        "amount_recipe_creates": 8,
-        "amount_created": 8,
-        "amount_remaining": 6
-    },
-    "light_blue_dye": {
-        "amount_required": 1,
-        "amount_used_for": {
-            "light_blue_concrete_powder": 1
-        },
-        "amount_recipe_creates": 1,
-        "amount_created": 1,
-        "amount_remaining": 0
-    },
-    "blue_orchid": {
-        "amount_required": 1,
-        "amount_used_for": {
-            "light_blue_dye": 1
-        },
-        "amount_recipe_creates": null
-    },
-    "sand": {
-        "amount_required": 12,
-        "amount_used_for": {
-            "light_blue_concrete_powder": 4,
-            "glass": 8
-        },
-        "amount_recipe_creates": null
-    },
-    "gravel": {
-        "amount_required": 4,
-        "amount_used_for": {
-            "light_blue_concrete_powder": 4
-        },
-        "amount_recipe_creates": null
-    },
-    "red_bed": {
-        "amount_required": 3,
-        "amount_used_for": {},
-        "amount_recipe_creates": 1,
-        "amount_created": 3,
-        "amount_remaining": 0
-    },
-    "red_wool": {
-        "amount_required": 9,
-        "amount_used_for": {
-            "red_bed": 9
-        },
-        "amount_recipe_creates": 1,
-        "amount_created": 9,
-        "amount_remaining": 0
-    },
-    "red_dye": {
+    "quartz": {
         "amount_required": 10,
         "amount_used_for": {
-            "red_wool": 9,
-            "purple_dye": 1
+            "observer": 8,
+            "comparator": 2
         },
-        "amount_recipe_creates": 2,
-        "amount_created": 10,
-        "amount_remaining": 0
+        "amount_available": 0,
+        "started_with": 0,
+        "has_recipe": false
     },
-    "rose_bush": {
-        "amount_required": 5,
-        "amount_used_for": {
-            "red_dye": 5
-        },
-        "amount_recipe_creates": null
-    },
-    "white_wool": {
-        "amount_required": 9,
-        "amount_used_for": {
-            "red_wool": 9
-        },
-        "amount_recipe_creates": null
-    },
-    "oak_planks": {
-        "amount_required": 9,
-        "amount_used_for": {
-            "red_bed": 9
-        },
-        "amount_recipe_creates": 4,
-        "amount_created": 12,
-        "amount_remaining": 3
-    },
-    "blue_dye": {
-        "amount_required": 5,
-        "amount_used_for": {
-            "purple_dye": 1
-        },
-        "amount_recipe_creates": 1,
-        "amount_created": 1,
-        "amount_remaining": 0
-    },
-    "lapis_lazuli": {
-        "amount_required": 5,
-        "amount_used_for": {
-            "blue_dye": 1
-        },
-        "amount_recipe_creates": null
-    },
-    "purple_stained_glass_pane": {
-        "amount_required": 5,
+    "comparator": {
+        "amount_required": 2,
         "amount_used_for": {},
-        "amount_recipe_creates": 16,
-        "amount_created": 16,
-        "amount_remaining": 11
+        "amount_available": 0,
+        "started_with": 0,
+        "has_recipe": true,
+        "amount_recipe_creates": 1,
+        "total_created": 2
     },
-    "purple_stained_glass": {
+    "redstone_torch": {
         "amount_required": 6,
         "amount_used_for": {
-            "purple_stained_glass_pane": 6
+            "comparator": 6
         },
-        "amount_recipe_creates": 8,
-        "amount_created": 8,
-        "amount_remaining": 2
-    },
-    "glass": {
-        "amount_required": 8,
-        "amount_used_for": {
-            "purple_stained_glass": 8
-        },
+        "amount_available": 0,
+        "started_with": 0,
+        "has_recipe": true,
         "amount_recipe_creates": 1,
-        "amount_created": 8,
-        "amount_remaining": 0
+        "total_created": 6
     },
-    "purple_dye": {
-        "amount_required": 1,
+    "stick": {
+        "amount_required": 6,
         "amount_used_for": {
-            "purple_stained_glass": 1
+            "redstone_torch": 6
         },
-        "amount_recipe_creates": 2,
-        "amount_created": 2,
-        "amount_remaining": 1
+        "amount_available": 2,
+        "started_with": 0,
+        "has_recipe": true,
+        "amount_recipe_creates": 4,
+        "total_created": 8
+    },
+    "oak_planks": {
+        "amount_required": 44,
+        "amount_used_for": {
+            "stick": 4,
+            "chest": 40
+        },
+        "amount_available": 0,
+        "started_with": 0,
+        "has_recipe": true,
+        "amount_recipe_creates": 4,
+        "total_created": 44
+    },
+    "oak_log": {
+        "amount_required": 11,
+        "amount_used_for": {
+            "oak_planks": 10
+        },
+        "amount_available": 4,
+        "started_with": 5,
+        "has_recipe": false
+    },
+    "stone": {
+        "amount_required": 6,
+        "amount_used_for": {
+            "comparator": 6
+        },
+        "amount_available": 0,
+        "started_with": 0,
+        "has_recipe": true,
+        "amount_recipe_creates": 1,
+        "total_created": 6
+    },
+    "hopper": {
+        "amount_required": 5,
+        "amount_used_for": {},
+        "amount_available": 0,
+        "started_with": 0,
+        "has_recipe": true,
+        "amount_recipe_creates": 1,
+        "total_created": 5
+    },
+    "iron_ingot": {
+        "amount_required": 25,
+        "amount_used_for": {
+            "hopper": 25
+        },
+        "amount_available": 0,
+        "started_with": 0,
+        "has_recipe": false
+    },
+    "chest": {
+        "amount_required": 5,
+        "amount_used_for": {
+            "hopper": 5
+        },
+        "amount_available": 0,
+        "started_with": 0,
+        "has_recipe": true,
+        "amount_recipe_creates": 1,
+        "total_created": 5
     }
 }
