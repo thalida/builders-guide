@@ -607,9 +607,9 @@ def create_shopping_list(
 
 def load_items_from_file(input_file, all_recipes, all_items, version):
     nodes = []
-    no_name_lines = []
-    no_recipe_lines = []
-    not_item_lines = []
+    no_name_found = []
+    no_recipe_found = []
+    no_item_found = []
     item_mappings = fetch_item_mappings(version=version)
 
     try:
@@ -621,7 +621,7 @@ def load_items_from_file(input_file, all_recipes, all_items, version):
                 groups = matches.groupdict()
 
                 if groups.get("name") is None:
-                    no_name_lines.append(line)
+                    no_name_found.append(line)
                     continue
 
                 if groups.get("amount1") is not None:
@@ -640,10 +640,10 @@ def load_items_from_file(input_file, all_recipes, all_items, version):
                 nodes.append(node)
 
                 if all_recipes.get(name) is None:
-                    no_recipe_lines.append(node)
+                    no_recipe_found.append(node)
 
                 if all_items.get(name) is None:
-                    not_item_lines.append(node)
+                    no_item_found.append(node)
 
     except Exception:
         print(traceback.print_exc())
@@ -651,9 +651,9 @@ def load_items_from_file(input_file, all_recipes, all_items, version):
     return {
         "nodes": nodes,
         "errors": {
-            "no_name_lines": no_name_lines,
-            "no_recipe_lines": no_recipe_lines,
-            "not_item_lines": not_item_lines,
+            "no_name_found": no_name_found,
+            "no_recipe_found": no_recipe_found,
+            "no_item_found": no_item_found,
         },
     }
 
