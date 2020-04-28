@@ -309,7 +309,7 @@ def get_shaped_recipe_ingredients(recipe, all_item_tags):
 
 
 def parse_recipe_ingredients(
-    ingredients, all_item_tags, is_group=False, force_amount_required=None,
+    ingredients, all_item_tags, is_group=False, force_amount_required=None, level=0
 ):
     collected_ingredients = []
     found_ingredients = {}
@@ -321,6 +321,7 @@ def parse_recipe_ingredients(
         if isinstance(ingredient, list) or (
             isinstance(ingredient, dict) and ingredient.get("tag") is not None
         ):
+            is_group = True
             if isinstance(ingredient, dict):
                 next_ingredients = get_tag_values(ingredient.get("tag"), all_item_tags)
             else:
@@ -330,14 +331,15 @@ def parse_recipe_ingredients(
                 next_ingredients,
                 all_item_tags,
                 force_amount_required=force_amount_required,
-                is_group=True,
+                is_group=is_group,
+                level=level + 1,
             )
 
             collected_ingredients += nested_ingredients
             continue
 
         if isinstance(ingredient, dict):
-            item = ingredient.get("item")
+            item = ingredient.get("item", ingredient.get("name"))
             group = ingredient.get("group")
         else:
             item = ingredient
@@ -362,8 +364,7 @@ def parse_recipe_ingredients(
             found_ingredients[name]["group"] = group
 
     collected_ingredients = list(found_ingredients.values()) + collected_ingredients
-
-    if is_group:
+    if level == 0 and is_group:
         collected_ingredients = [collected_ingredients]
 
     return collected_ingredients
@@ -379,7 +380,7 @@ def create_resource_tree(
     supported_recipe_results,
     items,
     ancestors=None,
-    force_parse=False,
+    parse_item=False,
 ):
 
     if ancestors is None:
@@ -388,31 +389,27 @@ def create_resource_tree(
     tree = []
 
     for item in items:
-        if (isinstance(item, dict) and item.get("tag") is not None) or isinstance(
-            item, list
-        ):
-            if isinstance(item, dict):
-                amount_required = item.get("amount_required", 1)
-            else:
-                amount_required = 1
+        if isinstance(item, dict):
+            amount_required = item.get("amount_required", 1)
+        else:
+            amount_required = 1
 
-            if force_parse:
-                nested_items = parse_recipe_ingredients(
-                    item, all_item_tags, force_amount_required=amount_required
-                )
-            else:
-                nested_items = item
+        if parse_item:
+            item = parse_recipe_ingredients(
+                item, all_item_tags, force_amount_required=amount_required,
+            )
+            if len(item) == 1:
+                item = item[0]
+
+        if isinstance(item, list):
             nested_tree = create_resource_tree(
                 all_recipes,
                 all_item_tags,
                 supported_recipe_results,
-                nested_items,
+                item,
                 ancestors=ancestors,
             )
-            if isinstance(item, dict):
-                tree += nested_tree
-            else:
-                tree.append(nested_tree)
+            tree.append(nested_tree)
             continue
 
         curr_item_name = item["name"]
@@ -540,17 +537,39 @@ def create_shopping_list(
         shopping_list = {}
 
     if path is None:
-        path = {}
+        path = []
+
+    if isinstance(path, dict):
+        path = [path]
 
     if have_already is None:
         have_already = {}
 
-    for node in tree:
+    for node_idx, node in enumerate(tree):
+        node_path = {}
+        if node_idx < len(path):
+            node_path = path[node_idx]
+
         if isinstance(node, list):
-            chosen_node = node[0]
+            chosen_node = None
+            if node_path is not None:
+                node_path_names = list(node_path.keys())
+                if len(node_path_names) > 0:
+                    chosen_node_name = node_path_names[0]
+                    for nested_node in node:
+                        if not isinstance(nested_node, dict):
+                            continue
+
+                        if nested_node["name"] == chosen_node_name:
+                            chosen_node = nested_node
+                            break
+
+            if chosen_node is None:
+                chosen_node = node[0]
+
             new_shopping_list = create_shopping_list(
                 [chosen_node],
-                path=path,
+                path=list(node_path.values()),
                 parent_node=parent_node,
                 shopping_list=shopping_list,
                 have_already=have_already,
@@ -586,8 +605,8 @@ def create_shopping_list(
             continue
 
         chosen_recipe = None
-        if node_name in path:
-            chosen_recipe_name = path[node_name]["recipe"]
+        if node_name in node_path:
+            chosen_recipe_name = node_path[node_name]["recipe"]
             for recipe in node["recipes"]:
                 if recipe["name"] == chosen_recipe_name:
                     chosen_recipe = recipe
@@ -614,23 +633,23 @@ def create_shopping_list(
         shopping_list[node_name]["total_created"] += amount_created
         shopping_list[node_name]["amount_available"] = amount_created - missing_amount
 
-        path_ingredients = path.get(node_name, {}).get("ingredients", [])
+        node_path_ingredients = node_path.get(node_name, {}).get("ingredients", [])
         ingredients = chosen_recipe["ingredients"]
 
         for idx, ingredient in enumerate(ingredients):
             ingredient_item = None
-            ingredient_in_path = idx < len(path_ingredients)
+            ingredient_in_path = idx < len(node_path_ingredients)
             if ingredient_in_path:
-                new_path = path_ingredients[idx]
+                new_path = node_path_ingredients[idx]
             else:
                 new_path = {}.copy()
 
             if (
                 isinstance(ingredient, list)
                 and ingredient_in_path
-                and path_ingredients[idx] is not None
+                and node_path_ingredients[idx] is not None
             ):
-                path_ingredient = list(path_ingredients[idx].keys())
+                path_ingredient = list(node_path_ingredients[idx].keys())
                 chosen_ingredient = path_ingredient[0]
                 for nested_ingredient in ingredient:
                     if nested_ingredient["name"] == chosen_ingredient:
@@ -733,7 +752,10 @@ def main():
     errors = response["errors"]
     pprint(errors)
 
-    # requested_items = [[{"item": "coal"}, {"item": "charcoal"}, {"tag": "planks"}]]
+    # requested_items = [
+    #     {"name": "torch"},
+    #     [{"name": "coal"}, {"name": "charcoal"}, {"tag": "planks"}],
+    # ]
     # requested_items = [{"tag": "planks"}]
 
     # requested_items = [
@@ -755,21 +777,29 @@ def main():
         all_item_tags,
         supported_recipe_results,
         requested_items,
-        force_parse=True,
+        parse_item=True,
     )
     recipe_tree_file = RECIPE_TREE_OUTPUT_FILE.format(version=version)
     with open(recipe_tree_file, "w") as write_file:
         json.dump(recipe_tree, write_file, indent=4, sort_keys=False)
 
-    path = {
-        "torch": {
-            "recipe": "torch",
-            "ingredients": [
-                {"charcoal": {"recipe": "charcoal", "ingredients": [{"oak_log": {}}],}},
-                {"stick": {"recipe": "stick_from_bamboo_item"}},
-            ],
+    path = [
+        {
+            "torch": {
+                "recipe": "torch",
+                "ingredients": [
+                    {
+                        "charcoal": {
+                            "recipe": "charcoal",
+                            "ingredients": [{"oak_log": {}}],
+                        }
+                    },
+                    {"stick": {"recipe": "stick_from_bamboo_item"}},
+                ],
+            },
         },
-    }
+        {"planks": {}},
+    ]
     have_already = {
         "oak_log": 5,
     }
