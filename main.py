@@ -537,39 +537,30 @@ def create_shopping_list(
         shopping_list = {}
 
     if path is None:
-        path = []
-
-    if isinstance(path, dict):
-        path = [path]
+        path = {}
 
     if have_already is None:
         have_already = {}
 
     for node_idx, node in enumerate(tree):
-        node_path = {}
-        if node_idx < len(path):
-            node_path = path[node_idx]
+        node_path = path.get(node_idx, {})
+        has_node_path = path.get(node_idx) is not None
 
         if isinstance(node, list):
             chosen_node = None
-            if node_path is not None:
-                node_path_names = list(node_path.keys())
-                if len(node_path_names) > 0:
-                    chosen_node_name = node_path_names[0]
-                    for nested_node in node:
-                        if not isinstance(nested_node, dict):
-                            continue
-
-                        if nested_node["name"] == chosen_node_name:
-                            chosen_node = nested_node
-                            break
+            if has_node_path:
+                find_node = node_path.get("name")
+                for nested_node in node:
+                    if nested_node["name"] == find_node:
+                        chosen_node = nested_node
+                        break
 
             if chosen_node is None:
                 chosen_node = node[0]
 
             new_shopping_list = create_shopping_list(
                 [chosen_node],
-                path=list(node_path.values()),
+                path={0: node_path},
                 parent_node=parent_node,
                 shopping_list=shopping_list,
                 have_already=have_already,
@@ -605,10 +596,10 @@ def create_shopping_list(
             continue
 
         chosen_recipe = None
-        if node_name in node_path:
-            chosen_recipe_name = node_path[node_name]["recipe"]
+        if has_node_path:
+            node_path_recipe = node_path.get("recipe")
             for recipe in node["recipes"]:
-                if recipe["name"] == chosen_recipe_name:
+                if recipe["name"] == node_path_recipe:
                     chosen_recipe = recipe
                     break
 
@@ -633,27 +624,21 @@ def create_shopping_list(
         shopping_list[node_name]["total_created"] += amount_created
         shopping_list[node_name]["amount_available"] = amount_created - missing_amount
 
-        node_path_ingredients = node_path.get(node_name, {}).get("ingredients", [])
+        node_path_ingredients = node_path.get("ingredients", {})
         ingredients = chosen_recipe["ingredients"]
 
         for idx, ingredient in enumerate(ingredients):
             ingredient_item = None
-            ingredient_in_path = idx < len(node_path_ingredients)
-            if ingredient_in_path:
-                new_path = node_path_ingredients[idx]
-            else:
-                new_path = {}.copy()
 
-            if (
-                isinstance(ingredient, list)
-                and ingredient_in_path
-                and node_path_ingredients[idx] is not None
-            ):
-                path_ingredient = list(node_path_ingredients[idx].keys())
-                chosen_ingredient = path_ingredient[0]
+            ingredient_path = node_path_ingredients.get(idx, {})
+            has_ingredient_path = node_path_ingredients.get(idx) is not None
+
+            if isinstance(ingredient, list) and has_ingredient_path:
+                find_ingredient = ingredient_path["name"]
                 for nested_ingredient in ingredient:
-                    if nested_ingredient["name"] == chosen_ingredient:
+                    if nested_ingredient["name"] == find_ingredient:
                         ingredient_item = nested_ingredient
+                        break
             elif isinstance(ingredient, dict):
                 ingredient_item = ingredient
 
@@ -662,7 +647,7 @@ def create_shopping_list(
 
             new_shopping_list = create_shopping_list(
                 [ingredient_item],
-                path=new_path,
+                path={0: ingredient_path},
                 parent_node=node_name,
                 shopping_list=shopping_list,
                 have_already=have_already,
@@ -783,26 +768,35 @@ def main():
     with open(recipe_tree_file, "w") as write_file:
         json.dump(recipe_tree, write_file, indent=4, sort_keys=False)
 
-    path = [
-        {
-            "torch": {
-                "recipe": "torch",
-                "ingredients": [
-                    {
-                        "charcoal": {
-                            "recipe": "charcoal",
-                            "ingredients": [{"oak_log": {}}],
-                        }
-                    },
-                    {"stick": {"recipe": "stick_from_bamboo_item"}},
-                ],
-            },
-        },
-        {"planks": {}},
-    ]
     have_already = {
         "oak_log": 5,
     }
+    path = {
+        0: {
+            "name": "torch",
+            "recipe": "torch",
+            "ingredients": {
+                0: {
+                    "name": "charcoal",
+                    "recipe": "charcoal",
+                    "ingredients": {0: {"name": "dark_oak_log"}},
+                },
+                1: {
+                    "name": "stick",
+                    "recipe": "stick",
+                    "ingredients": {
+                        0: {
+                            "name": "dark_oak_planks",
+                            "recipe": "dark_oak_planks",
+                            "ingredients": {0: {"name": "dark_oak_log"}},
+                        }
+                    },
+                },
+            },
+        },
+        3: {"name": "orange_carpet",},
+    }
+
     # path = {}
     shopping_list = create_shopping_list(
         recipe_tree, path=path, have_already=have_already

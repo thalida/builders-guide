@@ -1,5 +1,6 @@
 torch 1
 2 light blue_concrete-powder
 Red-Bed: 3
+carpets 4
 Blue_dye - 4
 purple stained glass pane 5
