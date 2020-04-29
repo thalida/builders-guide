@@ -9,4 +9,5 @@
 - [ ] find images for all items
 - [ ] convert into proper api
 - [ ] add comments and better documentation
-- [ ] figure out what to do about groups of items ("carpet", "stained glass")
+- [x] figure out what to do about groups of items ("carpet", "stained glass")
+- [ ] add tests
