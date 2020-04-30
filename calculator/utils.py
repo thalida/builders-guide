@@ -50,7 +50,9 @@ def is_supported_recipe(recipe):
     return is_supported or is_custom
 
 
-def parse_items_from_string(input_strings, all_crafting_data):
+def parse_items_from_string(
+    input_strings, all_items, all_tags, all_recipes, item_mappings
+):
     items = []
     no_name_found = []
     no_recipe_found = []
@@ -79,20 +81,17 @@ def parse_items_from_string(input_strings, all_crafting_data):
             name_parts = re.split(WORD_SEPERATORS_REGEX, groups.get("name"))
             name_parts = [word for word in name_parts if len(word) > 0]
             name = "_".join(name_parts).lower()
-            name = all_crafting_data["item_mappings"].get(name, name)
+            name = item_mappings.get(name, name)
 
-            if all_crafting_data["recipes"].get(name) is None:
+            if all_recipes.get(name) is None:
                 no_recipe_found.append(name)
 
-            if all_crafting_data["items"].get(name) is None:
+            if all_items.get(name) is None:
                 no_item_found.append(name)
 
             item = {"amount_required": amount}
 
-            if (
-                all_crafting_data["recipes"].get(name) is None
-                and all_crafting_data["tags"].get(name) is not None
-            ):
+            if all_recipes.get(name) is None and all_tags.get(name) is not None:
                 item["tag"] = name
             else:
                 item["name"] = name

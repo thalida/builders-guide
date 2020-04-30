@@ -113,7 +113,11 @@ def api_calculate_resources(version):
         3: {"name": "orange_carpet",},
     }
     parsed_items = calculator.utils.parse_items_from_string(
-        input_strs, all_crafting_data
+        input_strs,
+        all_items=all_crafting_data["items"],
+        all_tags=all_crafting_data["tags"],
+        all_recipes=all_crafting_data["recipes"],
+        item_mappings=all_crafting_data["item_mappings"],
     )
     requested_items = parsed_items["items"]
 
@@ -141,10 +145,10 @@ def api_calculate_resources(version):
     # ]
 
     recipe_tree = calculator.calculator.create_recipe_tree(
-        all_crafting_data["recipes"],
-        all_crafting_data["tags"],
-        all_crafting_data["supported_recipes"],
         requested_items,
+        all_recipes=all_crafting_data["recipes"],
+        all_tags=all_crafting_data["tags"],
+        supported_recipes=all_crafting_data["supported_recipes"],
         force_format_items=True,
     )
 

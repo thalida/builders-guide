@@ -134,10 +134,10 @@ def is_recipe_error(result):
 
 
 def create_recipe_tree(
+    items,
     all_recipes,
     all_tags,
     supported_recipes,
-    items,
     ancestors=None,
     force_format_items=False,
 ):
@@ -162,7 +162,11 @@ def create_recipe_tree(
 
         if isinstance(item, list):
             nested_tree = create_recipe_tree(
-                all_recipes, all_tags, supported_recipes, item, ancestors=ancestors,
+                item,
+                all_recipes=all_recipes,
+                all_tags=all_tags,
+                supported_recipes=supported_recipes,
+                ancestors=ancestors,
             )
             tree.append(nested_tree)
             continue
@@ -265,10 +269,10 @@ def create_ingredient_tree(
             is_nested_ingredient = False
             ingredient["amount_required"] *= recipe_multiplier
             response = create_recipe_tree(
-                all_recipes,
-                all_tags,
-                supported_recipes,
-                items=[ingredient],
+                [ingredient],
+                all_recipes=all_recipes,
+                all_tags=all_tags,
+                supported_recipes=supported_recipes,
                 ancestors=ancestors,
             )
 
