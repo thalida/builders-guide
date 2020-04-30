@@ -5,6 +5,5 @@
   "redstone_comparator": "comparator",
   "block_of_redstone": "redstone_block",
   "white_shulker_box": "shulker_box",
-  "carpet": "carpets",
-  "item_frames": "item_frame"
+  "carpet": "carpets"
 }

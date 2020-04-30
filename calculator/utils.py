@@ -8,6 +8,13 @@ os.environ["TZ"] = "UTC"
 logger = logging.getLogger(__name__)
 
 import re
+import nltk
+
+nltk.download("wordnet")
+
+from nltk.stem import WordNetLemmatizer
+
+lemmatizer = WordNetLemmatizer()
 
 
 # Regex used to get the amount and item name from a string
@@ -148,29 +155,42 @@ def parse_items_from_string(
             # Let's format the name so it's snakecase
             # First split the name into separate words
             name_parts = re.split(WORD_SEPERATORS_REGEX, groups.get("name"))
+
             # Discard any empty strings
             name_parts = [word for word in name_parts if len(word) > 0]
+
             # Rejoin the word with underscores
             name = "_".join(name_parts).lower()
 
             # Check if this itemname maps to something else
             name = item_mappings.get(name, name)
 
-            # Does this item exist in the list of all items?
-            #   This *could* be a sign of two of different errors, either
-            #   with the list of items stored or invalid name
-            if all_items.get(name) is None:
-                no_item_found.append(name)
-
-            # Does a recipe exist for this item?
-            #   Not having a recipe *is* a valid state for example, red_tulip
-            #   But, logging with errors in case there's a problem with the logic
-            #   above for figuring out item name.
-            if all_recipes.get(name) is None:
-                no_recipe_found.append(name)
+            # Get the stem of the last word, assuming it's a noun
+            #   So, torches => torch and item frames => item frame
+            last_word = lemmatizer.lemmatize(name_parts[-1], "n")
+            lemmatized_name_parts = name_parts.copy()
+            lemmatized_name_parts[-1] = last_word
+            lemmatized_name = "_".join(lemmatized_name_parts).lower()
 
             # Whew, we've made it -- let's setup the item dictionary with the amount
             item = {"amount_required": amount}
+
+            if all_tags.get(name) is None:
+                # Does this item exist in the list of all items?
+                #   This *could* be a sign of two of different errors, either
+                #   with the list of items stored or invalid name
+                if all_items.get(name) is None:
+                    name = lemmatized_name
+
+                if all_items.get(name) is None:
+                    no_item_found.append(name)
+
+                # Does a recipe exist for this item?
+                #   Not having a recipe *is* a valid state for example, red_tulip
+                #   But, logging with errors in case there's a problem with the logic
+                #   above for figuring out item name.
+                if all_recipes.get(name) is None:
+                    no_recipe_found.append(name)
 
             # If there's no recipe for this item BUT it has a matching tag then
             # let's call the item a tag.
