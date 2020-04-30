@@ -1,9 +1,11 @@
 import os
 import logging
-import re
 
 os.environ["TZ"] = "UTC"
 logger = logging.getLogger(__name__)
+
+import re
+
 
 ITEM_LIST_REGEX = (
     r"^(?P<amount1>[\d,]+)?(.*?)(?P<name>[A-Za-z\-_ ]+)(.*?)(?P<amount2>[\d,]+)?$"

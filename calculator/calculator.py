@@ -1,3 +1,9 @@
+import os
+import logging
+
+os.environ["TZ"] = "UTC"
+logger = logging.getLogger(__name__)
+
 import math
 import calculator.utils
 

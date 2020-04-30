@@ -1,4 +1,9 @@
 import os
+import logging
+
+os.environ["TZ"] = "UTC"
+logger = logging.getLogger(__name__)
+
 import glob
 import json
 import sys
@@ -266,13 +271,14 @@ def get_all_crafting_data(version, force_create=False):
     items = fetch_all_items(version, force_create=force_create)
     tags = fetch_all_tags(version, force_create=force_create)
     recipes = fetch_all_recipes(version, force_create=force_create)
+    item_mappings = fetch_item_mappings(version, force_create=force_create)
+
     supported_recipes_by_result = get_supported_recipes_by_result(
         version, recipes, force_create=force_create
     )
     supported_craftable_items = get_supported_craftable_items(
         version, supported_recipes_by_result, force_create=force_create
     )
-    item_mappings = fetch_item_mappings(version, force_create=force_create)
 
     return {
         "items": items,

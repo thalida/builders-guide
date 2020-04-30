@@ -1,4 +1,9 @@
 import os
+import logging
+
+os.environ["TZ"] = "UTC"
+logger = logging.getLogger(__name__)
+
 from flask import Flask, jsonify
 
 import calculator.utils
@@ -160,4 +165,4 @@ def api_calculate_resources(version):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port="5000")
+    app.run(debug=False, host="0.0.0.0", port="5000")
