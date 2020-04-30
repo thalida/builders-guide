@@ -2,7 +2,7 @@ import math
 import calculator.utils
 
 
-def get_ingredients(recipe, all_item_tags):
+def get_ingredients(recipe, all_tags):
     if not calculator.utils.is_supported_recipe(recipe):
         return []
 
@@ -10,27 +10,27 @@ def get_ingredients(recipe, all_item_tags):
     recipe_type = recipe["type"]
 
     if recipe_type == "minecraft:crafting_shaped":
-        ingredients = get_shaped_recipe_ingredients(recipe, all_item_tags)
+        ingredients = get_shaped_recipe_ingredients(recipe, all_tags)
 
     elif recipe_type == "minecraft:crafting_shapeless":
-        ingredients = parse_recipe_ingredients(recipe["ingredients"], all_item_tags)
+        ingredients = format_recipe_ingredients(recipe["ingredients"], all_tags)
 
     else:
-        ingredients = parse_recipe_ingredients(recipe["ingredient"], all_item_tags)
+        ingredients = format_recipe_ingredients(recipe["ingredient"], all_tags)
 
     return ingredients
 
 
-def get_tag_values(tag, all_item_tags, amount_required=None):
+def get_tag_values(tag, all_tags, amount_required=None):
     found_values = []
     tag_name = calculator.utils.parse_item_name(tag)
-    ingredients = all_item_tags[tag_name]["values"]
+    ingredients = all_tags[tag_name]["values"]
 
     for ingredient in ingredients:
         is_tag = calculator.utils.is_tag_name(ingredient)
         if is_tag:
             found_values += get_tag_values(
-                ingredient, all_item_tags, amount_required=amount_required
+                ingredient, all_tags, amount_required=amount_required
             )
         else:
             item = {"item": ingredient, "group": tag_name}
@@ -41,7 +41,7 @@ def get_tag_values(tag, all_item_tags, amount_required=None):
     return found_values
 
 
-def get_shaped_recipe_ingredients(recipe, all_item_tags):
+def get_shaped_recipe_ingredients(recipe, all_tags):
     ingredient_list = []
     pattern_counts = {}
     for row in recipe["pattern"]:
@@ -57,16 +57,16 @@ def get_shaped_recipe_ingredients(recipe, all_item_tags):
     for key, count in pattern_counts.items():
         ingredient = recipe["key"][key]
         is_group = isinstance(ingredient, list)
-        new_ingredient_list = parse_recipe_ingredients(
-            ingredient, all_item_tags, force_amount_required=count, is_group=is_group
+        new_ingredient_list = format_recipe_ingredients(
+            ingredient, all_tags, force_amount_required=count, is_group=is_group
         )
         ingredient_list += new_ingredient_list
 
     return ingredient_list
 
 
-def parse_recipe_ingredients(
-    ingredients, all_item_tags, is_group=False, force_amount_required=None, level=0
+def format_recipe_ingredients(
+    ingredients, all_tags, is_group=False, force_amount_required=None, level=0
 ):
     collected_ingredients = []
     found_ingredients = {}
@@ -82,13 +82,13 @@ def parse_recipe_ingredients(
         ):
             is_group = True
             if isinstance(ingredient, dict):
-                next_ingredients = get_tag_values(ingredient.get("tag"), all_item_tags)
+                next_ingredients = get_tag_values(ingredient.get("tag"), all_tags)
             else:
                 next_ingredients = ingredient
 
-            nested_ingredients = parse_recipe_ingredients(
+            nested_ingredients = format_recipe_ingredients(
                 next_ingredients,
-                all_item_tags,
+                all_tags,
                 force_amount_required=force_amount_required,
                 is_group=is_group,
                 level=level + 1,
@@ -135,11 +135,11 @@ def is_recipe_error(result):
 
 def create_recipe_tree(
     all_recipes,
-    all_item_tags,
-    supported_recipe_results,
+    all_tags,
+    supported_recipes,
     items,
     ancestors=None,
-    parse_item=False,
+    force_format_items=False,
 ):
 
     if ancestors is None:
@@ -153,34 +153,30 @@ def create_recipe_tree(
         else:
             amount_required = 1
 
-        if parse_item:
-            item = parse_recipe_ingredients(
-                item, all_item_tags, force_amount_required=amount_required,
+        if force_format_items:
+            item = format_recipe_ingredients(
+                item, all_tags, force_amount_required=amount_required,
             )
             if len(item) == 1:
                 item = item[0]
 
         if isinstance(item, list):
             nested_tree = create_recipe_tree(
-                all_recipes,
-                all_item_tags,
-                supported_recipe_results,
-                item,
-                ancestors=ancestors,
+                all_recipes, all_tags, supported_recipes, item, ancestors=ancestors,
             )
             tree.append(nested_tree)
             continue
 
-        curr_item_name = item["name"]
-        if curr_item_name in ancestors:
+        item_name = item["name"]
+        if item_name in ancestors:
             return {
                 "error": True,
-                "data": curr_item_name,
+                "data": item_name,
             }
 
         amount_required = item.get("amount_required", 1)
         node = {
-            "name": curr_item_name,
+            "name": item_name,
             "group": item.get("group"),
             "amount_required": amount_required,
             "num_recipes": 0,
@@ -188,9 +184,9 @@ def create_recipe_tree(
         }
 
         new_ancestors = ancestors.copy()
-        new_ancestors.append(curr_item_name)
+        new_ancestors.append(item_name)
 
-        found_recipes = supported_recipe_results.get(curr_item_name)
+        found_recipes = supported_recipes.get(item_name)
         if found_recipes is None:
             tree.append(node)
             continue
@@ -207,18 +203,18 @@ def create_recipe_tree(
             recipe_multiplier = math.ceil(amount_required / recipe_result_count)
             amount_created = recipe_result_count * recipe_multiplier
 
-            ingredients = get_ingredients(recipe, all_item_tags)
+            ingredients = get_ingredients(recipe, all_tags)
             response = create_ingredient_tree(
                 ingredients,
                 all_recipes,
-                all_item_tags,
-                supported_recipe_results,
+                all_tags,
+                supported_recipes,
                 recipe_multiplier,
                 ancestors=new_ancestors,
             )
 
             if is_recipe_error(response):
-                if response.get("data") == curr_item_name:
+                if response.get("data") == item_name:
                     node_has_circular_ref = True
                     break
                 else:
@@ -247,8 +243,8 @@ def create_recipe_tree(
 def create_ingredient_tree(
     ingredients,
     all_recipes,
-    all_item_tags,
-    supported_recipe_results,
+    all_tags,
+    supported_recipes,
     recipe_multiplier,
     ancestors=None,
 ):
@@ -260,8 +256,8 @@ def create_ingredient_tree(
             response = create_ingredient_tree(
                 ingredient,
                 all_recipes,
-                all_item_tags,
-                supported_recipe_results,
+                all_tags,
+                supported_recipes,
                 recipe_multiplier,
                 ancestors=ancestors,
             )
@@ -270,8 +266,8 @@ def create_ingredient_tree(
             ingredient["amount_required"] *= recipe_multiplier
             response = create_recipe_tree(
                 all_recipes,
-                all_item_tags,
-                supported_recipe_results,
+                all_tags,
+                supported_recipes,
                 items=[ingredient],
                 ancestors=ancestors,
             )

@@ -9,6 +9,43 @@ os.environ["TZ"] = "UTC"
 app = Flask(__name__)
 
 
+input_strs = [
+    "Observer: 334",
+    "Redstone Dust: 287",
+    "Piston: 240",
+    "Stained Glass: 171",
+    "Sticky Piston: 153",
+    "Hopper: 130",
+    "Glazed Terracotta: 110",
+    "Honey Block: 100",
+    "Redstone Repeater: 85",
+    "Slime Block: 79",
+    "Note Block: 76",
+    "Birch Fence Gate: 62",
+    "Water Bucket: 56",
+    "Dropper: 53",
+    "Block of Redstone: 50",
+    "Powered Rail: 42",
+    "Redstone Torch: 26",
+    "Redstone Comparator: 24",
+    "Chest: 22",
+    "Iron Trapdoor: 16",
+    "Carpet: 15",
+    "Dispenser: 7",
+    "Stone Button: 7",
+    "Sand: 4",
+    "Obsidian: 3",
+    "White Shulker Box: 3",
+    "Lever: 2",
+    "Redstone Lamp: 2",
+    "Cauldron: 1",
+    "Dirt: 1",
+    "Flower Pot: 1",
+    "Spruce Sapling: 1",
+    "White Wool: 1",
+]
+
+
 @app.route("/api/<version>/items", methods=["GET"])
 def api_get_items(version):
     return calculator.data.fetch_all_items(version, force_create=app.debug)
@@ -39,41 +76,6 @@ def api_parse_items_from_string(version):
     all_crafting_data = calculator.data.get_all_crafting_data(
         version, force_create=app.debug
     )
-    input_strs = [
-        "Observer: 334",
-        "Redstone Dust: 287",
-        "Piston: 240",
-        "Stained Glass: 171",
-        "Sticky Piston: 153",
-        "Hopper: 130",
-        "Glazed Terracotta: 110",
-        "Honey Block: 100",
-        "Redstone Repeater: 85",
-        "Slime Block: 79",
-        "Note Block: 76",
-        "Birch Fence Gate: 62",
-        "Water Bucket: 56",
-        "Dropper: 53",
-        "Block of Redstone: 50",
-        "Powered Rail: 42",
-        "Redstone Torch: 26",
-        "Redstone Comparator: 24",
-        "Chest: 22",
-        "Iron Trapdoor: 16",
-        "Carpet: 15",
-        "Dispenser: 7",
-        "Stone Button: 7",
-        "Sand: 4",
-        "Obsidian: 3",
-        "White Shulker Box: 3",
-        "Lever: 2",
-        "Redstone Lamp: 2",
-        "Cauldron: 1",
-        "Dirt: 1",
-        "Flower Pot: 1",
-        "Spruce Sapling: 1",
-        "White Wool: 1",
-    ]
     return calculator.utils.parse_items_from_string(input_strs, all_crafting_data)
 
 
@@ -110,45 +112,6 @@ def api_calculate_resources(version):
         },
         3: {"name": "orange_carpet",},
     }
-
-    all_crafting_data = calculator.data.get_all_crafting_data(
-        version, force_create=app.debug
-    )
-    input_strs = [
-        "Observer: 334",
-        "Redstone Dust: 287",
-        "Piston: 240",
-        "Stained Glass: 171",
-        "Sticky Piston: 153",
-        "Hopper: 130",
-        "Glazed Terracotta: 110",
-        "Honey Block: 100",
-        "Redstone Repeater: 85",
-        "Slime Block: 79",
-        "Note Block: 76",
-        "Birch Fence Gate: 62",
-        "Water Bucket: 56",
-        "Dropper: 53",
-        "Block of Redstone: 50",
-        "Powered Rail: 42",
-        "Redstone Torch: 26",
-        "Redstone Comparator: 24",
-        "Chest: 22",
-        "Iron Trapdoor: 16",
-        "Carpet: 15",
-        "Dispenser: 7",
-        "Stone Button: 7",
-        "Sand: 4",
-        "Obsidian: 3",
-        "White Shulker Box: 3",
-        "Lever: 2",
-        "Redstone Lamp: 2",
-        "Cauldron: 1",
-        "Dirt: 1",
-        "Flower Pot: 1",
-        "Spruce Sapling: 1",
-        "White Wool: 1",
-    ]
     parsed_items = calculator.utils.parse_items_from_string(
         input_strs, all_crafting_data
     )
@@ -176,12 +139,13 @@ def api_calculate_resources(version):
     #     {"name": item_name}
     #     for item_name in all_crafting_data["supported_craftable_items"]
     # ]
+
     recipe_tree = calculator.calculator.create_recipe_tree(
         all_crafting_data["recipes"],
         all_crafting_data["tags"],
         all_crafting_data["supported_recipes"],
         requested_items,
-        parse_item=True,
+        force_format_items=True,
     )
 
     shopping_list = calculator.calculator.create_shopping_list(
