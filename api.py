@@ -4,7 +4,7 @@ import logging
 os.environ["TZ"] = "UTC"
 logger = logging.getLogger(__name__)
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, abort
 
 import calculator.utils
 import calculator.data
@@ -13,156 +13,224 @@ import calculator.calculator
 os.environ["TZ"] = "UTC"
 app = Flask(__name__)
 
-
-input_strs = [
-    "Observer: 334",
-    "Redstone Dust: 287",
-    "Piston: 240",
-    "Stained Glass: 171",
-    "Sticky Piston: 153",
-    "Hopper: 130",
-    "Glazed Terracotta: 110",
-    "Honey Block: 100",
-    "Redstone Repeater: 85",
-    "Slime Block: 79",
-    "Note Block: 76",
-    "Birch Fence Gate: 62",
-    "Water Bucket: 56",
-    "Dropper: 53",
-    "Block of Redstone: 50",
-    "Powered Rail: 42",
-    "Redstone Torch: 26",
-    "Redstone Comparator: 24",
-    "Chest: 22",
-    "Iron Trapdoor: 16",
-    "Carpet: 15",
-    "Dispenser: 7",
-    "Stone Button: 7",
-    "Sand: 4",
-    "Obsidian: 3",
-    "White Shulker Box: 3",
-    "Lever: 2",
-    "Redstone Lamp: 2",
-    "Cauldron: 1",
-    "Dirt: 1",
-    "Flower Pot: 1",
-    "Spruce Sapling: 1",
-    "White Wool: 1",
-]
+BAD_REQUEST = 400
+SERVER_ERROR = 500
 
 
 @app.route("/api/<version>/items", methods=["GET"])
 def api_get_items(version):
-    return calculator.data.fetch_all_items(version, force_create=app.debug)
+    """GET all items for a given version of Minecraft Java Edition
+
+    Arguments:
+        version {string} -- Version of Minecraft Java Edition
+
+    Returns:
+        list -- all items
+    """
+    try:
+        return calculator.data.fetch_all_items(version, force_create=app.debug)
+    except Exception:
+        abort(SERVER_ERROR)
 
 
 @app.route("/api/<version>/recipes", methods=["GET"])
 def api_get_recipes(version):
-    return calculator.data.fetch_all_recipes(version, force_create=app.debug)
+    """GET all recipes for a given version of Minecraft Java Edition
+
+    Arguments:
+        version {string} -- Version of Minecraft Java Edition
+
+    Returns:
+        list -- all recipes
+    """
+    try:
+        return calculator.data.fetch_all_recipes(version, force_create=app.debug)
+    except Exception:
+        abort(SERVER_ERROR)
 
 
 @app.route("/api/<version>/tags", methods=["GET"])
 def api_get_tags(version):
-    return calculator.data.fetch_all_tags(version, force_create=app.debug)
+    """GET all tags for a given version of Minecraft Java Edition
+
+    Arguments:
+        version {string} -- Version of Minecraft Java Edition
+
+    Returns:
+        list -- all tags
+    """
+    try:
+        return calculator.data.fetch_all_tags(version, force_create=app.debug)
+    except Exception:
+        abort(SERVER_ERROR)
 
 
 @app.route("/api/<version>/item_mappings", methods=["GET"])
 def api_get_item_mappings(version):
-    return calculator.data.fetch_item_mappings(version, force_create=app.debug)
+    """GET a mapping of all incorrect names of items to their correct version
+
+    Arguments:
+        version {string} -- Version of Minecraft Java Edition
+
+    Returns:
+        list -- all item mappings
+    """
+    try:
+        return calculator.data.fetch_item_mappings(version, force_create=app.debug)
+    except Exception:
+        abort(SERVER_ERROR)
+
+
+@app.route("/api/<version>/supported_recipes_and_items", methods=["GET"])
+def api_get_supported_recipes_and_items(version):
+    """GET all supported recipes and craftable items
+        Supported recipes consist of anything that pass utils.is_supported_recipe()
+
+    Arguments:
+        version {string} -- Version of Minecraft Java Edition
+
+    Returns:
+        dict -- supported recipes and craftable items
+    """
+
+    try:
+        recipes = calculator.data.fetch_all_recipes(version, force_create=app.debug)
+        supported_recipes_by_result = calculator.data.get_supported_recipes_by_result(
+            version, recipes, force_create=app.debug
+        )
+        supported_craftable_items = calculator.data.get_supported_craftable_items(
+            version, supported_recipes_by_result, force_create=app.debug
+        )
+        response = {
+            "supported_recipes_by_result": supported_recipes_by_result,
+            "supported_craftable_items": supported_craftable_items,
+        }
+        return jsonify(response)
+    except Exception:
+        abort(SERVER_ERROR)
 
 
 @app.route("/api/<version>/all_crafting_data", methods=["GET"])
-def api_get_supported_recipes(version):
-    return calculator.data.get_all_crafting_data(version, force_create=app.debug)
+def api_get_all_crafting_data(version):
+    """GET all crafting data for a given version of Minecraft Java Edition
+        Crafting data is a dictionary with all:
+        - items
+        - tags
+        - recipes
+        - item_mappings
+        - supported_recipes
+        - supported_craftable_items
+
+    Arguments:
+        version {string} -- Version of Minecraft Java Edition
+
+    Returns:
+        dict -- all crafting data
+    """
+    try:
+        return calculator.data.get_all_crafting_data(version, force_create=app.debug)
+    except Exception:
+        abort(SERVER_ERROR)
 
 
-@app.route("/api/<version>/parse_items_from_string", methods=["GET"])
+@app.route("/api/<version>/parse_items_from_string", methods=["POST"])
 def api_parse_items_from_string(version):
-    all_crafting_data = calculator.data.get_all_crafting_data(
-        version, force_create=app.debug
-    )
-    return calculator.utils.parse_items_from_string(input_strs, all_crafting_data)
+    """GET parse items from a array of strings
+
+    Arguments:
+        version {string} -- Version of Minecraft Java Edition
+        parse_strings {list} -- Strings to be parsed and converted to item list
+
+    Returns:
+        dict -- parsed strings and any errors found
+    """
+    try:
+        req_json = request.get_json(force=True)
+        parse_strings = req_json.get("parse_strings", [])
+    except Exception:
+        abort(BAD_REQUEST)
+
+    try:
+        all_crafting_data = calculator.data.get_all_crafting_data(
+            version, force_create=app.debug
+        )
+        return calculator.utils.parse_items_from_string(
+            parse_strings,
+            all_items=all_crafting_data["items"],
+            all_tags=all_crafting_data["tags"],
+            all_recipes=all_crafting_data["recipes"],
+            item_mappings=all_crafting_data["item_mappings"],
+        )
+    except Exception:
+        abort(SERVER_ERROR)
 
 
-@app.route("/api/<version>/calculate_resources", methods=["GET"])
+@app.route("/api/<version>/calculate_resources", methods=["POST"])
 def api_calculate_resources(version):
-    all_crafting_data = calculator.data.get_all_crafting_data(
-        version, force_create=app.debug
-    )
-    have_already = {
-        "oak_log": 5,
-    }
-    path = {
-        0: {
-            "name": "torch",
-            "recipe": "torch",
-            "ingredients": {
-                0: {
-                    "name": "charcoal",
-                    "recipe": "charcoal",
-                    "ingredients": {0: {"name": "dark_oak_log"}},
-                },
-                1: {
-                    "name": "stick",
-                    "recipe": "stick",
-                    "ingredients": {
-                        0: {
-                            "name": "dark_oak_planks",
-                            "recipe": "dark_oak_planks",
-                            "ingredients": {0: {"name": "dark_oak_log"}},
-                        }
-                    },
-                },
-            },
-        },
-        3: {"name": "orange_carpet",},
-    }
-    parsed_items = calculator.utils.parse_items_from_string(
-        input_strs,
-        all_items=all_crafting_data["items"],
-        all_tags=all_crafting_data["tags"],
-        all_recipes=all_crafting_data["recipes"],
-        item_mappings=all_crafting_data["item_mappings"],
-    )
-    requested_items = parsed_items["items"]
+    """Calculate resources required to craft the provided items
+        Provide either parse_item_strings OR requested_items, will try to use
+        requested_items if provided.
 
-    # requested_items = [
-    #     {"name": "torch"},
-    #     [{"name": "coal"}, {"name": "charcoal"}, {"tag": "planks"}],
-    # ]
-    # requested_items = [{"tag": "planks"}]
-    # requested_items = [
-    #     {"name": "torch", "amount_required": 1},
-    #     {"name": "light_blue_concrete_powder", "amount_required": 2},
-    #     {"name": "red_bed", "amount_required": 3},
-    #     {"name": "blue_dye", "amount_required": 4},
-    #     {"name": "purple_stained_glass_pane", "amount_required": 5},
-    # ]
-    # requested_items = [
-    #     {"name": "observer", "amount_required": 8},
-    #     {"name": "redstone", "amount_required": 3},
-    #     {"name": "comparator", "amount_required": 2},
-    #     {"name": "hopper", "amount_required": 5},
-    # ]
-    # requested_items = [
-    #     {"name": item_name}
-    #     for item_name in all_crafting_data["supported_craftable_items"]
-    # ]
+    Arguments:
+        version {string} -- Version of Minecraft Java Edition
+        have_already {dict} -- Map of what items you already have created
+                                key is the item you have, value the amount
+        recipe_path {dict} -- The chosen recipe path you want to follow
+        requested_items {list} -- The items (already formatted) that you'd like crafted
+        parse_item_strings {list} -- The strings you'd like converted to an item array
 
-    recipe_tree = calculator.calculator.create_recipe_tree(
-        requested_items,
-        all_recipes=all_crafting_data["recipes"],
-        all_tags=all_crafting_data["tags"],
-        supported_recipes=all_crafting_data["supported_recipes"],
-        force_format_items=True,
-    )
+    Returns:
+        [type] -- [description]
+    """
+    try:
+        req_json = request.get_json(force=True)
+        have_already = req_json.get("have_already", {})
+        recipe_path = req_json.get("recipe_path", {})
 
-    shopping_list = calculator.calculator.create_shopping_list(
-        recipe_tree, path=path, have_already=have_already
-    )
+        # We'll use requested_items by default, and fallback to parse_strings
+        requested_items = req_json.get("items", [])
+        parse_strings = req_json.get("parse_item_strings")
+    except Exception:
+        abort(SERVER_ERROR)
 
-    return jsonify({"recipe_tree": recipe_tree, "shopping_list": shopping_list,})
+    try:
+        all_crafting_data = calculator.data.get_all_crafting_data(
+            version, force_create=app.debug
+        )
+
+        # If no requested items where provied, check if we have strings to parse
+        # If so, do so
+        if len(requested_items) == 0 and parse_strings is not None:
+            parsed_items = calculator.utils.parse_items_from_string(
+                parse_strings,
+                all_items=all_crafting_data["items"],
+                all_tags=all_crafting_data["tags"],
+                all_recipes=all_crafting_data["recipes"],
+                item_mappings=all_crafting_data["item_mappings"],
+            )
+            requested_items = parsed_items["items"]
+
+        recipe_tree = calculator.calculator.create_recipe_tree(
+            requested_items,
+            all_recipes=all_crafting_data["recipes"],
+            all_tags=all_crafting_data["tags"],
+            supported_recipes=all_crafting_data["supported_recipes"],
+            force_format_items=True,
+        )
+
+        shopping_list = calculator.calculator.create_shopping_list(
+            recipe_tree, path=recipe_path, have_already=have_already
+        )
+
+        response = {
+            "recipe_tree": recipe_tree,
+            "shopping_list": shopping_list,
+        }
+
+        return jsonify(response)
+    except Exception:
+        abort(SERVER_ERROR)
 
 
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port="5000")
+    app.run(debug=True, host="0.0.0.0", port="5000")

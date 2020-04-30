@@ -61,8 +61,6 @@ def fetch_item_mappings(version, force_create=False):
 
 
 def create_all_items(version):
-    print("CREATING ALL ITEMS FROM FILE SYSTEM")
-
     items = {}
     items_file_dir = ITEM_FILES_DIR.format(version=version)
     items_file_dir = os.path.join(cur_dir, items_file_dir)
@@ -111,8 +109,6 @@ def fetch_all_items(version, force_create=False):
 
 
 def create_all_recipes(version):
-    print("CREATING ALL RECIPES COLLECTION FROM FILE SYSTEM")
-
     recipes = {}
     recipes_file_dir = RECIPES_FILES_DIR.format(version=version)
     recipes_file_dir = os.path.join(cur_dir, recipes_file_dir)
@@ -175,7 +171,6 @@ def fetch_all_recipes(version, force_create=False):
 
 
 def create_all_tags(version):
-    print("CREATING ALL ITEM TAGS COLLECTION FROM FILE SYSTEM")
     tags = {}
     tags_file_dir = ITEM_TAGS_FILES_DIR.format(version=version)
     tags_file_dir = os.path.join(cur_dir, tags_file_dir)
