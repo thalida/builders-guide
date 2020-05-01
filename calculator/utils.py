@@ -8,13 +8,9 @@ os.environ["TZ"] = "UTC"
 logger = logging.getLogger(__name__)
 
 import re
-import nltk
+import inflect
 
-nltk.download("wordnet")
-
-from nltk.stem import WordNetLemmatizer
-
-lemmatizer = WordNetLemmatizer()
+inflect_engine = inflect.engine()
 
 
 # Regex used to get the amount and item name from a string
@@ -96,6 +92,78 @@ def is_supported_recipe(recipe):
     return is_supported or is_custom
 
 
+def generate_correct_item_name(
+    raw_name, item_mappings, all_items, all_tags, all_recipes, is_retry=False
+):
+    """Try to generate the correct item name, if the parsed name is not valid,
+    then try to make it singular/plural and try again.
+
+    Arguments:
+        raw_name {string} -- The original name
+        item_mappings {dict} -- Mapping of invalid item names to correct versions
+        all_items {dict} -- All game items
+        all_tags {dict} -- All game tags
+        all_recipes {dict} -- All game recipes
+
+    Keyword Arguments:
+        is_retry {bool} -- Is this a retry? (default: {False})
+
+    Returns:
+        string or bool -- Either return the correctly generated string or False
+    """
+    # Let's format the name so it's snakecase
+    # First split the name into separate words
+    name_parts = re.split(WORD_SEPERATORS_REGEX, raw_name)
+
+    # Discard any empty strings
+    name_parts = [word for word in name_parts if len(word) > 0]
+
+    # Check if the word is singular, if so we'll try to pluralize on the retry
+    #   otherwise we'll try to make it singular on the retry
+    is_singular = inflect_engine.singular_noun(name_parts[-1]) == False
+
+    orig_last_word = name_parts[-1]
+    if is_retry:
+        if is_singular:
+            last_word = inflect_engine.plural_noun(name_parts[-1])
+        else:
+            last_word = inflect_engine.singular_noun(name_parts[-1])
+
+        if last_word is False:
+            # TODO: Add logging here we shouldn't hit this case but ya never know
+            last_word = orig_last_word
+
+        name_parts[-1] = last_word
+
+    # Rejoin the word with underscores
+    name = "_".join(name_parts).lower()
+
+    # Check if this itemname maps to something else
+    name = item_mappings.get(name, name)
+
+    # Check if the word is a valid item
+    is_valid = is_valid_item(name, all_items, all_tags, all_recipes)
+
+    # If it's not valid try to generate another version of the item name
+    if not is_valid:
+        if is_retry is False:
+            return generate_correct_item_name(
+                raw_name, item_mappings, all_items, all_tags, all_recipes, is_retry=True
+            )
+        else:
+            return False
+
+    return name
+
+
+def is_valid_item(name, all_items, all_tags, all_recipes):
+    return (
+        all_items.get(name) is not None
+        or all_tags.get(name) is not None
+        or all_recipes.get(name) is not None
+    )
+
+
 def parse_items_from_string(
     input_strings, all_items, all_tags, all_recipes, item_mappings
 ):
@@ -152,25 +220,13 @@ def parse_items_from_string(
             # Make sure it's an int -- no partial crafting allowed
             amount = int(amount)
 
-            # Let's format the name so it's snakecase
-            # First split the name into separate words
-            name_parts = re.split(WORD_SEPERATORS_REGEX, groups.get("name"))
+            src_name = groups.get("name")
+            name = generate_correct_item_name(
+                src_name, item_mappings, all_items, all_tags, all_recipes
+            )
 
-            # Discard any empty strings
-            name_parts = [word for word in name_parts if len(word) > 0]
-
-            # Rejoin the word with underscores
-            name = "_".join(name_parts).lower()
-
-            # Check if this itemname maps to something else
-            name = item_mappings.get(name, name)
-
-            # Get the stem of the last word, assuming it's a noun
-            #   So, torches => torch and item frames => item frame
-            last_word = lemmatizer.lemmatize(name_parts[-1], "n")
-            lemmatized_name_parts = name_parts.copy()
-            lemmatized_name_parts[-1] = last_word
-            lemmatized_name = "_".join(lemmatized_name_parts).lower()
+            if name is False:
+                name = src_name
 
             # Whew, we've made it -- let's setup the item dictionary with the amount
             item = {"amount_required": amount}
@@ -179,9 +235,6 @@ def parse_items_from_string(
                 # Does this item exist in the list of all items?
                 #   This *could* be a sign of two of different errors, either
                 #   with the list of items stored or invalid name
-                if all_items.get(name) is None:
-                    name = lemmatized_name
-
                 if all_items.get(name) is None:
                     no_item_found.append(name)
 

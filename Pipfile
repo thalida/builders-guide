@@ -8,7 +8,7 @@ black = "*"
 
 [packages]
 flask = "*"
-nltk = "*"
+inflect = "*"
 
 [requires]
 python_version = "3.7"
