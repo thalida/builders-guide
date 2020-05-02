@@ -118,6 +118,9 @@ def generate_correct_item_name(
     # Discard any empty strings
     name_parts = [word for word in name_parts if len(word) > 0]
 
+    if len(name_parts) == 0:
+        return ""
+
     # Check if the word is singular, if so we'll try to pluralize on the retry
     #   otherwise we'll try to make it singular on the retry
     is_singular = inflect_engine.singular_noun(name_parts[-1]) == False
@@ -144,9 +147,13 @@ def generate_correct_item_name(
     # Check if the word is a valid item
     is_valid = is_valid_item(name, all_items, all_tags, all_recipes)
 
+    print(name, name_parts, is_valid)
+    print(list(all_items.keys()))
+
     # If it's not valid try to generate another version of the item name
     if not is_valid:
         if is_retry is False:
+            print("in here again")
             return generate_correct_item_name(
                 raw_name, item_mappings, all_items, all_tags, all_recipes, is_retry=True
             )
