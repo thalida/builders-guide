@@ -11,7 +11,12 @@
   - [x] partially proper need to make it better
 - [x] add comments and better documentation
 - [x] figure out what to do about groups of items ("carpet", "stained glass")
-- [ ] add tests
+- [x] add tests
+  - [ ] add better tests
+- [ ] setup vue frontend
+- [ ] add image data
+- [ ] design the site
+- [ ] netlify hosting! / self-hosting(?)
 
 # Don't Look
 
