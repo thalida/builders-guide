@@ -215,7 +215,6 @@ def api_calculate_resources(version):
             all_recipes=all_crafting_data["recipes"],
             all_tags=all_crafting_data["tags"],
             supported_recipes=all_crafting_data["supported_recipes"],
-            force_format_items=True,
         )
 
         shopping_list = calculator.calculator.create_shopping_list(
@@ -228,7 +227,8 @@ def api_calculate_resources(version):
         }
 
         return jsonify(response)
-    except Exception:
+    except Exception as e:
+        logger.exception(e)
         abort(SERVER_ERROR)
 
 
