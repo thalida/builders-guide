@@ -6,10 +6,10 @@
 - [x] require the right amount of ingredients for what's required
 - [x] store remaining per history
 - [x] add better support for recursive ingredients for nested tags in tags
-- [ ] find images for all items
+- [x] find images for all items (thanks xtream1101)
 - [x] convert into proper api
-  - [ ] partially proper need to make it better
-- [ ] add comments and better documentation
+  - [x] partially proper need to make it better
+- [x] add comments and better documentation
 - [x] figure out what to do about groups of items ("carpet", "stained glass")
 - [ ] add tests
 
