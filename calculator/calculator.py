@@ -231,7 +231,7 @@ def is_recipe_error(result):
 
 
 def create_recipe_tree(
-    items, all_recipes, all_tags, supported_recipes, ancestors=None,
+    items, all_recipes, all_tags, supported_recipes, ancestors=None, recipe_multiplier=1
 ):
     """Using the list of `items` provided, generate it's recipe tree. A recipe tree
     is an item with a list of the recipes that craft it, each recipe has a set
@@ -264,6 +264,8 @@ def create_recipe_tree(
         else:
             amount_required = 1
 
+        amount_required *= recipe_multiplier
+
         # correctly format the item
         if has_no_ancestors:
             item = format_recipe_ingredients(
@@ -277,15 +279,21 @@ def create_recipe_tree(
         # be used interchangeably.
         if isinstance(item, list):
             # We need to ge the recipe tree for all of these item(s)
-            nested_tree = create_recipe_tree(
+            response = create_recipe_tree(
                 item,
                 all_recipes=all_recipes,
                 all_tags=all_tags,
                 supported_recipes=supported_recipes,
                 ancestors=ancestors,
             )
-            # Add this nested_tree to our top_level tree
-            tree.append(nested_tree)
+
+            # Oh, dear -- did we get an error? I only throw errors if there's
+            # a circular ref so let's pass it back up the tree!
+            if is_recipe_error(response):
+                return response
+
+            # Add this response to our top_level tree
+            tree.append(response)
 
             # Move onto the next item
             continue
@@ -347,16 +355,17 @@ def create_recipe_tree(
 
             # Get a list of all the ingredients
             ingredients = get_ingredients(recipe, all_tags)
+
             # Create our recipe tree for each ingredient -- this logic has
             # it's own function instead of calling recipe_tree again because
             # ingredients can be a list of arrays of any depth. Yep.
-            response = create_ingredient_tree(
+            response = create_recipe_tree(
                 ingredients,
-                all_recipes,
-                all_tags,
-                supported_recipes,
-                recipe_multiplier,
+                all_recipes=all_recipes,
+                all_tags=all_tags,
+                supported_recipes=supported_recipes,
                 ancestors=new_ancestors,
+                recipe_multiplier=recipe_multiplier,
             )
 
             # Oh, dear -- did we get an error? I only throw errors if there's
@@ -397,68 +406,6 @@ def create_recipe_tree(
 
     # Wow, we got a tree -- perfect!
     return tree
-
-
-def create_ingredient_tree(
-    ingredients,
-    all_recipes,
-    all_tags,
-    supported_recipes,
-    recipe_multiplier,
-    ancestors=None,
-):
-    """For a given ingredient create a tree of the recipe(s) required to craft
-    the ingredient. This sounds very similar to recipe_tree and it is! This
-    function calls back to itself and recipe tree depending on the state we've
-    found ourselves in.
-
-    Arguments:
-        ingredients {list} -- The ingredients we want to get a recipe tree for.
-        all_recipes {list} -- All the recipes the game supports
-        all_tags {list} -- All the tags the game supports
-        supported_recipes {[type]} -- [description]
-        recipe_multiplier {[type]} -- [description]
-
-    Keyword Arguments:
-        ancestors {[type]} -- [description] (default: {None})
-
-    Returns:
-        [type] -- [description]
-    """
-    ingredient_tree = []
-
-    for ingredient in ingredients:
-        if isinstance(ingredient, list):
-            is_nested_ingredient = True
-            response = create_ingredient_tree(
-                ingredient,
-                all_recipes,
-                all_tags,
-                supported_recipes,
-                recipe_multiplier,
-                ancestors=ancestors,
-            )
-        else:
-            is_nested_ingredient = False
-            ingredient["amount_required"] *= recipe_multiplier
-            response = create_recipe_tree(
-                [ingredient],
-                all_recipes=all_recipes,
-                all_tags=all_tags,
-                supported_recipes=supported_recipes,
-                ancestors=ancestors,
-            )
-
-        if is_recipe_error(response):
-            ingredient_tree = response
-            break
-
-        if is_nested_ingredient:
-            ingredient_tree.append(response)
-        else:
-            ingredient_tree += response
-
-    return ingredient_tree
 
 
 def create_shopping_list(
