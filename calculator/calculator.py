@@ -439,8 +439,8 @@ def create_shopping_list(
 
     for node_idx, node in enumerate(tree):
         # check if we've set a path for this node
-        node_path = path.get(node_idx, {})
-        has_node_path = path.get(node_idx) is not None
+        node_path = path.get(str(node_idx), {})
+        has_node_path = path.get(str(node_idx)) is not None
 
         # If this node is a list that means all of the items in the list can be
         # used interchangely -- let's pick the chosen item we'd like to craft with!
@@ -464,7 +464,7 @@ def create_shopping_list(
             # Let's gethis recursive shopping list going!
             new_shopping_list = create_shopping_list(
                 [chosen_node],
-                path={0: node_path},
+                path={"0": node_path},
                 parent_node=parent_node,
                 shopping_list=shopping_list,
                 have_already=have_already,
@@ -547,8 +547,8 @@ def create_shopping_list(
         for idx, ingredient in enumerate(ingredients):
             ingredient_item = None
 
-            ingredient_path = node_path_ingredients.get(idx, {})
-            has_ingredient_path = node_path_ingredients.get(idx) is not None
+            ingredient_path = node_path_ingredients.get(str(idx), {})
+            has_ingredient_path = node_path_ingredients.get(str(idx)) is not None
 
             # Very similar logic to earlier, if we're working with a list of
             # ingredients that means it's an option group. We need to choose the
@@ -570,7 +570,7 @@ def create_shopping_list(
             # Now get a new shopping list!
             new_shopping_list = create_shopping_list(
                 [ingredient_item],
-                path={0: ingredient_path},
+                path={"0": ingredient_path},
                 parent_node=node_name,
                 shopping_list=shopping_list,
                 have_already=have_already,
