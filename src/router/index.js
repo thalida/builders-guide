@@ -9,7 +9,7 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    beforeEnter: (to, from, next) => {
+    redirect: to => {
       const skipSplash = Vue.localStorage.get('skipSplash', false, Boolean)
       let nextRoute = ''
 
@@ -19,8 +19,8 @@ const routes = [
         nextRoute = '/splash'
       }
 
-      next(nextRoute)
-    }
+      return nextRoute
+    },
   },
   {
     path: '/splash',
