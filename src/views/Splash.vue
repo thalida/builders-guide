@@ -6,13 +6,13 @@
       <p>
         Figure out the recipes and resources you’ll need for your next build!
       </p>
-      <a href="/cookbook">Plan your build</a>
+      <router-link to="/cookbook">Plan your build</router-link>
     </section>
     <footer>
       <div class="input">
         <label><input type="checkbox" v-model="skipSplash" /> Don't show this again</label>
       </div>
-      <a href="/about">About</a>
+      <router-link to="/about">About</router-link>
     </footer>
   </div>
 </template>
