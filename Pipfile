@@ -10,6 +10,7 @@ pytest = "*"
 [packages]
 flask = "*"
 inflect = "*"
+flask-cors = "*"
 
 [requires]
 python_version = "3.7"

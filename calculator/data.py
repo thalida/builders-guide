@@ -92,9 +92,9 @@ def genertate_all_items(version):
         version {string} -- Version of Minecraft Java Edition
 
     Returns:
-        dict -- all items keyed by item name
+        list -- all item names
     """
-    items = {}
+    raw_items = {}
 
     # Get the items, there is an individual file for each item, from the filesystem.
     # For each file generate a dictionary mapping the filename (item name) to
@@ -106,8 +106,40 @@ def genertate_all_items(version):
         with open(filepath, "r") as f:
             data = f.read()
             item_data = json.loads(data)
+            if item_data.get("parent") == "builtin/entity":
+                continue
+
             filename = get_filename_from_path(filepath)
-            items[filename] = item_data
+
+            if filename in [
+                "air",
+                "generated",
+                "handheld",
+                "handheld_rod",
+                "end_portal_frame",
+            ]:
+                continue
+
+            if (
+                filename.find("spawn_egg") >= 0
+                or filename.find("clock_") >= 0
+                or filename.find("compass_") >= 0
+            ):
+                continue
+
+            raw_items[filename] = item_data
+
+    items = []
+    for name, data in raw_items.items():
+        parent = data.get('parent', '/')
+        parent_type, parent_name = parent.split('/')
+
+        if name != parent_name and parent_name in raw_items:
+            continue
+
+        items.append(name)
+
+    items.sort()
 
     # Store the items we formatted and pulled from the system
     target_file = ALL_ITEMS_FILE.format(version=version)

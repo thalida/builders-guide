@@ -9,6 +9,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import Modal from '@/components/Modal.vue'
 
 export default {
@@ -23,7 +24,17 @@ export default {
     return {
       modalAriaLabel: 'Search Modal',
       inputQuery: this.query,
+      allItems: [],
     }
+  },
+  mounted () {
+    axios
+      .get('http://0.0.0.0:5000/api/1.15/items')
+      .then(response => {
+        this.res = response
+        const keys = Object.keys(this.res.data)
+        console.log(keys)
+      })
   },
   methods: {
     goBack () {

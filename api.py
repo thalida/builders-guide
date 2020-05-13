@@ -5,6 +5,7 @@ os.environ["TZ"] = "UTC"
 logger = logging.getLogger(__name__)
 
 from flask import Flask, jsonify, request, abort
+from flask_cors import CORS
 
 import calculator.utils
 import calculator.data
@@ -12,6 +13,7 @@ import calculator.calculator
 
 os.environ["TZ"] = "UTC"
 app = Flask(__name__)
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 BAD_REQUEST = 400
 SERVER_ERROR = 500
@@ -28,8 +30,10 @@ def api_get_items(version):
         list -- all items
     """
     try:
-        return calculator.data.fetch_all_items(version, force_create=app.debug)
-    except Exception:
+        items = calculator.data.fetch_all_items(version, force_create=app.debug)
+        return jsonify(items)
+    except Exception as e:
+        logger.exception(e)
         abort(SERVER_ERROR)
 
 
