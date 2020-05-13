@@ -27,9 +27,7 @@ export default {
   },
   methods: {
     goBack () {
-      this.$router.push('/cookbook/build')
-      // console.log('here?', this.$router)
-      // window.history.length > 1 ? this.$router.go(-1) : this.$router.push('/cookbook')
+      window.history.length > 1 ? this.$router.go(-1) : this.$router.push('/cookbook')
     }
   }
 }

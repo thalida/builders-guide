@@ -14,7 +14,6 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    name: 'Home',
     redirect: to => {
       const skipSplash = Vue.localStorage.get('skipSplash', false, Boolean)
       let nextRoute = ''
@@ -30,7 +29,6 @@ const routes = [
   },
   {
     path: '/splash',
-    name: 'Splash',
     component: Splash
   },
   {
@@ -38,12 +36,10 @@ const routes = [
     component: Cookbook,
     children: [
       {
-        name: 'Cookbook',
         path: '',
         redirect: 'build'
       },
       {
-        name: 'CookbookBuild',
         path: 'build',
         component: CookbookBuild,
         children: [
@@ -73,12 +69,10 @@ const routes = [
         ],
       },
       {
-        name: 'CookbookRecipes',
         path: 'recipes',
         component: CookbookRecipes
       },
       {
-        name: 'CookbookShoppingList',
         path: 'shopping-list',
         component: CookbookShoppingList
       }
