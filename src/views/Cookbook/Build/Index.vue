@@ -20,17 +20,13 @@
 </template>
 
 <script>
-// import Modal from '@/components/Modal.vue'
-
 export default {
   name: 'CookbookBuild',
+  components: {},
   data () {
     return {
       searchTerm: null
     }
-  },
-  components: {
-    // Modal,
   },
   methods: {
     goToSearch () {

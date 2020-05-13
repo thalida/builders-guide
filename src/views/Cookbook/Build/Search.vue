@@ -1,10 +1,10 @@
 <template>
-  <Modal :modal-aria-label="modalAriaLabel">
-    <div id="cookbook__build__search">
-      Build Search
-      <input v-model="inputQuery" placeholder="What do you need?" />
-      <button v-on:click="goBack">Cancel</button>
-    </div>
+  <Modal
+    id="cookbook__build__search"
+    :modal-aria-label="modalAriaLabel">
+    Build Search
+    <input v-model="inputQuery" placeholder="What do you need?" />
+    <button v-on:click="goBack">Cancel</button>
   </Modal>
 </template>
 
@@ -16,14 +16,14 @@ export default {
   props: {
     query: String,
   },
+  components: {
+    Modal,
+  },
   data () {
     return {
       modalAriaLabel: 'Search Modal',
       inputQuery: this.query,
     }
-  },
-  components: {
-    Modal,
   },
   methods: {
     goBack () {

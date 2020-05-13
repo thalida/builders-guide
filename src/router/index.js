@@ -51,17 +51,24 @@ const routes = [
             path: 'search',
             component: CookbookBuildSearch,
             meta: {
+              modal: true,
               returnFocusOnDeactivate: false
             },
             props: (route) => ({ query: route.query.q }),
           },
           {
             path: 'library',
-            component: CookbookBuildLibrary
+            component: CookbookBuildLibrary,
+            meta: {
+              modal: true,
+            },
           },
           {
             path: 'freeform',
-            component: CookbookBuildFreeform
+            component: CookbookBuildFreeform,
+            meta: {
+              modal: true,
+            },
           },
         ],
       },

@@ -1,19 +1,22 @@
 <template>
-  <div id="cookbook__build__freeform">
+  <Modal id="cookbook__build__freeform">
     Build Freeform
 
     <button v-on:click="goBack">Cancel</button>
-  </div>
+  </Modal>
 </template>
 
 <script>
-// @ is an alias to /src
+import Modal from '@/components/Modal.vue'
+
 export default {
   name: 'CookbookBuildFreeform',
+  components: {
+    Modal,
+  },
   data () {
     return {}
   },
-  components: {},
   methods: {
     goBack () {
       window.history.length > 1 ? this.$router.go(-1) : this.$router.push('/cookbook')
