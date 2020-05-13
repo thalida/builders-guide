@@ -15,7 +15,7 @@
           options: intersectionOptions
         }"
         :key="index"
-        :data-index="index">
+        :data-letter="letter">
         <a :id="letter"></a>
         <h2>{{ letter }}</h2>
         <ol>
@@ -42,7 +42,8 @@
           <a
             v-if="itemAlpha.indexOf(letter) >= 0"
             :href="`#${letter}`"
-            :class="{'is-selected': activeLetter === letter}">
+            :class="{'is-selected': activeLetter === letter}"
+            v-on:click="onLetterClick(letter)">
             {{letter}}
           </a>
           <span v-else>{{letter}}</span>
@@ -76,13 +77,15 @@ export default {
       alpha,
       visibleLetters: [],
       activeLetter: null,
+      userSelectedLetter: false,
+      arrivedAtLetter: false,
       items: [],
       selectedItems: [],
       // https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
       intersectionOptions: {
         root: null,
         rootMargin: '0px 0px 0px 0px',
-        threshold: [0] // [0.25, 0.75] if you want a 25% offset!
+        threshold: [0]
       }
     }
   },
@@ -116,35 +119,65 @@ export default {
   },
   mounted () {
     // TODO: FIGURE OUT HOW TO SCROLL TO THIS POINT
-    const hash = this.$route.hash
-    console.log(hash)
+    // const hash = this.$route.hash
+    // console.log(hash)
 
-    if (typeof hash === 'string' && hash.length > 0) {
-      const hashParts = hash.split('#')
-      const hashLetter = hashParts[1]
-      console.log(hashLetter)
-    }
+    // if (typeof hash === 'string' && hash.length > 0) {
+    //   const hashParts = hash.split('#')
+    //   const hashLetter = hashParts[1]
+    //   console.log(hashLetter)
+    // }
 
+    this.$el.addEventListener('scroll', this.onScroll)
     this.intersectionOptions.root = this.$el
     axios
       .get('http://0.0.0.0:5000/api/1.15/items')
       .then(response => (this.items = response.data))
   },
+  destroyed () {
+    document.removeEventListener('scroll', this.onScroll)
+  },
   methods: {
+    onScroll () {
+      if (this.userSelectedLetter && !this.arrivedAtLetter) {
+        return
+      }
+      this.userSelectedLetter = false
+      this.arrivedAtLetter = false
+    },
+    onLetterClick (letter) {
+      this.activeLetter = letter
+      this.userSelectedLetter = true
+      this.arrivedAtLetter = this.visibleLetters.indexOf(this.activeLetter) === 0
+    },
     onWaypoint ({ el, going, direction }) {
-      const letterIndex = parseInt(el.dataset.index, 10)
+      const letter = el.dataset.letter
 
-      if (going === this.$waypointMap.GOING_IN) {
-        this.visibleLetters.push(letterIndex)
-      } else if (going === this.$waypointMap.GOING_OUT) {
-        const foundIndex = this.visibleLetters.indexOf(letterIndex)
-        if (foundIndex >= 0) {
-          this.visibleLetters.splice(foundIndex, 1)
-        }
+      if (
+        going === this.$waypointMap.GOING_IN &&
+        this.visibleLetters.indexOf(letter) === -1
+      ) {
+        this.visibleLetters.push(letter)
+      } else if (
+        going === this.$waypointMap.GOING_OUT &&
+        this.visibleLetters.indexOf(letter) >= 0
+      ) {
+        this.visibleLetters.splice(this.visibleLetters.indexOf(letter), 1)
       }
 
       this.visibleLetters.sort()
-      this.activeLetter = this.itemAlpha[this.visibleLetters[0]]
+
+      if (this.userSelectedLetter) {
+        this.arrivedAtLetter = (
+          letter === this.activeLetter ||
+          this.visibleLetters.indexOf(this.activeLetter) >= 0
+        )
+        return
+      }
+
+      this.activeLetter = this.visibleLetters[0]
+      this.userSelectedLetter = false
+      this.arrivedAtLetter = true
     },
     submit () {
       // TODO: add submit logic!!!
@@ -196,6 +229,7 @@ export default {
   }
 
   &__items {
+    margin: 60px 0;
     z-index: 1;
   }
 }
