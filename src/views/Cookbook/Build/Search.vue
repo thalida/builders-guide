@@ -12,7 +12,7 @@
         v-waypoint="{
           active: true,
           callback: onWaypoint,
-          options: intersectionOptions
+          options: navi.intersectionOptions
         }"
         :key="index"
         :data-letter="letter">
@@ -36,13 +36,13 @@
 
     <ol class="search__alpha">
         <li
-          v-for="(letter, index) in alpha"
+          v-for="(letter, index) in navi.alpha"
           :key="index">
 
           <a
             v-if="itemAlpha.indexOf(letter) >= 0"
             :href="`#${letter}`"
-            :class="{'is-selected': activeLetter === letter}"
+            :class="{'is-selected': navi.selected === letter}"
             v-on:click="onLetterClick(letter)">
             {{letter}}
           </a>
@@ -74,19 +74,21 @@ export default {
     return {
       modalAriaLabel: 'Search Modal',
       inputQuery: this.query,
-      alpha,
-      visibleLetters: [],
-      activeLetter: null,
-      userSelectedLetter: false,
-      arrivedAtLetter: false,
+      navi: {
+        alpha,
+        inViewport: [],
+        selected: null,
+        fromUserClick: false,
+        arrivedAtLetter: false,
+        // https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
+        intersectionOptions: {
+          root: null,
+          rootMargin: '0px 0px 0px 0px',
+          threshold: [0]
+        }
+      },
       items: [],
       selectedItems: [],
-      // https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
-      intersectionOptions: {
-        root: null,
-        rootMargin: '0px 0px 0px 0px',
-        threshold: [0]
-      }
     }
   },
   computed: {
@@ -129,7 +131,7 @@ export default {
     // }
 
     this.$el.addEventListener('scroll', this.onScroll)
-    this.intersectionOptions.root = this.$el
+    this.navi.intersectionOptions.root = this.$el
     axios
       .get('http://0.0.0.0:5000/api/1.15/items')
       .then(response => (this.items = response.data))
@@ -139,45 +141,45 @@ export default {
   },
   methods: {
     onScroll () {
-      if (this.userSelectedLetter && !this.arrivedAtLetter) {
+      if (this.navi.fromUserClick && !this.navi.arrivedAtLetter) {
         return
       }
-      this.userSelectedLetter = false
-      this.arrivedAtLetter = false
+      this.navi.fromUserClick = false
+      this.navi.arrivedAtLetter = false
     },
     onLetterClick (letter) {
-      this.activeLetter = letter
-      this.userSelectedLetter = true
-      this.arrivedAtLetter = this.visibleLetters.indexOf(this.activeLetter) === 0
+      this.navi.selected = letter
+      this.navi.fromUserClick = true
+      this.navi.arrivedAtLetter = this.navi.inViewport.indexOf(this.navi.selected) === 0
     },
     onWaypoint ({ el, going, direction }) {
       const letter = el.dataset.letter
 
       if (
         going === this.$waypointMap.GOING_IN &&
-        this.visibleLetters.indexOf(letter) === -1
+        this.navi.inViewport.indexOf(letter) === -1
       ) {
-        this.visibleLetters.push(letter)
+        this.navi.inViewport.push(letter)
       } else if (
         going === this.$waypointMap.GOING_OUT &&
-        this.visibleLetters.indexOf(letter) >= 0
+        this.navi.inViewport.indexOf(letter) >= 0
       ) {
-        this.visibleLetters.splice(this.visibleLetters.indexOf(letter), 1)
+        this.navi.inViewport.splice(this.navi.inViewport.indexOf(letter), 1)
       }
 
-      this.visibleLetters.sort()
+      this.navi.inViewport.sort()
 
-      if (this.userSelectedLetter) {
-        this.arrivedAtLetter = (
-          letter === this.activeLetter ||
-          this.visibleLetters.indexOf(this.activeLetter) >= 0
+      if (this.navi.fromUserClick) {
+        this.navi.arrivedAtLetter = (
+          letter === this.navi.selected ||
+          this.navi.inViewport.indexOf(this.navi.selected) >= 0
         )
         return
       }
 
-      this.activeLetter = this.visibleLetters[0]
-      this.userSelectedLetter = false
-      this.arrivedAtLetter = true
+      this.navi.selected = this.navi.inViewport[0]
+      this.navi.fromUserClick = false
+      this.navi.arrivedAtLetter = true
     },
     submit () {
       // TODO: add submit logic!!!
