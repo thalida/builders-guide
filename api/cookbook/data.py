@@ -8,13 +8,13 @@ import glob
 import json
 import sys
 
-import calculator.utils
+import cookbook.utils
 from collections import defaultdict
 
 cur_dir = os.path.dirname(sys.argv[0])
 
 # Source Minecraft Data
-DATA_DIR = "calculator/data/"
+DATA_DIR = "cookbook/data/"
 MINECRAFT_DATA_DIR = DATA_DIR + "sources/minecraft/"
 ITEM_FILES_DIR = MINECRAFT_DATA_DIR + "{version}/models/item/*"
 RECIPES_FILES_DIR = MINECRAFT_DATA_DIR + "{version}/recipes/*"
@@ -411,7 +411,7 @@ def get_supported_recipes_by_result(version, recipes, force_create=False):
 
     for recipe_name, recipe in recipes.items():
         # If the recipe is not supported, skip
-        if not calculator.utils.is_supported_recipe(recipe):
+        if not cookbook.utils.is_supported_recipe(recipe):
             continue
 
         recipe_result = recipe.get("result")
@@ -421,7 +421,7 @@ def get_supported_recipes_by_result(version, recipes, force_create=False):
                 recipe_result = recipe_result["item"]
 
             # Pull the actual item name from the recipe result string
-            recipe_result = calculator.utils.parse_item_name(recipe_result)
+            recipe_result = cookbook.utils.parse_item_name(recipe_result)
 
         grouped_by_result[recipe_result].append(recipe_name)
 

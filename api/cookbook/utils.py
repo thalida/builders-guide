@@ -1,5 +1,5 @@
 """UTILS
-Generic-ish utils used across multiple parts of the calculator app
+Generic-ish utils used across multiple parts of the cookbook app
 """
 import os
 import logging
@@ -59,13 +59,13 @@ def is_custom_recipe(recipe):
         bool -- True if the recipe type is within the supported custom_types
     """
     recipe_type = recipe["type"]
-    custom_types = ["calculator:naturally_occurring"]
+    custom_types = ["cookbook:naturally_occurring"]
 
     return recipe_type in custom_types
 
 
 def is_supported_recipe(recipe):
-    """Check if the recipe is one of the types the calculator supports. Recipes
+    """Check if the recipe is one of the types the cookbook supports. Recipes
     that are excluded are mainly around cloning books, banners, etc. Also checks
     if the recipe is custom (which are supported).
 

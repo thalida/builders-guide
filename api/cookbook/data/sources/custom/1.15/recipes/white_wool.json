@@ -1,5 +1,5 @@
 {
-  "type": "calculator:naturally_occurring",
+  "type": "cookbook:naturally_occurring",
   "ingredient": {
     "item": "minecraft:white_wool"
   },

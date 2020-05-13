@@ -1,11 +1,11 @@
 import os
 import pytest
 
-import calculator.utils
-import calculator.data
+import cookbook.utils
+import cookbook.data
 
 file_dir = os.path.dirname(os.path.realpath(__file__))
-data_dir = os.path.join(file_dir, "../calculator/data",)
+data_dir = os.path.join(file_dir, "../cookbook/data",)
 
 
 @pytest.mark.parametrize(
@@ -18,7 +18,7 @@ data_dir = os.path.join(file_dir, "../calculator/data",)
     ],
 )
 def test__parse_item_name(test_input, expected):
-    output = calculator.utils.parse_item_name(test_input)
+    output = cookbook.utils.parse_item_name(test_input)
     assert output == expected
 
 
@@ -32,14 +32,14 @@ def test__parse_item_name(test_input, expected):
     ],
 )
 def test__is_tag_name(test_input, expected):
-    output = calculator.utils.is_tag_name(test_input)
+    output = cookbook.utils.is_tag_name(test_input)
     assert output == expected
 
 
 @pytest.mark.parametrize(
     "test_input,expected",
     [
-        ({"type": "calculator:naturally_occurring"}, True),
+        ({"type": "cookbook:naturally_occurring"}, True),
         ({"type": "minecraft:blasting"}, False),
         ({"type": "minecraft:campfire_cooking"}, False),
         ({"type": "minecraft:crafting_shaped"}, False),
@@ -64,14 +64,14 @@ def test__is_tag_name(test_input, expected):
     ],
 )
 def test__is_custom_recipe(test_input, expected):
-    output = calculator.utils.is_custom_recipe(test_input)
+    output = cookbook.utils.is_custom_recipe(test_input)
     assert output == expected
 
 
 @pytest.mark.parametrize(
     "test_input,expected",
     [
-        ({"type": "calculator:naturally_occurring"}, True),
+        ({"type": "cookbook:naturally_occurring"}, True),
         ({"type": "minecraft:blasting"}, True),
         ({"type": "minecraft:campfire_cooking"}, True),
         ({"type": "minecraft:crafting_shaped"}, True),
@@ -96,7 +96,7 @@ def test__is_custom_recipe(test_input, expected):
     ],
 )
 def test__is_supported_recipe(test_input, expected):
-    output = calculator.utils.is_supported_recipe(test_input)
+    output = cookbook.utils.is_supported_recipe(test_input)
     assert output == expected
 
 
@@ -113,12 +113,12 @@ def test__is_supported_recipe(test_input, expected):
 #     ],
 # )
 # def test__generate_correct_item_name(test_input, expected):
-#     all_crafting_data = calculator.data.get_all_crafting_data(
+#     all_crafting_data = cookbook.data.get_all_crafting_data(
 #         "1.15", force_create=False
 #     )
 #     print("here", data_dir)
 
-#     output = calculator.utils.generate_correct_item_name(
+#     output = cookbook.utils.generate_correct_item_name(
 #         test_input,
 #         all_crafting_data["item_mappings"],
 #         all_crafting_data["items"],

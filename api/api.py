@@ -7,9 +7,9 @@ logger = logging.getLogger(__name__)
 from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
 
-import calculator.utils
-import calculator.data
-import calculator.calculator
+import cookbook.utils
+import cookbook.data
+import cookbook.calculator
 
 os.environ["TZ"] = "UTC"
 app = Flask(__name__)
@@ -30,7 +30,7 @@ def api_get_items(version):
         list -- all items
     """
     try:
-        items = calculator.data.fetch_all_items(version, force_create=app.debug)
+        items = cookbook.data.fetch_all_items(version, force_create=app.debug)
         return jsonify(items)
     except Exception as e:
         logger.exception(e)
@@ -48,7 +48,7 @@ def api_get_recipes(version):
         list -- all recipes
     """
     try:
-        return calculator.data.fetch_all_recipes(version, force_create=app.debug)
+        return cookbook.data.fetch_all_recipes(version, force_create=app.debug)
     except Exception:
         abort(SERVER_ERROR)
 
@@ -64,7 +64,7 @@ def api_get_tags(version):
         list -- all tags
     """
     try:
-        return calculator.data.fetch_all_tags(version, force_create=app.debug)
+        return cookbook.data.fetch_all_tags(version, force_create=app.debug)
     except Exception:
         abort(SERVER_ERROR)
 
@@ -80,7 +80,7 @@ def api_get_item_mappings(version):
         list -- all item mappings
     """
     try:
-        return calculator.data.fetch_item_mappings(version, force_create=app.debug)
+        return cookbook.data.fetch_item_mappings(version, force_create=app.debug)
     except Exception:
         abort(SERVER_ERROR)
 
@@ -98,11 +98,11 @@ def api_get_supported_recipes_and_items(version):
     """
 
     try:
-        recipes = calculator.data.fetch_all_recipes(version, force_create=app.debug)
-        supported_recipes_by_result = calculator.data.get_supported_recipes_by_result(
+        recipes = cookbook.data.fetch_all_recipes(version, force_create=app.debug)
+        supported_recipes_by_result = cookbook.data.get_supported_recipes_by_result(
             version, recipes, force_create=app.debug
         )
-        supported_craftable_items = calculator.data.get_supported_craftable_items(
+        supported_craftable_items = cookbook.data.get_supported_craftable_items(
             version, supported_recipes_by_result, force_create=app.debug
         )
         response = {
@@ -132,7 +132,7 @@ def api_get_all_crafting_data(version):
         dict -- all crafting data
     """
     try:
-        return calculator.data.get_all_crafting_data(version, force_create=app.debug)
+        return cookbook.data.get_all_crafting_data(version, force_create=app.debug)
     except Exception:
         abort(SERVER_ERROR)
 
@@ -155,10 +155,10 @@ def api_parse_items_from_string(version):
         abort(BAD_REQUEST)
 
     try:
-        all_crafting_data = calculator.data.get_all_crafting_data(
+        all_crafting_data = cookbook.data.get_all_crafting_data(
             version, force_create=app.debug
         )
-        return calculator.utils.parse_items_from_string(
+        return cookbook.utils.parse_items_from_string(
             parse_strings,
             all_items=all_crafting_data["items"],
             all_tags=all_crafting_data["tags"],
@@ -198,14 +198,14 @@ def api_calculate_resources(version):
         abort(SERVER_ERROR)
 
     try:
-        all_crafting_data = calculator.data.get_all_crafting_data(
+        all_crafting_data = cookbook.data.get_all_crafting_data(
             version, force_create=app.debug
         )
 
         # If no requested items where provied, check if we have strings to parse
         # If so, do so
         if len(requested_items) == 0 and parse_strings is not None:
-            parsed_items = calculator.utils.parse_items_from_string(
+            parsed_items = cookbook.utils.parse_items_from_string(
                 parse_strings,
                 all_items=all_crafting_data["items"],
                 all_tags=all_crafting_data["tags"],
@@ -214,14 +214,14 @@ def api_calculate_resources(version):
             )
             requested_items = parsed_items["items"]
 
-        recipe_tree = calculator.calculator.create_recipe_tree(
+        recipe_tree = cookbook.cookbook.create_recipe_tree(
             requested_items,
             all_recipes=all_crafting_data["recipes"],
             all_tags=all_crafting_data["tags"],
             supported_recipes=all_crafting_data["supported_recipes"],
         )
 
-        shopping_list = calculator.calculator.create_shopping_list(
+        shopping_list = cookbook.cookbook.create_shopping_list(
             recipe_tree, path=recipe_path, have_already=have_already
         )
 

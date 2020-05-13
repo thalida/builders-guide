@@ -5,7 +5,7 @@ os.environ["TZ"] = "UTC"
 logger = logging.getLogger(__name__)
 
 import math
-import calculator.utils
+import cookbook.utils
 
 
 def get_ingredients(recipe, all_tags):
@@ -19,7 +19,7 @@ def get_ingredients(recipe, all_tags):
         list -- All ingredients for the recipe
     """
     # If this recipe isn't supported return no ingredients
-    if not calculator.utils.is_supported_recipe(recipe):
+    if not cookbook.utils.is_supported_recipe(recipe):
         return []
 
     ingredients = []
@@ -95,11 +95,11 @@ def get_tag_values(tag, all_tags, amount_required=None):
         list -- All the values of the tag
     """
     found_values = []
-    tag_name = calculator.utils.parse_item_name(tag)
+    tag_name = cookbook.utils.parse_item_name(tag)
     tag_values = all_tags[tag_name]["values"]
 
     for value in tag_values:
-        is_tag = calculator.utils.is_tag_name(value)
+        is_tag = cookbook.utils.is_tag_name(value)
 
         # If it's a tag in a tag it's time for recursion baby!
         if is_tag:
@@ -182,7 +182,7 @@ def format_recipe_ingredients(
             item = ingredient
 
         # Parse the item name
-        name = calculator.utils.parse_item_name(item)
+        name = cookbook.utils.parse_item_name(item)
 
         # If we want to force set the amount required do so!
         if force_amount_required is not None:
@@ -343,7 +343,7 @@ def create_recipe_tree(
             recipe = all_recipes[recipe_name]
 
             # Somehow this recipe isn't supported, and ya know what. F-it let's skip
-            if not calculator.utils.is_supported_recipe(recipe):
+            if not cookbook.utils.is_supported_recipe(recipe):
                 continue
 
             # How much does this recipe create?
