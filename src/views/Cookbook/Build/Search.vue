@@ -3,16 +3,19 @@
     id="search"
     :modal-aria-label="modalAriaLabel">
     <header class="search__header">
-      <input v-model="inputQuery" placeholder="What do you need?" />
+      <input
+        v-model="inputQuery"
+        placeholder="What do you need?"
+        v-on:keyup="onInputChange" />
     </header>
 
     <ol class="search__items">
       <li
-        v-for="(letter, index) in itemAlpha"
-        v-waypoint="{
-          active: true,
-          callback: onWaypoint,
-          options: navi.intersectionOptions
+        v-for="(letter, index) in navi.alpha"
+        v-show="itemAlpha.indexOf(letter) >= 0"
+        v-observe-visibility="{
+          callback: onVisibilityChanged,
+          intersection: navi.intersectionOptions
         }"
         :key="index"
         :data-letter="letter">
@@ -59,6 +62,7 @@
 
 <script>
 import axios from 'axios'
+import 'intersection-observer'
 import Modal from '@/components/Modal.vue'
 
 export default {
@@ -84,18 +88,25 @@ export default {
         intersectionOptions: {
           root: null,
           rootMargin: '0px 0px 0px 0px',
-          threshold: [0]
-        }
+          threshold: 0,
+        },
       },
       items: [],
       selectedItems: [],
     }
   },
   computed: {
+    filteredItems () {
+      const filtered = this.items.filter(item => {
+        return item.indexOf(this.inputQuery) >= 0
+      })
+
+      return filtered
+    },
     groupedItems () {
       var groupedItems = {}
-      for (let i = 0, l = this.items.length; i < l; i += 1) {
-        const itemName = this.items[i]
+      for (let i = 0, l = this.filteredItems.length; i < l; i += 1) {
+        const itemName = this.filteredItems[i]
         const firstChar = itemName[0]
 
         if (typeof groupedItems[firstChar] === 'undefined') {
@@ -129,7 +140,7 @@ export default {
     //   const hashLetter = hashParts[1]
     //   console.log(hashLetter)
     // }
-
+    this.$searchItems = this.$el.getElementsByClassName('search__items')[0]
     this.$el.addEventListener('scroll', this.onScroll)
     this.navi.intersectionOptions.root = this.$el
     axios
@@ -152,20 +163,20 @@ export default {
       this.navi.fromUserClick = true
       this.navi.arrivedAtLetter = this.navi.inViewport.indexOf(this.navi.selected) === 0
     },
-    onWaypoint ({ el, going, direction }) {
-      const letter = el.dataset.letter
+    onVisibilityChanged (isVisible, e) {
+      const elem = e.target
+      const letter = elem.dataset.letter
+      const visibleIndex = this.navi.inViewport.indexOf(letter)
 
-      if (
-        going === this.$waypointMap.GOING_IN &&
-        this.navi.inViewport.indexOf(letter) === -1
-      ) {
+      if (isVisible && visibleIndex === -1) {
         this.navi.inViewport.push(letter)
-      } else if (
-        going === this.$waypointMap.GOING_OUT &&
-        this.navi.inViewport.indexOf(letter) >= 0
-      ) {
-        this.navi.inViewport.splice(this.navi.inViewport.indexOf(letter), 1)
+      } else if (!isVisible && visibleIndex >= 0) {
+        this.navi.inViewport.splice(visibleIndex, 1)
       }
+
+      this.navi.inViewport = this.navi.inViewport.filter((letter) => {
+        return this.itemAlpha.indexOf(letter) >= 0
+      })
 
       this.navi.inViewport.sort()
 
@@ -180,6 +191,16 @@ export default {
       this.navi.selected = this.navi.inViewport[0]
       this.navi.fromUserClick = false
       this.navi.arrivedAtLetter = true
+    },
+    onInputChange () {
+      if (this.inputQuery === this.query) {
+        return
+      }
+
+      this.$router.replace({
+        path: this.$route.path,
+        query: { q: this.inputQuery }
+      })
     },
     submit () {
       // TODO: add submit logic!!!

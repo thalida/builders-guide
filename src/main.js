@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import VueWaypoint from 'vue-waypoint'
+import VueObserveVisibility from 'vue-observe-visibility'
 
 import App from './App.vue'
 import router from './router'
@@ -7,7 +7,7 @@ import store from './store'
 import './registerServiceWorker'
 
 Vue.config.productionTip = false
-Vue.use(VueWaypoint)
+Vue.use(VueObserveVisibility)
 
 new Vue({
   router,
