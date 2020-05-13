@@ -1,11 +1,13 @@
 <template>
   <Modal
-    id="cookbook__build__search"
+    id="search"
     :modal-aria-label="modalAriaLabel">
-    Build Search
-    <input v-model="inputQuery" placeholder="What do you need?" />
+    <header class="search__header">
+      <input v-model="inputQuery" placeholder="What do you need?" />
+    </header>
 
-    <ol>
+    <section class="search__body">
+    <ol class="search__items">
       <li
         v-for="(letter, index) in itemAlpha"
         :key="index">
@@ -14,13 +16,30 @@
           <li
             v-for="(item, itemIndex) in groupedItems[letter]"
             :key="itemIndex">
-            {{item}}
+            <label>
+              <input
+                type="checkbox"
+                :value="item"
+                v-model="selectedItems" />
+              {{item}}
+            </label>
           </li>
         </ol>
       </li>
     </ol>
+    <ol class="search__alpha">
+        <li
+          v-for="(letter, index) in alpha"
+          :key="index">
+          {{letter}}
+        </li>
+    </ol>
+    </section>
 
-    <button v-on:click="goBack">Cancel</button>
+    <section class="search__action-bar">
+      <button v-on:click="cancel">Cancel</button>
+      <button v-on:click="submit">Continue</button>
+    </section>
   </Modal>
 </template>
 
@@ -42,6 +61,7 @@ export default {
       inputQuery: this.query,
       alpha: 'abcdefghijklmnopqrstuvwxyz'.split(''),
       items: [],
+      selectedItems: [],
     }
   },
   computed: {
@@ -78,9 +98,49 @@ export default {
       .then(response => (this.items = response.data))
   },
   methods: {
-    goBack () {
+    submit () {
+      // TODO: add submit logic!!!
+      console.log('TODO!')
+      console.log('Handle:', this.selectedItems)
+    },
+    cancel () {
       window.history.length > 1 ? this.$router.go(-1) : this.$router.push('/cookbook')
     }
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.search {
+  &__header {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    background: white;
+    text-align: center;
+  }
+
+  &__action-bar {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    background: white;
+    text-align: center;
+  }
+
+  &__alpha {
+    position: fixed;
+    height: 80%;
+    top: 10%;
+    right:10%;
+    background: white;
+    text-align: center;
+  }
+
+  &__body {
+
+  }
+}
+</style>
