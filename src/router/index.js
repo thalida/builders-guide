@@ -50,6 +50,9 @@ const routes = [
           {
             path: 'search',
             component: CookbookBuildSearch,
+            meta: {
+              returnFocusOnDeactivate: false
+            },
             props: (route) => ({ query: route.query.q }),
           },
           {

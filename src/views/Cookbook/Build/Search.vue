@@ -1,13 +1,16 @@
 <template>
-  <div id="cookbook__build__search">
-    Build Search
-    <input v-model="inputQuery" placeholder="What do you need?" />
-    <button v-on:click="goBack">Cancel</button>
-  </div>
+  <Modal :modal-aria-label="modalAriaLabel">
+    <div id="cookbook__build__search">
+      Build Search
+      <input v-model="inputQuery" placeholder="What do you need?" />
+      <button v-on:click="goBack">Cancel</button>
+    </div>
+  </Modal>
 </template>
 
 <script>
-// @ is an alias to /src
+import Modal from '@/components/Modal.vue'
+
 export default {
   name: 'CookbookBuildSearch',
   props: {
@@ -15,13 +18,18 @@ export default {
   },
   data () {
     return {
+      modalAriaLabel: 'Search Modal',
       inputQuery: this.query,
     }
   },
-  components: {},
+  components: {
+    Modal,
+  },
   methods: {
     goBack () {
-      window.history.length > 1 ? this.$router.go(-1) : this.$router.push('/cookbook')
+      this.$router.push('/cookbook/build')
+      // console.log('here?', this.$router)
+      // window.history.length > 1 ? this.$router.go(-1) : this.$router.push('/cookbook')
     }
   }
 }

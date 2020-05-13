@@ -5,6 +5,22 @@
 </template>
 
 <style lang="scss">
+// @import './assets/css/_variables';
+// @import './assets/css/normalize';
+// body
+// Base body styles including hiding scrollbars when modal is visible
+// -----------------------------------------------------------------------------
+body {
+  padding: 0;
+  margin: 0;
+  // font: normal normal 62.5%/1.2 'Signika', Arial, sans-serif;
+  background: white;
+  color: black;
+}
+.body--with-modal {
+  overflow: hidden;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

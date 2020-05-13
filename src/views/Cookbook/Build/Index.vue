@@ -15,12 +15,13 @@
       <router-link to="/cookbook/build/freeform">F</router-link>
     </div>
 
-    <router-view class="modal"></router-view>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
+// import Modal from '@/components/Modal.vue'
+
 export default {
   name: 'CookbookBuild',
   data () {
@@ -28,10 +29,11 @@ export default {
       searchTerm: null
     }
   },
-  components: {},
+  components: {
+    // Modal,
+  },
   methods: {
     goToSearch () {
-      console.log(this)
       const q = this.searchTerm
       this.searchTerm = null
       this.$router.push({ path: '/cookbook/build/search', query: { q } })
@@ -40,14 +42,4 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-.modal {
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  background: white;
-  width: 100%;
-  height: 100%;
-}
-</style>
+<style lang="scss" scoped></style>
