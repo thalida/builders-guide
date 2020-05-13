@@ -32,7 +32,13 @@ export default {
     goToSearch () {
       const q = this.searchTerm
       this.searchTerm = null
-      this.$router.push({ path: '/cookbook/build/search', query: { q } })
+
+      let query = {}
+      if (typeof q === 'string' && q.length > 0) {
+        query = { q }
+      }
+
+      this.$router.push({ path: '/cookbook/build/search', query })
     }
   }
 }

@@ -6,11 +6,17 @@
       <input v-model="inputQuery" placeholder="What do you need?" />
     </header>
 
-    <section class="search__body">
     <ol class="search__items">
       <li
         v-for="(letter, index) in itemAlpha"
-        :key="index">
+        v-waypoint="{
+          active: true,
+          callback: onWaypoint,
+          options: intersectionOptions
+        }"
+        :key="index"
+        :data-index="index">
+        <a :id="letter"></a>
         <h2>{{ letter }}</h2>
         <ol>
           <li
@@ -27,14 +33,21 @@
         </ol>
       </li>
     </ol>
+
     <ol class="search__alpha">
         <li
           v-for="(letter, index) in alpha"
           :key="index">
-          {{letter}}
+
+          <a
+            v-if="itemAlpha.indexOf(letter) >= 0"
+            :href="`#${letter}`"
+            :class="{'is-selected': activeLetter === letter}">
+            {{letter}}
+          </a>
+          <span v-else>{{letter}}</span>
         </li>
     </ol>
-    </section>
 
     <section class="search__action-bar">
       <button v-on:click="cancel">Cancel</button>
@@ -56,12 +69,21 @@ export default {
     Modal,
   },
   data () {
+    const alpha = 'abcdefghijklmnopqrstuvwxyz'.split('')
     return {
       modalAriaLabel: 'Search Modal',
       inputQuery: this.query,
-      alpha: 'abcdefghijklmnopqrstuvwxyz'.split(''),
+      alpha,
+      visibleLetters: [],
+      activeLetter: null,
       items: [],
       selectedItems: [],
+      // https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
+      intersectionOptions: {
+        root: null,
+        rootMargin: '0px 0px 0px 0px',
+        threshold: [0] // [0.25, 0.75] if you want a 25% offset!
+      }
     }
   },
   computed: {
@@ -93,11 +115,37 @@ export default {
     },
   },
   mounted () {
+    // TODO: FIGURE OUT HOW TO SCROLL TO THIS POINT
+    const hash = this.$route.hash
+    console.log(hash)
+
+    if (typeof hash === 'string' && hash.length > 0) {
+      const hashParts = hash.split('#')
+      const hashLetter = hashParts[1]
+      console.log(hashLetter)
+    }
+
+    this.intersectionOptions.root = this.$el
     axios
       .get('http://0.0.0.0:5000/api/1.15/items')
       .then(response => (this.items = response.data))
   },
   methods: {
+    onWaypoint ({ el, going, direction }) {
+      const letterIndex = parseInt(el.dataset.index, 10)
+
+      if (going === this.$waypointMap.GOING_IN) {
+        this.visibleLetters.push(letterIndex)
+      } else if (going === this.$waypointMap.GOING_OUT) {
+        const foundIndex = this.visibleLetters.indexOf(letterIndex)
+        if (foundIndex >= 0) {
+          this.visibleLetters.splice(foundIndex, 1)
+        }
+      }
+
+      this.visibleLetters.sort()
+      this.activeLetter = this.itemAlpha[this.visibleLetters[0]]
+    },
     submit () {
       // TODO: add submit logic!!!
       console.log('TODO!')
@@ -137,10 +185,18 @@ export default {
     right:10%;
     background: white;
     text-align: center;
+
+    a {
+      font-weight: bold;
+    }
+
+    .is-selected {
+      color: red;
+    }
   }
 
-  &__body {
-
+  &__items {
+    z-index: 1;
   }
 }
 </style>
