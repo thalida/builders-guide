@@ -30,6 +30,7 @@
                 type="checkbox"
                 :value="item"
                 v-model="selectedItems" />
+              <img :src="getItemImage(item)" />
               {{item}}
             </label>
           </li>
@@ -55,7 +56,7 @@
 
     <section class="search__action-bar">
       <button v-on:click="cancel">Cancel</button>
-      <button v-on:click="submit">Continue</button>
+      <button v-on:click="submit">Continue with {{numSelected}} items</button>
     </section>
   </Modal>
 </template>
@@ -96,6 +97,9 @@ export default {
     }
   },
   computed: {
+    numSelected () {
+      return this.selectedItems.length
+    },
     filteredItems () {
       const filtered = this.items.filter(item => {
         return item.indexOf(this.inputQuery) >= 0
@@ -151,6 +155,14 @@ export default {
     document.removeEventListener('scroll', this.onScroll)
   },
   methods: {
+    getItemImage (item) {
+      const images = require.context('../../../assets/minecraft/1.15/32x32/', false, /\.png$/)
+      try {
+        return images(`./${item}.png`)
+      } catch (error) {
+        return images('./air.png')
+      }
+    },
     onScroll () {
       if (this.navi.fromUserClick && !this.navi.arrivedAtLetter) {
         return
