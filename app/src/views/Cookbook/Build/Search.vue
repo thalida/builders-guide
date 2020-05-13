@@ -8,7 +8,6 @@
         placeholder="What do you need?"
         v-on:keyup="onInputChange" />
     </header>
-
     <ol class="search__items">
       <li
         v-for="(letter, index) in navi.alpha"
@@ -76,9 +75,10 @@ export default {
   },
   data () {
     const alpha = 'abcdefghijklmnopqrstuvwxyz'.split('')
+    const inputQuery = (typeof this.query === 'string' && this.query.length > 0) ? this.query : ''
     return {
       modalAriaLabel: 'Search Modal',
-      inputQuery: this.query,
+      inputQuery,
       navi: {
         alpha,
         inViewport: [],
