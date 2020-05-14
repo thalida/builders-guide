@@ -1,6 +1,6 @@
 <template>
   <Modal
-    id="search"
+    class="search"
     :modal-aria-label="modalAriaLabel">
     <header class="search__header">
       <input
@@ -30,7 +30,10 @@
                 :value="item"
                 v-model="tmpSelectedItems" />
               <img :src="getItemImage(item)" />
-              {{item}}
+              <span
+                v-for="(stringPart, spi) in getItemNameParts(item)"
+                :key="spi"
+                :class="[`is-${stringPart.style}`]">{{stringPart.value}}</span>
             </label>
           </li>
         </ol>
@@ -168,6 +171,17 @@ export default {
         return images('./air.png')
       }
     },
+    getItemNameParts (item) {
+      // const query = (typeof this.inputQuery === 'string') ? this.inputQuery : ''
+      const boldStart = item.indexOf(this.inputQuery)
+      const boldEnd = boldStart + this.inputQuery.length
+
+      return [
+        { style: 'normal', value: item.substring(0, boldStart) },
+        { style: 'bold', value: item.substring(boldStart, boldEnd) },
+        { style: 'normal', value: item.substring(boldEnd) },
+      ]
+    },
     scrollToHash () {
       const hash = this.$route.hash
 
@@ -234,10 +248,8 @@ export default {
       })
     },
     submit () {
-      // this.$store.commit('setTmpSelectedItems', newVal)
       this.selectedItems = this.tmpSelectedItems.splice(0)
       this.tmpSelectedItems = null
-      console.log('Handle:', this.selectedItems)
       this.$router.push('/cookbook/build')
     },
     cancel () {
@@ -288,6 +300,10 @@ export default {
   &__items {
     margin: 60px 0;
     z-index: 1;
+  }
+
+  .is-bold {
+    font-weight: bold;
   }
 }
 </style>
