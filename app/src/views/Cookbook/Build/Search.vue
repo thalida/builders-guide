@@ -267,6 +267,7 @@ export default {
 <style lang="scss" scoped>
 .search {
   &__header {
+    z-index: 2;
     position: fixed;
     width: 100%;
     top: 0;
@@ -276,6 +277,7 @@ export default {
   }
 
   &__action-bar {
+    z-index: 2;
     position: fixed;
     width: 100%;
     bottom: 0;
