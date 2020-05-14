@@ -8,36 +8,30 @@
         placeholder="What do you need?"
         v-on:keyup="onInputChange" />
     </header>
+
     <ol class="search__items">
-      <li
-        v-for="(letter, index) in navi.alpha"
-        v-show="itemAlpha.indexOf(letter) >= 0"
-        v-observe-visibility="{
-          callback: onVisibilityChanged,
-          intersection: navi.intersectionOptions
-        }"
-        :key="index"
-        :data-letter="letter">
-        <a :id="letter"></a>
-        <h2>{{ letter }}</h2>
-        <ol>
-          <li
-            v-for="(item, itemIndex) in groupedItems[letter]"
-            :key="itemIndex">
-            <label>
-              <input
-                type="checkbox"
-                :value="item"
-                v-model="tmpSelectedItems" />
-              <img :src="getItemImage(item)" />
-              <span
-                v-for="(stringPart, spi) in getItemNameParts(item)"
-                :key="spi"
-                :class="[`is-${stringPart.style}`]">{{stringPart.value}}</span>
-            </label>
-          </li>
-        </ol>
-      </li>
+      <RecycleScroller
+        class="scroller"
+        :items="renderData.items"
+        v-slot="{ item }">
+        <li v-if="item.type === 'header'" class="item-group">
+          <a :id="item.letter"></a>
+          <h2>{{ item.letter }}</h2>
+        </li>
+        <li v-if="item.type === 'item'" class="item-row">
+          <label>
+            <input
+              type="checkbox"
+              :value="item.name"
+              v-model="tmpSelectedItems" />
+            <img :src="item.src" />
+            <span
+              v-for="(stringPart, spi) in item.nameParts"
+              :key="spi"
+              :class="[`is-${stringPart.style}`]">{{stringPart.value}}</span>
+          </label>
+        </li>
+      </RecycleScroller>
     </ol>
 
     <ol class="search__alpha">
@@ -46,7 +40,7 @@
           :key="index">
 
           <a
-            v-if="itemAlpha.indexOf(letter) >= 0"
+            v-if="renderData.letters[letter]"
             :href="`#${letter}`"
             :class="{'is-selected': navi.selected === letter}"
             v-on:click="onLetterClick(letter)">
@@ -99,9 +93,17 @@ export default {
     }
   },
   computed: {
-    ...mapState({
-      items: state => state.gameData[state.selectedVersion].items,
-    }),
+    ...mapState({}),
+    items () {
+      if (
+        typeof this.$store.state.gameData[this.$store.state.selectedVersion] === 'undefined' ||
+        typeof this.$store.state.gameData[this.$store.state.selectedVersion].items === 'undefined'
+      ) {
+        return []
+      }
+
+      return this.$store.state.gameData[this.$store.state.selectedVersion].items
+    },
     selectedItems: {
       get () {
         return this.$store.state.selectedItems
@@ -121,36 +123,39 @@ export default {
     numSelected () {
       return (Array.isArray(this.tmpSelectedItems)) ? this.tmpSelectedItems.length : 0
     },
-    filteredItems () {
-      return this.items.filter(item => {
-        return item.indexOf(this.inputQuery) >= 0
-      })
-    },
-    groupedItems () {
-      var groupedItems = {}
-      for (let i = 0, l = this.filteredItems.length; i < l; i += 1) {
-        const itemName = this.filteredItems[i]
-        const firstChar = itemName[0]
+    renderData () {
+      const renderItems = []
+      const letterHasItems = {}
 
-        if (typeof groupedItems[firstChar] === 'undefined') {
-          groupedItems[firstChar] = []
+      for (let i = 0, l = this.items.length; i < l; i += 1) {
+        const name = this.items[i]
+        const letter = name[0]
+
+        if (!name.includes(this.inputQuery)) {
+          continue
         }
 
-        groupedItems[firstChar].push(itemName)
+        if (typeof letterHasItems[letter] === 'undefined') {
+          renderItems.push({ id: letter, letter, type: 'header', size: 35 })
+          letterHasItems[letter] = false
+        }
+
+        renderItems.push({
+          id: name,
+          name,
+          src: this.getItemImage(name),
+          nameParts: this.getItemNameParts(name),
+          type: 'item',
+          size: 40
+        })
+
+        letterHasItems[letter] = true
       }
 
-      const alphaLabels = Object.keys(groupedItems)
-      for (let i = 0, l = alphaLabels.length; i < l; i += 1) {
-        const label = alphaLabels[i]
-        groupedItems[label].sort()
+      return {
+        items: renderItems,
+        letters: letterHasItems
       }
-
-      return groupedItems
-    },
-    itemAlpha () {
-      const alpha = Object.keys(this.groupedItems)
-      alpha.sort()
-      return alpha
     },
   },
   mounted () {
@@ -172,7 +177,6 @@ export default {
       }
     },
     getItemNameParts (item) {
-      // const query = (typeof this.inputQuery === 'string') ? this.inputQuery : ''
       const boldStart = item.indexOf(this.inputQuery)
       const boldEnd = boldStart + this.inputQuery.length
 
@@ -304,6 +308,22 @@ export default {
 
   .is-bold {
     font-weight: bold;
+  }
+
+  .scroller {
+    height: 100%;
+  }
+
+  .item-group {
+    height: 35px;
+    display: flex;
+    align-items: center;
+  }
+
+  .item-row {
+    height: 40px;
+    display: flex;
+    align-items: center;
   }
 }
 </style>

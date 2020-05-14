@@ -29,11 +29,12 @@ export default new Vuex.Store({
       state.skipSplash = bool
     },
     setItems (state, itemsArr) {
-      if (typeof state.gameData[state.selectedVersion] === 'undefined') {
-        state.gameData[state.selectedVersion] = {}
+      const gameData = state.gameData
+      if (typeof gameData[state.selectedVersion] === 'undefined') {
+        gameData[state.selectedVersion] = {}
       }
-
-      state.gameData[state.selectedVersion].items = itemsArr
+      gameData[state.selectedVersion].items = itemsArr
+      state.gameData = Object.assign({}, state.gameData, gameData)
     },
     setSelectedItems (state, itemsArr) {
       state.selectedItems = itemsArr
