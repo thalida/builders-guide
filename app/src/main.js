@@ -12,11 +12,5 @@ Vue.use(VueObserveVisibility)
 new Vue({
   router,
   store,
-  localStorage: {
-    skipSplash: {
-      type: Boolean,
-      default: false
-    },
-  },
   render: h => h(App)
 }).$mount('#app')

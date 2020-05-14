@@ -24,16 +24,17 @@ export default {
   data: () => {
     return {
       checked: true,
-      skipSplash: null,
     }
   },
-  watch: {
-    skipSplash (newValue) {
-      this.$localStorage.set('skipSplash', newValue)
+  computed: {
+    skipSplash: {
+      get () {
+        return this.$store.state.skipSplash
+      },
+      set (newBool) {
+        this.$store.commit('setSkipSplash', newBool)
+      }
     }
-  },
-  mounted () {
-    this.skipSplash = this.$localStorage.get('skipSplash', false, Boolean)
   }
 }
 </script>

@@ -28,7 +28,7 @@
               <input
                 type="checkbox"
                 :value="item"
-                v-model="selectedItems" />
+                v-model="tmpSelectedItems" />
               <img :src="getItemImage(item)" />
               {{item}}
             </label>
@@ -61,8 +61,9 @@
 </template>
 
 <script>
-import axios from 'axios'
 import 'intersection-observer'
+import { mapState } from 'vuex'
+
 import Modal from '@/components/Modal.vue'
 
 export default {
@@ -92,20 +93,35 @@ export default {
           threshold: 0,
         },
       },
-      items: [],
-      selectedItems: [],
     }
   },
   computed: {
+    ...mapState({
+      items: state => state.gameData[state.selectedVersion].items,
+    }),
+    selectedItems: {
+      get () {
+        return this.$store.state.selectedItems
+      },
+      set (newVal) {
+        return this.$store.commit('setSelectedItems', newVal)
+      }
+    },
+    tmpSelectedItems: {
+      get () {
+        return this.$store.state.tmpSelectedItems
+      },
+      set (newVal) {
+        return this.$store.commit('setTmpSelectedItems', newVal)
+      }
+    },
     numSelected () {
-      return this.selectedItems.length
+      return (Array.isArray(this.tmpSelectedItems)) ? this.tmpSelectedItems.length : 0
     },
     filteredItems () {
-      const filtered = this.items.filter(item => {
+      return this.items.filter(item => {
         return item.indexOf(this.inputQuery) >= 0
       })
-
-      return filtered
     },
     groupedItems () {
       var groupedItems = {}
@@ -135,21 +151,10 @@ export default {
     },
   },
   mounted () {
-    // TODO: FIGURE OUT HOW TO SCROLL TO THIS POINT
-    // const hash = this.$route.hash
-    // console.log(hash)
-
-    // if (typeof hash === 'string' && hash.length > 0) {
-    //   const hashParts = hash.split('#')
-    //   const hashLetter = hashParts[1]
-    //   console.log(hashLetter)
-    // }
-    this.$searchItems = this.$el.getElementsByClassName('search__items')[0]
+    this.$store.dispatch('setupSearchStore')
+    this.navi.intersectionOptions.root = this.$elem
     this.$el.addEventListener('scroll', this.onScroll)
-    this.navi.intersectionOptions.root = this.$el
-    axios
-      .get('http://0.0.0.0:5000/api/1.15/items')
-      .then(response => (this.items = response.data))
+    this.scrollToHash()
   },
   destroyed () {
     document.removeEventListener('scroll', this.onScroll)
@@ -162,6 +167,20 @@ export default {
       } catch (error) {
         return images('./air.png')
       }
+    },
+    scrollToHash () {
+      const hash = this.$route.hash
+
+      if (typeof hash !== 'string' || hash.length === 0) {
+        return
+      }
+
+      const element = this.$el.querySelector(hash)
+      if (typeof element === 'undefined' || element === null) {
+        return
+      }
+      const top = element.offsetTop
+      setTimeout(() => (this.$el.scrollTo(0, top)), 0)
     },
     onScroll () {
       if (this.navi.fromUserClick && !this.navi.arrivedAtLetter) {
@@ -215,12 +234,15 @@ export default {
       })
     },
     submit () {
-      // TODO: add submit logic!!!
-      console.log('TODO!')
+      // this.$store.commit('setTmpSelectedItems', newVal)
+      this.selectedItems = this.tmpSelectedItems.splice(0)
+      this.tmpSelectedItems = null
       console.log('Handle:', this.selectedItems)
+      this.$router.push('/cookbook/build')
     },
     cancel () {
-      window.history.length > 1 ? this.$router.go(-1) : this.$router.push('/cookbook')
+      this.tmpSelectedItems = null
+      this.$router.push('/cookbook/build')
     }
   }
 }

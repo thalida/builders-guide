@@ -15,6 +15,8 @@
       <router-link to="/cookbook/build/freeform">F</router-link>
     </div>
 
+    {{selectedItems}}
+
     <router-view></router-view>
   </div>
 </template>
@@ -26,6 +28,11 @@ export default {
   data () {
     return {
       searchTerm: null
+    }
+  },
+  computed: {
+    selectedItems () {
+      return this.$store.state.selectedItems
     }
   },
   methods: {

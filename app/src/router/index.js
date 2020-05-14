@@ -1,31 +1,21 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Splash from '../views/Splash.vue'
+import Index from '../views/Index.vue'
+import Splash from '../views/Splash/Index.vue'
 import Cookbook from '../views/Cookbook/Index.vue'
 import CookbookBuild from '../views/Cookbook/Build/Index.vue'
 import CookbookBuildSearch from '../views/Cookbook/Build/Search.vue'
 import CookbookBuildLibrary from '../views/Cookbook/Build/Library.vue'
 import CookbookBuildFreeform from '../views/Cookbook/Build/Freeform.vue'
-import CookbookRecipes from '../views/Cookbook/Recipes.vue'
-import CookbookShoppingList from '../views/Cookbook/ShoppingList.vue'
+import CookbookRecipes from '../views/Cookbook/Recipes/Index.vue'
+import CookbookShoppingList from '../views/Cookbook/ShoppingList/Index.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/',
-    redirect: to => {
-      const skipSplash = Vue.localStorage.get('skipSplash', false, Boolean)
-      let nextRoute = ''
-
-      if (skipSplash) {
-        nextRoute = '/cookbook'
-      } else {
-        nextRoute = '/splash'
-      }
-
-      return nextRoute
-    },
+    path: '',
+    component: Index,
   },
   {
     path: '/splash',
@@ -85,7 +75,7 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () =>
-      import(/* webpackChunkName: "about" */ '../views/About.vue')
+      import(/* webpackChunkName: "about" */ '../views/About/Index.vue')
   }
 ]
 
@@ -93,6 +83,15 @@ const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes,
+  // scrollBehavior (to, from, savedPosition) {
+  //   if (to.hash) {
+  //     return { selector: to.hash }
+  //   } else if (savedPosition) {
+  //     return savedPosition
+  //   } else {
+  //     return { x: 0, y: 0 }
+  //   }
+  // }
 })
 
 export default router
