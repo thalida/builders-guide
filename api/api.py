@@ -195,6 +195,7 @@ def api_calculate_resources(version):
         requested_items = req_json.get("items", [])
         parse_strings = req_json.get("parse_item_strings")
     except Exception:
+        logger.exception(e)
         abort(SERVER_ERROR)
 
     try:
@@ -214,14 +215,14 @@ def api_calculate_resources(version):
             )
             requested_items = parsed_items["items"]
 
-        recipe_tree = cookbook.cookbook.create_recipe_tree(
+        recipe_tree = cookbook.calculator.create_recipe_tree(
             requested_items,
             all_recipes=all_crafting_data["recipes"],
             all_tags=all_crafting_data["tags"],
             supported_recipes=all_crafting_data["supported_recipes"],
         )
 
-        shopping_list = cookbook.cookbook.create_shopping_list(
+        shopping_list = cookbook.calculator.create_shopping_list(
             recipe_tree, path=recipe_path, have_already=have_already
         )
 

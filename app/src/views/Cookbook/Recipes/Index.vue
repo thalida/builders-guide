@@ -1,13 +1,20 @@
 <template>
   <div id="cookbook__recipes">
-    Cookbook Recipes
+    {{ recipeTree }}
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
 export default {
   name: 'CookbookRecipes',
-  components: {}
+  components: {},
+  computed: {
+    recipeTree () {
+      return this.$store.state.recipeTree
+    },
+  },
+  mounted () {
+    this.$store.dispatch('calculateResources')
+  }
 }
 </script>

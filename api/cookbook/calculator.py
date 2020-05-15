@@ -349,9 +349,9 @@ def create_recipe_tree(
             # How much does this recipe create?
             recipe_result_count = recipe["result"].get("count", 1)
             # How many times do we need to call this recipe?
-            recipe_multiplier = math.ceil(amount_required / recipe_result_count)
+            next_recipe_multiplier = math.ceil(amount_required / recipe_result_count)
             # How much is created in the end?
-            amount_created = recipe_result_count * recipe_multiplier
+            amount_created = recipe_result_count * next_recipe_multiplier
 
             # Get a list of all the ingredients
             ingredients = get_ingredients(recipe, all_tags)
@@ -365,7 +365,7 @@ def create_recipe_tree(
                 all_tags=all_tags,
                 supported_recipes=supported_recipes,
                 ancestors=new_ancestors,
-                recipe_multiplier=recipe_multiplier,
+                recipe_multiplier=next_recipe_multiplier,
             )
 
             # Oh, dear -- did we get an error? I only throw errors if there's

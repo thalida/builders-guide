@@ -1,6 +1,6 @@
 <template>
   <div id="cookbook__shopping_list">
-    Cookbook Shoppinglist
+    {{ shoppingList }}
   </div>
 </template>
 
@@ -8,6 +8,14 @@
 // @ is an alias to /src
 export default {
   name: 'CookbookShoppingList',
-  components: {}
+  components: {},
+  computed: {
+    shoppingList () {
+      return this.$store.state.shoppingList
+    },
+  },
+  mounted () {
+    this.$store.dispatch('calculateResources')
+  }
 }
 </script>

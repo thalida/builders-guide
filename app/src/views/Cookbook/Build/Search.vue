@@ -104,14 +104,6 @@ export default {
 
       return this.$store.state.gameData[this.$store.state.selectedVersion].items
     },
-    selectedItems: {
-      get () {
-        return this.$store.state.selectedItems
-      },
-      set (newVal) {
-        return this.$store.commit('setSelectedItems', newVal)
-      }
-    },
     tmpSelectedItems: {
       get () {
         return this.$store.state.tmpSelectedItems
@@ -252,8 +244,7 @@ export default {
       })
     },
     submit () {
-      this.selectedItems = this.tmpSelectedItems.splice(0)
-      this.tmpSelectedItems = null
+      this.$store.dispatch('setSelectedFromTmp', this.tmpSelectedItems)
       this.$router.push('/cookbook/build')
     },
     cancel () {

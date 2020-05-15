@@ -17,12 +17,14 @@ const supportedVersions = [
 export default new Vuex.Store({
   plugins: [vuexLocal.plugin],
   state: {
+    gameData: {},
     selectedVersion: supportedVersions[0],
     supportedVersions,
     skipSplash: false,
     selectedItems: [],
     tmpSelectedItems: null,
-    gameData: {}
+    recipeTree: [],
+    shoppingList: [],
   },
   mutations: {
     setSkipSplash (state, bool) {
@@ -42,6 +44,12 @@ export default new Vuex.Store({
     setTmpSelectedItems (state, itemsArr) {
       state.tmpSelectedItems = itemsArr
     },
+    setRecipeTree (state, tree) {
+      state.recipeTree = tree
+    },
+    setShoppingList (state, shoppingList) {
+      state.shoppingList = shoppingList
+    },
   },
   actions: {
     setupSearchStore ({ state, commit }) {
@@ -57,8 +65,54 @@ export default new Vuex.Store({
       }
 
       if (state.tmpSelectedItems === null) {
-        commit('setTmpSelectedItems', state.selectedItems)
+        const selectedItemNames = []
+        for (let i = 0, l = state.selectedItems.length; i < l; i += 1) {
+          selectedItemNames.push(state.selectedItems[i].name)
+        }
+        commit('setTmpSelectedItems', selectedItemNames)
       }
+    },
+    setSelectedFromTmp ({ state, commit }, tmpItems) {
+      const selectedByName = {}
+      for (let i = 0, l = state.selectedItems.length; i < l; i += 1) {
+        const item = state.selectedItems[i]
+        selectedByName[item.name] = item
+      }
+
+      const selectedItems = []
+      for (let i = 0, l = tmpItems.length; i < l; i += 1) {
+        const itemName = tmpItems[i]
+        const amount = (selectedByName[itemName]) ? selectedByName[itemName].amount : 1
+        selectedItems.push({
+          name: itemName,
+          amount
+        })
+      }
+
+      commit('setSelectedItems', selectedItems)
+      commit('setTmpSelectedItems', null)
+    },
+    calculateResources ({ state, commit }) {
+      const numSelectedItems = state.selectedItems.length
+      if (numSelectedItems === 0) {
+        return
+      }
+
+      const items = []
+      for (let i = 0; i < numSelectedItems; i += 1) {
+        const item = state.selectedItems[i]
+        items.push({
+          name: item.name,
+          amount_required: item.amount
+        })
+      }
+
+      axios
+        .post('http://0.0.0.0:5000/api/1.15/calculate_resources', { items })
+        .then(response => {
+          commit('setRecipeTree', response.data.recipe_tree)
+          commit('setShoppingList', response.data.shopping_list)
+        })
     }
   },
   modules: {
