@@ -22,7 +22,6 @@ export default {
       },
       set (newTree) {
         this.$store.commit('setRecipeTree', newTree)
-        this.$store.dispatch('setupShoppingList')
       }
     },
   },
