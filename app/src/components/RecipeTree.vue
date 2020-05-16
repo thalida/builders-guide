@@ -160,7 +160,6 @@ export default {
   display: flex;
   justify-content: center;
   flex-flow: column nowrap;
-  background: rgba(0,0,0,0.1);
   width: 100vw;
   overflow: auto;
 
@@ -169,6 +168,7 @@ export default {
     flex: 1 0 auto;
     flex-flow: column nowrap;
     margin: 15px 0;
+    background: rgba(0,0,0,0.1);
   }
 
   &__node-toggle {

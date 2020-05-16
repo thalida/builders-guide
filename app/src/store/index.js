@@ -58,7 +58,7 @@ export default new Vuex.Store({
     selectedItems: [],
     tmpSelectedItems: null,
     recipeTree: [],
-    shoppingList: [],
+    shoppingList: {},
   },
   mutations: {
     setSkipSplash (state, bool) {
@@ -160,13 +160,29 @@ export default new Vuex.Store({
       const recipeTreeCopy = state.recipeTree.slice(0)
       const recipePath = buildRecipePath(recipeTreeCopy)
 
+      const haveAlready = {}
+      const shoppingListItems = Object.keys(state.shoppingList)
+      const numItems = shoppingListItems.length
+      if (numItems > 0) {
+        for (let i = 0; i < numItems; i += 1) {
+          const itemName = shoppingListItems[i]
+          const item = state.shoppingList[itemName]
+          haveAlready[itemName] = item.have
+        }
+      }
+
       axios
         .post('http://0.0.0.0:5000/api/1.15/shopping_list', {
-          recipe_path: recipePath
+          recipe_path: recipePath,
+          have_already: haveAlready,
         })
         .then(response => {
           commit('setShoppingList', response.data)
         })
+    },
+    updateShoppingList ({ commit, dispatch }, newList) {
+      commit('setShoppingList', newList)
+      dispatch('setupShoppingList')
     }
   },
   modules: {

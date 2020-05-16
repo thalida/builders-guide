@@ -1,22 +1,63 @@
 <template>
   <div id="cookbook__shopping_list">
-    {{ rawIngredients }}
-    {{itemsByLevel}}
+    <div>
+      <div>
+        <h3>Raw Ingredients</h3>
+        <p>The base level ingredients you’ll need to craft.</p>
+        <a @click="toggleRawIngredients">Toggle</a>
+      </div>
+      <div v-if="showRawIngredients">
+        <shopping-list-item
+          v-for="(item, index) in rawIngredients"
+          :key="index"
+          :item="shoppingList[item]"
+          :item-name="item">
+        </shopping-list-item>
+      </div>
+    </div>
+    <div>
+      <div>
+        <h3>Build Process</h3>
+        <p>Each item you’ll need to craft in reverse order.</p>
+        <a @click="toggleBuildProcess">Toggle</a>
+      </div>
+      <div v-if="showBuildProcess">
+        <div
+          v-for="(level) in buildLevels"
+          :key="level">
+          <shopping-list-item
+            v-for="(item, index) in buildProcess[level]"
+            :key="index"
+            :item="shoppingList[item]"
+            :item-name="item">
+          </shopping-list-item>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
+import ShoppingListItem from '@/components/ShoppingListItem.vue'
+
 export default {
   name: 'CookbookShoppingList',
-  components: {},
+  components: {
+    ShoppingListItem,
+  },
+  data () {
+    return {
+      showRawIngredients: true,
+      showBuildProcess: true,
+    }
+  },
   computed: {
     shoppingList: {
       get () {
         return this.$store.state.shoppingList
       },
       set (newList) {
-        this.$store.commit('setShoppingList', newList)
+        this.$store.dispatch('updateShoppingList', newList)
       }
     },
     rawIngredients () {
@@ -36,32 +77,45 @@ export default {
 
       return raw
     },
-    itemsByLevel () {
-      const itemsByLevel = {}
+    buildProcess () {
+      const buildProcess = {}
       const list = Object.keys(this.shoppingList)
       for (let i = 0, l = list.length; i < l; i += 1) {
         const itemName = list[i]
         const item = this.shoppingList[itemName]
         const level = item.level
 
-        if (typeof itemsByLevel[level] === 'undefined') {
-          itemsByLevel[level] = []
+        if (typeof buildProcess[level] === 'undefined') {
+          buildProcess[level] = []
         }
 
-        itemsByLevel[level].push(itemName)
+        buildProcess[level].push(itemName)
       }
 
-      const levels = Object.keys(itemsByLevel)
+      const levels = Object.keys(buildProcess)
       for (let i = 0, l = levels.length; i < l; i += 1) {
         const level = levels[i]
-        itemsByLevel[level].sort()
+        buildProcess[level].sort()
       }
 
-      return itemsByLevel
+      return buildProcess
+    },
+    buildLevels () {
+      return Object.keys(this.buildProcess)
     }
   },
   mounted () {
-    this.$store.dispatch('setupShoppingList')
-  }
+    if (Object.keys(this.shoppingList).length === 0) {
+      this.$store.dispatch('setupShoppingList')
+    }
+  },
+  methods: {
+    toggleRawIngredients () {
+      this.showRawIngredients = !this.showRawIngredients
+    },
+    toggleBuildProcess () {
+      this.showBuildProcess = !this.showBuildProcess
+    },
+  },
 }
 </script>
