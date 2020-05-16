@@ -37,6 +37,7 @@
             v-if="showChildren[ni]"
             :parent-idx="ni"
             :tree="node.recipes"
+            :option-group="true"
             @update="handleTreeUpdate">
           </recipe-tree>
         </div>

@@ -416,18 +416,15 @@ def create_recipe_tree(
     return tree
 
 
-def create_shopping_list(
-    tree, path=None, have_already=None, parent_node=None, shopping_list=None
-):
+def create_shopping_list(path, have_already=None, parent_node=None, shopping_list=None):
     """Based on the recipe tree create the shopping list we need
 
     Arguments:
-        tree {list} -- A create_recipe_tree recipe tree.
-
-    Keyword Arguments:
         path {dict} -- Recipe trees have a lot of branches, in order to create a
                         shopping list we can specify the paths (branches) we
                         want to take (default: {None})
+
+    Keyword Arguments:
         have_already {dict} -- Key value pair of items to how much you already have
                                 in your base / inventory (default: {None})
         parent_node {str} -- Item name that came before (default: {None})
@@ -439,48 +436,10 @@ def create_shopping_list(
     if shopping_list is None:
         shopping_list = {}
 
-    if path is None:
-        path = {}
-
     if have_already is None:
         have_already = {}
 
-    for node_idx, node in enumerate(tree):
-        # check if we've set a path for this node
-        node_path = path.get(str(node_idx), {})
-        has_node_path = path.get(str(node_idx)) is not None
-
-        # If this node is a list that means all of the items in the list can be
-        # used interchangely -- let's pick the chosen item we'd like to craft with!
-        if isinstance(node, list):
-            chosen_node = None
-            # In order to choose the correct item to craft with, we need to check
-            # if we've set a value in the path.
-            if has_node_path:
-                find_node = node_path.get("name")
-                # Search through every node to see if one matches the node in
-                # our path. If so, that's the chosen node!
-                for nested_node in node:
-                    if nested_node["name"] == find_node:
-                        chosen_node = nested_node
-                        break
-
-            # Ah, no node could be found, let's just choose the first one in the list
-            if chosen_node is None:
-                chosen_node = node[0]
-
-            # Let's gethis recursive shopping list going!
-            new_shopping_list = create_shopping_list(
-                [chosen_node],
-                path={"0": node_path},
-                parent_node=parent_node,
-                shopping_list=shopping_list,
-                have_already=have_already,
-            )
-            # Make sure our dict stays up to date and skip to the next node
-            shopping_list.update(new_shopping_list)
-            continue
-
+    for node_idx, node in enumerate(path):
         node_name = node["name"]
         amount_required = node["amount_required"]
 
@@ -513,17 +472,7 @@ def create_shopping_list(
 
         # Now time to choose a recipe to craft with, either pick the recipe
         # set by the path or...
-        chosen_recipe = None
-        if has_node_path:
-            node_path_recipe = node_path.get("recipe")
-            for recipe in node["recipes"]:
-                if recipe["name"] == node_path_recipe:
-                    chosen_recipe = recipe
-                    break
-
-        # ... choose the first recipe available
-        if chosen_recipe is None:
-            chosen_recipe = node["recipes"][0]
+        chosen_recipe = node["recipes"][0]
 
         # The following logic is about making sure we have all the right amount
         # counts for this item in our shopping list!
@@ -550,35 +499,11 @@ def create_shopping_list(
         # ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^
 
         # Now it's time to get the shopping list required for every ingredient!
-        node_path_ingredients = node_path.get("ingredients", {})
         ingredients = chosen_recipe["ingredients"]
         for idx, ingredient in enumerate(ingredients):
-            ingredient_item = None
-
-            ingredient_path = node_path_ingredients.get(str(idx), {})
-            has_ingredient_path = node_path_ingredients.get(str(idx)) is not None
-
-            # Very similar logic to earlier, if we're working with a list of
-            # ingredients that means it's an option group. We need to choose the
-            # one ingredient we'd like to craft with!
-            if isinstance(ingredient, list) and has_ingredient_path:
-                find_ingredient = ingredient_path["name"]
-                for nested_ingredient in ingredient:
-                    if nested_ingredient["name"] == find_ingredient:
-                        ingredient_item = nested_ingredient
-                        break
-            elif isinstance(ingredient, dict):
-                ingredient_item = ingredient
-
-            # If we don't have a chosen ingredient item we  must be workign with
-            # a list without a path (or it has a broken one!)
-            if ingredient_item is None:
-                ingredient_item = ingredient[0]
-
             # Now get a new shopping list!
             new_shopping_list = create_shopping_list(
-                [ingredient_item],
-                path={"0": ingredient_path},
+                [ingredient],
                 parent_node=node_name,
                 shopping_list=shopping_list,
                 have_already=have_already,

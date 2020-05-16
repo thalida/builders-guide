@@ -14,6 +14,40 @@ const supportedVersions = [
   '1.15'
 ]
 
+const buildRecipePath = (recipeTree, isGroup) => {
+  const path = []
+
+  for (let i = 0, l = recipeTree.length; i < l; i += 1) {
+    const node = recipeTree[i]
+
+    if (Array.isArray(node)) {
+      const chosenNode = buildRecipePath(node.slice(0), true)
+      path.push(chosenNode[0])
+      continue
+    }
+
+    if (!node.selected) {
+      continue
+    }
+
+    const nodeCopy = Object.assign({}, node)
+
+    if (nodeCopy.num_recipes >= 1) {
+      nodeCopy.recipes = buildRecipePath(nodeCopy.recipes, true)
+    } else if (nodeCopy.ingredients && nodeCopy.ingredients.length > 0) {
+      nodeCopy.ingredients = buildRecipePath(nodeCopy.ingredients)
+    }
+
+    path.push(nodeCopy)
+
+    if (isGroup) {
+      break
+    }
+  }
+
+  return path
+}
+
 export default new Vuex.Store({
   plugins: [vuexLocal.plugin],
   state: {
@@ -92,9 +126,11 @@ export default new Vuex.Store({
       commit('setSelectedItems', selectedItems)
       commit('setTmpSelectedItems', null)
     },
-    calculateResources ({ state, commit }) {
+    setupRecipeTree ({ state, commit, dispatch }) {
       const numSelectedItems = state.selectedItems.length
       if (numSelectedItems === 0) {
+        commit('setRecipeTree', [])
+        commit('setShoppingList', [])
         return
       }
 
@@ -108,10 +144,28 @@ export default new Vuex.Store({
       }
 
       axios
-        .post('http://0.0.0.0:5000/api/1.15/calculate_resources', { items })
+        .post('http://0.0.0.0:5000/api/1.15/recipe_tree', { items })
         .then(response => {
-          commit('setRecipeTree', response.data.recipe_tree)
-          commit('setShoppingList', response.data.shopping_list)
+          commit('setRecipeTree', response.data)
+          dispatch('setupShoppingList')
+        })
+    },
+    setupShoppingList ({ state, commit }) {
+      if (state.recipeTree.length === 0) {
+        commit('setRecipeTree', [])
+        commit('setShoppingList', [])
+        return
+      }
+
+      const recipeTreeCopy = state.recipeTree.slice(0)
+      const recipePath = buildRecipePath(recipeTreeCopy)
+
+      axios
+        .post('http://0.0.0.0:5000/api/1.15/shopping_list', {
+          recipe_path: recipePath
+        })
+        .then(response => {
+          commit('setShoppingList', response.data)
         })
     }
   },

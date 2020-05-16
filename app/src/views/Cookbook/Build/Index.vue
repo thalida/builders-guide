@@ -59,7 +59,7 @@ export default {
       deep: true,
       handler (newVal) {
         this.$store.commit('setSelectedItems', newVal)
-        this.$store.dispatch('calculateResources')
+        this.$store.dispatch('setupRecipeTree')
       }
     }
   },

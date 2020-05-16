@@ -15,7 +15,7 @@ export default {
     },
   },
   mounted () {
-    this.$store.dispatch('calculateResources')
+    this.$store.dispatch('setupShoppingList')
   }
 }
 </script>

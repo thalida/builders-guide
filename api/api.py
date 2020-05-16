@@ -169,28 +169,22 @@ def api_parse_items_from_string(version):
         abort(SERVER_ERROR)
 
 
-@app.route("/api/<version>/calculate_resources", methods=["POST"])
-def api_calculate_resources(version):
-    """Calculate resources required to craft the provided items
+@app.route("/api/<version>/recipe_tree", methods=["POST"])
+def api_recipe_tree(version):
+    """Get all the recipes and ingredients required to craft the provided items
         Provide either parse_item_strings OR requested_items, will try to use
         requested_items if provided.
 
     Arguments:
         version {string} -- Version of Minecraft Java Edition
-        have_already {dict} -- Map of what items you already have created
-                                key is the item you have, value the amount
-        recipe_path {dict} -- The chosen recipe path you want to follow
         requested_items {list} -- The items (already formatted) that you'd like crafted
         parse_item_strings {list} -- The strings you'd like converted to an item array
 
     Returns:
-        [type] -- [description]
+        [dict] -- [description]
     """
     try:
         req_json = request.get_json(force=True)
-        have_already = req_json.get("have_already", {})
-        recipe_path = req_json.get("recipe_path", {})
-
         # We'll use requested_items by default, and fallback to parse_strings
         requested_items = req_json.get("items", [])
         parse_strings = req_json.get("parse_item_strings")
@@ -222,16 +216,43 @@ def api_calculate_resources(version):
             supported_recipes=all_crafting_data["supported_recipes"],
         )
 
-        shopping_list = cookbook.calculator.create_shopping_list(
-            recipe_tree, path=recipe_path, have_already=have_already
+        return jsonify(recipe_tree)
+    except Exception as e:
+        logger.exception(e)
+        abort(SERVER_ERROR)
+
+
+@app.route("/api/<version>/shopping_list", methods=["POST"])
+def api_shopping_list(version):
+    """Get the shopping list for the recipes selected
+
+    Arguments:
+        version {string} -- Version of Minecraft Java Edition
+        have_already {dict} -- Map of what items you already have created
+                                key is the item you have, value the amount
+        recipe_path {dict} -- The chosen recipe path you want to follow
+
+    Returns:
+        [type] -- [description]
+    """
+    try:
+        req_json = request.get_json(force=True)
+        recipe_path = req_json.get("recipe_path", {})
+        have_already = req_json.get("have_already", {})
+    except Exception:
+        logger.exception(e)
+        abort(SERVER_ERROR)
+
+    try:
+        all_crafting_data = cookbook.data.get_all_crafting_data(
+            version, force_create=app.debug
         )
 
-        response = {
-            "recipe_tree": recipe_tree,
-            "shopping_list": shopping_list,
-        }
+        shopping_list = cookbook.calculator.create_shopping_list(
+            recipe_path, have_already=have_already
+        )
 
-        return jsonify(response)
+        return jsonify(shopping_list)
     except Exception as e:
         logger.exception(e)
         abort(SERVER_ERROR)

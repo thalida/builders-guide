@@ -22,11 +22,14 @@ export default {
       },
       set (newTree) {
         this.$store.commit('setRecipeTree', newTree)
+        this.$store.dispatch('setupShoppingList')
       }
     },
   },
   mounted () {
-    this.$store.dispatch('calculateResources')
+    if (this.recipeTree.length === 0) {
+      this.$store.dispatch('setupRecipeTree')
+    }
   },
   methods: {
     handleTreeUpdate ({ tree }) {
