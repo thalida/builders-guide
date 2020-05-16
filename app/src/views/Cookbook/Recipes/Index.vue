@@ -1,13 +1,17 @@
 <template>
   <div id="cookbook__recipes">
-    {{ recipeTree }}
+    <recipe-tree :tree="recipeTree" :option-group="false"></recipe-tree>
   </div>
 </template>
 
 <script>
+import RecipeTree from '@/components/RecipeTree.vue'
+
 export default {
   name: 'CookbookRecipes',
-  components: {},
+  components: {
+    RecipeTree,
+  },
   computed: {
     recipeTree () {
       return this.$store.state.recipeTree

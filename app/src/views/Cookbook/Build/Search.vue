@@ -9,7 +9,37 @@
         v-on:keyup="onInputChange" />
     </header>
 
-    <ol class="search__items">
+    <div class="search__items scroller" v-if="showItems">
+      <ol v-if="renderData.hasItems">
+        <li
+          v-for="(item, index) in renderData.items"
+          :key="index">
+          <div v-if="item.type === 'header'" class="item-group">
+            <a :id="item.letter"></a>
+            <h2>{{ item.letter }}</h2>
+          </div>
+          <div v-if="item.type === 'item'" class="item-row">
+            <label>
+              <input
+                type="checkbox"
+                :value="item.name"
+                v-model="tmpSelectedItems" />
+              <img :src="getItemImage(item.name)" />
+              <span
+                v-for="(stringPart, spi) in getItemNameParts(item.name)"
+                :key="spi"
+                :class="[`is-${stringPart.style}`]">{{stringPart.value}}</span>
+            </label>
+          </div>
+        </li>
+      </ol>
+      <div v-else>No results</div>
+    </div>
+    <div class="search__items scroller" v-else>
+      loading...
+    </div>
+
+    <!-- <ol class="search__items" v-show="showItems">
       <RecycleScroller
         class="scroller"
         :items="renderData.items"
@@ -32,7 +62,7 @@
           </label>
         </li>
       </RecycleScroller>
-    </ol>
+    </ol> -->
 
     <ol class="search__alpha">
         <li
@@ -59,7 +89,6 @@
 
 <script>
 import 'intersection-observer'
-import { mapState } from 'vuex'
 
 import Modal from '@/components/Modal.vue'
 
@@ -77,6 +106,8 @@ export default {
     return {
       modalAriaLabel: 'Search Modal',
       inputQuery,
+      renderDataByQuery: {},
+      showItems: false,
       navi: {
         alpha,
         inViewport: [],
@@ -93,7 +124,6 @@ export default {
     }
   },
   computed: {
-    ...mapState({}),
     items () {
       if (
         typeof this.$store.state.gameData[this.$store.state.selectedVersion] === 'undefined' ||
@@ -116,38 +146,7 @@ export default {
       return (Array.isArray(this.tmpSelectedItems)) ? this.tmpSelectedItems.length : 0
     },
     renderData () {
-      const renderItems = []
-      const letterHasItems = {}
-
-      for (let i = 0, l = this.items.length; i < l; i += 1) {
-        const name = this.items[i]
-        const letter = name[0]
-
-        if (!name.includes(this.inputQuery)) {
-          continue
-        }
-
-        if (typeof letterHasItems[letter] === 'undefined') {
-          renderItems.push({ id: letter, letter, type: 'header', size: 35 })
-          letterHasItems[letter] = false
-        }
-
-        renderItems.push({
-          id: name,
-          name,
-          src: this.getItemImage(name),
-          nameParts: this.getItemNameParts(name),
-          type: 'item',
-          size: 40
-        })
-
-        letterHasItems[letter] = true
-      }
-
-      return {
-        items: renderItems,
-        letters: letterHasItems
-      }
+      return this.getRenderDataByQuery(this.inputQuery)
     },
   },
   mounted () {
@@ -155,11 +154,59 @@ export default {
     this.navi.intersectionOptions.root = this.$elem
     this.$el.addEventListener('scroll', this.onScroll)
     this.scrollToHash()
+
+    setTimeout(() => (this.showItems = true), 0)
   },
   destroyed () {
     document.removeEventListener('scroll', this.onScroll)
   },
   methods: {
+    getRenderDataByQuery (query) {
+      // if (typeof this.renderDataByQuery[query] !== 'undefined') {
+      //   return this.renderDataByQuery[query]
+      // }
+
+      const renderItems = []
+      const letterHasItems = {}
+
+      for (let i = 0, l = this.items.length; i < l; i += 1) {
+        const name = this.items[i]
+        const letter = name[0]
+
+        if (!name.includes(query)) {
+          continue
+        }
+
+        if (typeof letterHasItems[letter] === 'undefined') {
+          renderItems.push({
+            id: letter,
+            letter,
+            type: 'header',
+            size: 35
+          })
+          letterHasItems[letter] = false
+        }
+
+        renderItems.push({
+          id: name,
+          name,
+          type: 'item',
+          size: 40
+        })
+
+        letterHasItems[letter] = true
+      }
+
+      const renderData = {
+        items: renderItems,
+        hasItems: renderItems.length > 0,
+        letters: letterHasItems
+      }
+
+      // this.renderDataByQuery[query] = renderData
+
+      return renderData
+    },
     getItemImage (item) {
       const images = require.context('../../../assets/minecraft/1.15/32x32/', false, /\.png$/)
       try {

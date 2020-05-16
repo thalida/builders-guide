@@ -231,7 +231,7 @@ def is_recipe_error(result):
 
 
 def create_recipe_tree(
-    items, all_recipes, all_tags, supported_recipes, ancestors=None, recipe_multiplier=1
+    items, all_recipes, all_tags, supported_recipes, ancestors=None, recipe_multiplier=1, is_group=False
 ):
     """Using the list of `items` provided, generate it's recipe tree. A recipe tree
     is an item with a list of the recipes that craft it, each recipe has a set
@@ -258,7 +258,7 @@ def create_recipe_tree(
 
     tree = []
 
-    for item in items:
+    for (item_index, item) in enumerate(items):
         if isinstance(item, dict):
             amount_required = item.get("amount_required", 1)
         else:
@@ -285,6 +285,7 @@ def create_recipe_tree(
                 all_tags=all_tags,
                 supported_recipes=supported_recipes,
                 ancestors=ancestors,
+                is_group=True,
             )
 
             # Oh, dear -- did we get an error? I only throw errors if there's
@@ -317,7 +318,13 @@ def create_recipe_tree(
             "amount_required": amount_required,
             "num_recipes": 0,
             "recipes": [],
+            "selected": False
         }
+
+        if not is_group:
+            node["selected"] = True
+        elif is_group and item_index == 0:
+            node["selected"] = True
 
         # Create a new copy of the ancestors for this branch of the tree
         new_ancestors = ancestors.copy()
@@ -339,7 +346,7 @@ def create_recipe_tree(
         # For every recipe we want to get it's ingredients, then generate another
         # branch of the recipe tree for how to craft those items -- sounds like
         # a lot and it is! Let's get started...
-        for recipe_name in found_recipes:
+        for (recipe_index, recipe_name) in enumerate(found_recipes):
             recipe = all_recipes[recipe_name]
 
             # Somehow this recipe isn't supported, and ya know what. F-it let's skip
@@ -392,6 +399,7 @@ def create_recipe_tree(
                 "amount_required": amount_required,
                 "amount_created": amount_created,
                 "ingredients": response,
+                "selected": recipe_index == 0,
             }
             recipe_tree.append(recipe_node)
 
