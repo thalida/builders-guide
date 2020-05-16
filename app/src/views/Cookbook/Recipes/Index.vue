@@ -1,6 +1,9 @@
 <template>
   <div id="cookbook__recipes">
-    <recipe-tree :tree="recipeTree" :option-group="false"></recipe-tree>
+    <recipe-tree
+      :tree="recipeTree"
+      :option-group="false"
+      @update="handleTreeUpdate"></recipe-tree>
   </div>
 </template>
 
@@ -13,12 +16,22 @@ export default {
     RecipeTree,
   },
   computed: {
-    recipeTree () {
-      return this.$store.state.recipeTree
+    recipeTree: {
+      get () {
+        return this.$store.state.recipeTree
+      },
+      set (newTree) {
+        this.$store.commit('setRecipeTree', newTree)
+      }
     },
   },
   mounted () {
     this.$store.dispatch('calculateResources')
+  },
+  methods: {
+    handleTreeUpdate ({ tree }) {
+      this.recipeTree = tree
+    }
   }
 }
 </script>
