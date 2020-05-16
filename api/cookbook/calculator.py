@@ -416,7 +416,7 @@ def create_recipe_tree(
     return tree
 
 
-def create_shopping_list(path, have_already=None, parent_node=None, shopping_list=None):
+def create_shopping_list(path, have_already=None, parent_node=None, shopping_list=None, level=0):
     """Based on the recipe tree create the shopping list we need
 
     Arguments:
@@ -452,6 +452,7 @@ def create_shopping_list(path, have_already=None, parent_node=None, shopping_lis
                 "amount_available": amount_available,
                 "started_with": amount_available,
                 "has_recipe": node["num_recipes"] > 0,
+                "level": level,
             }
 
         if parent_node:
@@ -507,6 +508,7 @@ def create_shopping_list(path, have_already=None, parent_node=None, shopping_lis
                 parent_node=node_name,
                 shopping_list=shopping_list,
                 have_already=have_already,
+                level=level + 1
             )
             # Let's join our current list with the new data
             shopping_list.update(new_shopping_list)
