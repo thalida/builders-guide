@@ -21,7 +21,7 @@ export default {
         return this.$store.state.recipeTree
       },
       set (newTree) {
-        this.$store.commit('setRecipeTree', newTree)
+        this.$store.dispatch('updateRecipeTree', newTree)
       }
     },
   },

@@ -6,7 +6,7 @@
       @change="onCheckboxChange" />
     <img :src="getItemImage(itemName)" />
     {{itemName}}
-    <input type="number" v-model.number="item.have" />
+    <input type="number" v-model.number="combinedHave" />
     <input type="number" v-model.number="item.amount_required" />
     <div>
       Required For:
@@ -49,19 +49,27 @@ export default {
         this.shoppingList = Object.assign({}, this.shoppingList, updatedList)
       }
     },
-    hasAll () {
-      return this.item.have === this.item.amount_required
-    },
     usedForItems () {
       const names = Object.keys(this.item.amount_used_for)
       names.sort()
       return names
     },
+    combinedHave: {
+      get () {
+        return this.item.have + this.item.implied_have
+      },
+      set (newHave) {
+        const comboHave = this.item.have + this.item.implied_have
+        const newHaveDelta = newHave - comboHave
+        this.item.have = this.item.have + newHaveDelta
+      }
+    },
+    hasAll () {
+      return this.combinedHave >= this.item.amount_required
+    },
   },
   watch: {},
-  mounted () {
-    // this.item = this.shoppingList[this.itemName]
-  },
+  mounted () {},
   methods: {
     getItemImage (item) {
       const images = require.context('../assets/minecraft/1.15/32x32/', false, /\.png$/)

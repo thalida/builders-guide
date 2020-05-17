@@ -130,7 +130,6 @@ export default new Vuex.Store({
       const numSelectedItems = state.selectedItems.length
       if (numSelectedItems === 0) {
         commit('setRecipeTree', [])
-        commit('setShoppingList', [])
         return
       }
 
@@ -147,12 +146,10 @@ export default new Vuex.Store({
         .post('http://0.0.0.0:5000/api/1.15/recipe_tree', { items })
         .then(response => {
           commit('setRecipeTree', response.data)
-          dispatch('setupShoppingList')
         })
     },
     setupShoppingList ({ state, commit }) {
       if (state.recipeTree.length === 0) {
-        commit('setRecipeTree', [])
         commit('setShoppingList', [])
         return
       }
@@ -180,10 +177,14 @@ export default new Vuex.Store({
           commit('setShoppingList', response.data)
         })
     },
+    updateRecipeTree ({ commit, dispatch }, newTree) {
+      commit('setRecipeTree', newTree)
+      dispatch('setupShoppingList')
+    },
     updateShoppingList ({ commit, dispatch }, newList) {
       commit('setShoppingList', newList)
       dispatch('setupShoppingList')
-    }
+    },
   },
   modules: {
   }

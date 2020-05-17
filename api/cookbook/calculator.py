@@ -416,7 +416,7 @@ def create_recipe_tree(
     return tree
 
 
-def create_shopping_list(path, have_already=None, parent_node=None, shopping_list=None, level=0):
+def create_shopping_list(path, have_already=None, noop=False, parent_node=None, shopping_list=None, level=0):
     """Based on the recipe tree create the shopping list we need
 
     Arguments:
@@ -445,28 +445,34 @@ def create_shopping_list(path, have_already=None, parent_node=None, shopping_lis
 
         # We've found a node we haven't seen before! Let's get it's dict setup
         if node_name not in shopping_list:
-            amount_remaining = have_already.get(node_name, 0)
+            have = have_already.get(node_name, 0)
             shopping_list[node_name] = {
                 "name": node_name,
-                "amount_required": 0,
-                "amount_used_for": {},
-                "amount_remaining": amount_remaining,
-                "have": amount_remaining,
-                "has_recipe": node["num_recipes"] > 0,
                 "level": level,
+                "has_recipe": node["num_recipes"] > 0,
+                "amount_required": 0,
+                "amount_available": have,
+                "have": have,
+                "implied_have": 0,
+                "amount_used_for": {},
             }
+
+        shopping_list[node_name]["amount_required"] += amount_required
+        amount_available = shopping_list[node_name].get("amount_available", 0)
 
         if parent_node:
             shopping_list[node_name]["amount_used_for"][parent_node] = amount_required
 
-        have_amount = shopping_list[node_name].get("amount_remaining", 0)
-        amount_remaining = have_amount - amount_required
-        shopping_list[node_name]["amount_required"] += amount_required
+        if noop:
+            if amount_available < amount_required:
+                shopping_list[node_name]["implied_have"] += amount_required - amount_available
+        else:
+            amount_available -= amount_required
 
-        # Wicked, we had enough available already to craft our item!
-        if amount_remaining >= 0:
-            shopping_list[node_name]["amount_remaining"] = amount_remaining
-            continue
+            # Wicked, we had enough available already to craft our item!
+            if amount_available >= 0:
+                shopping_list[node_name]["amount_available"] = amount_available
+                noop = True
 
         # No recipes required to craft this item, so we can move on
         if node["num_recipes"] == 0:
@@ -488,15 +494,16 @@ def create_shopping_list(path, have_already=None, parent_node=None, shopping_lis
                 "recipe_result_count"
             )
 
-        missing_amount = abs(amount_remaining)
-        recipe_multiplier = math.ceil(missing_amount / recipe_amount_created)
-        amount_created = recipe_amount_created * recipe_multiplier
+        if not noop:
+            missing_amount = abs(amount_available)
+            recipe_multiplier = math.ceil(missing_amount / recipe_amount_created)
+            amount_created = recipe_amount_created * recipe_multiplier
 
-        if "total_created" not in shopping_list[node_name]:
-            shopping_list[node_name]["total_created"] = 0
+            if "total_created" not in shopping_list[node_name]:
+                shopping_list[node_name]["total_created"] = 0
 
-        shopping_list[node_name]["total_created"] += amount_created
-        shopping_list[node_name]["amount_remaining"] = amount_created - missing_amount
+            shopping_list[node_name]["total_created"] += amount_created
+            shopping_list[node_name]["amount_available"] = amount_created - missing_amount
 
         # ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^
 
@@ -509,6 +516,7 @@ def create_shopping_list(path, have_already=None, parent_node=None, shopping_lis
                 parent_node=node_name,
                 shopping_list=shopping_list,
                 have_already=have_already,
+                noop=noop,
                 level=level + 1
             )
             # Let's join our current list with the new data

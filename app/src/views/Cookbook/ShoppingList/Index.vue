@@ -4,11 +4,11 @@
       <div>
         <h3>Raw Ingredients</h3>
         <p>The base level ingredients you’ll need to craft.</p>
-        <a @click="toggleRawIngredients">Toggle</a>
+        <a @click="toggleNextIngredients">Toggle</a>
       </div>
-      <div v-if="showRawIngredients">
+      <div v-if="showNextIngredients">
         <shopping-list-item
-          v-for="(item, index) in rawIngredients"
+          v-for="(item, index) in nextIngredients"
           :key="index"
           :item="shoppingList[item]"
           :item-name="item">
@@ -47,7 +47,7 @@ export default {
   },
   data () {
     return {
-      showRawIngredients: true,
+      showNextIngredients: true,
       showBuildProcess: true,
     }
   },
@@ -60,7 +60,7 @@ export default {
         this.$store.dispatch('updateShoppingList', newList)
       }
     },
-    rawIngredients () {
+    nextIngredients () {
       const raw = []
       const list = Object.keys(this.shoppingList)
       for (let i = 0, l = list.length; i < l; i += 1) {
@@ -110,8 +110,8 @@ export default {
     }
   },
   methods: {
-    toggleRawIngredients () {
-      this.showRawIngredients = !this.showRawIngredients
+    toggleNextIngredients () {
+      this.showNextIngredients = !this.showNextIngredients
     },
     toggleBuildProcess () {
       this.showBuildProcess = !this.showBuildProcess
