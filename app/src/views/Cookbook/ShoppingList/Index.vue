@@ -2,15 +2,14 @@
   <div id="cookbook__shopping_list">
     <div>
       <div>
-        <h3>Raw Ingredients</h3>
-        <p>The base level ingredients you’ll need to craft.</p>
+        <h3>Step-by-Step Guide</h3>
+        <p>The next set of items you’ll need to have for your build.</p>
         <a @click="toggleNextIngredients">Toggle</a>
       </div>
       <div v-if="showNextIngredients">
         <shopping-list-item
-          v-for="(item, index) in nextIngredients"
-          :key="index"
-          :item="shoppingList[item]"
+          v-for="item in nextIngredients"
+          :key="item"
           :item-name="item">
         </shopping-list-item>
       </div>
@@ -18,17 +17,16 @@
     <div>
       <div>
         <h3>Build Process</h3>
-        <p>Each item you’ll need to craft in reverse order.</p>
+        <p>Every item you’ll for your build in reverse order.</p>
         <a @click="toggleBuildProcess">Toggle</a>
       </div>
       <div v-if="showBuildProcess">
         <div
-          v-for="(level) in buildLevels"
+          v-for="level in buildLevels"
           :key="level">
           <shopping-list-item
-            v-for="(item, index) in buildProcess[level]"
-            :key="index"
-            :item="shoppingList[item]"
+            v-for="item in buildProcess[level]"
+            :key="item"
             :item-name="item">
           </shopping-list-item>
         </div>
@@ -61,21 +59,25 @@ export default {
       }
     },
     nextIngredients () {
-      const raw = []
+      const next = []
       const list = Object.keys(this.shoppingList)
       for (let i = 0, l = list.length; i < l; i += 1) {
         const itemName = list[i]
         const item = this.shoppingList[itemName]
+        if (item.have + item.implied_have >= item.amount_required) {
+          continue
+        }
+
         if (item.has_recipe) {
           continue
         }
 
-        raw.push(itemName)
+        next.push(itemName)
       }
 
-      raw.sort()
+      next.sort()
 
-      return raw
+      return next
     },
     buildProcess () {
       const buildProcess = {}

@@ -6,13 +6,18 @@
       @change="onCheckboxChange" />
     <img :src="getItemImage(itemName)" />
     {{itemName}}
-    <input type="number" v-model.number="combinedHave" />
-    <input type="number" v-model.number="item.amount_required" />
+    <input type="number" v-model.number="combinedHave" min="0" />
+    <input
+      type="number"
+      v-model.number="amountRequired"
+      min="0"
+      :disabled="item.amount_used_for.self === 0" />
     <div>
       Required For:
       <span
-        v-for="(usedForItem, i) in usedForItems"
-        :key="i">
+        v-for="(usedForItem, index) in usedForItems"
+        v-show="usedForItem !== 'self'"
+        :key="index">
         <img :src="getItemImage(usedForItem)" />
         {{ usedForItem }}
       </span>
@@ -26,9 +31,7 @@ export default {
     itemName: String,
   },
   data () {
-    return {
-      // item: {},
-    }
+    return {}
   },
   computed: {
     shoppingList: {
@@ -58,10 +61,36 @@ export default {
       get () {
         return this.item.have + this.item.implied_have
       },
-      set (newHave) {
-        const comboHave = this.item.have + this.item.implied_have
-        const newHaveDelta = newHave - comboHave
-        this.item.have = this.item.have + newHaveDelta
+      set (newVal) {
+        const haveAmount = newVal - this.item.implied_have
+        console.log(
+          this.item.name,
+          newVal,
+          this.item.implied_have,
+          haveAmount
+        )
+        this.item = Object.assign({}, this.item, { have: haveAmount })
+      }
+    },
+    amountRequired: {
+      get () {
+        return this.item.amount_required
+      },
+      set (newVal) {
+        const remainder = newVal - this.item.amount_used_for.recipes
+        let amountRequired = 0
+        // let selfAmount = 0
+        if (remainder < this.item.amount_used_for.recipes) {
+          amountRequired = this.item.amount_used_for.recipes
+          // selfAmount = 0
+        } else {
+          amountRequired = newVal
+          // selfAmount = remainder
+        }
+        // const newSelf = newVal - everythingElse
+        this.item = Object.assign({}, this.item, {
+          amount_required: amountRequired
+        })
       }
     },
     hasAll () {

@@ -155,6 +155,7 @@ export default new Vuex.Store({
       }
 
       const recipeTreeCopy = state.recipeTree.slice(0)
+      console.log('recipeTreeCopy', recipeTreeCopy)
       const recipePath = buildRecipePath(recipeTreeCopy)
 
       const haveAlready = {}

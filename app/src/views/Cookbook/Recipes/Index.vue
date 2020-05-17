@@ -3,6 +3,7 @@
     <recipe-tree
       :tree="recipeTree"
       :option-group="false"
+      :level="0"
       @update="handleTreeUpdate"></recipe-tree>
   </div>
 </template>

@@ -19,7 +19,7 @@
       <div
         class="item-row"
         v-for="(item, i) in selectedItems"
-        :key="i">
+        :key="item.name">
         <input type="number" min="0" v-model.number="selectedItems[i].amount" />
         <img :src="getItemImage(item.name)" />
         {{item.name}}

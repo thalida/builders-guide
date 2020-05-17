@@ -7,8 +7,7 @@
     <div
       class="recipe-tree__node"
       v-for="(node, ni) in tree"
-      :key="ni">
-
+      :key="`${path}${ni}`">
       <label v-if="optionGroup">
         <input
           type="radio"
@@ -28,9 +27,12 @@
       <!-- Should only be able to select one from this group -->
       <recipe-tree
         v-if="Array.isArray(node)"
+        :parent-id="parentId"
         :parent-idx="ni"
+        :path="`${parentIdx}${ni}`"
         :tree="node"
         :option-group="true"
+        :level="level + 1"
         @update="handleTreeUpdate">
       </recipe-tree>
 
@@ -39,9 +41,12 @@
         <span class="recipe-tree__node-toggle" @click="toggleChildren(ni)">{{ node.num_recipes }} recipes</span>
         <recipe-tree
           v-if="showChildren[ni]"
+          :parent-id="node.id"
           :parent-idx="ni"
+          :path="`${parentIdx}${ni}`"
           :tree="node.recipes"
           :option-group="true"
+          :level="level + 1"
           @update="handleTreeUpdate">
         </recipe-tree>
       </div>
@@ -51,8 +56,11 @@
         <span class="recipe-tree__node-toggle" @click="toggleChildren(ni)">{{ node.recipes[0].ingredients.length }} ingredients</span>
         <recipe-tree
           v-if="showChildren[ni]"
+          :parent-id="node.id"
           :parent-idx="ni"
+          :path="`${parentIdx}${ni}`"
           :tree="node.recipes[0].ingredients"
+          :level="level + 1"
           @update="handleTreeUpdate">
         </recipe-tree>
       </div>
@@ -62,8 +70,11 @@
         <span class="recipe-tree__node-toggle" @click="toggleChildren(ni)">{{ node.ingredients.length }} ingredients</span>
         <recipe-tree
           v-if="showChildren[ni]"
+          :parent-id="node.id"
           :parent-idx="ni"
+          :path="`${parentIdx}${ni}`"
           :tree="node.ingredients"
+          :level="level + 1"
           @update="handleTreeUpdate">
         </recipe-tree>
       </div>
@@ -75,6 +86,9 @@
 export default {
   props: {
     parentIdx: Number,
+    parentId: String,
+    path: String,
+    level: Number,
     tree: Array,
     optionGroup: Boolean,
   },
@@ -85,26 +99,49 @@ export default {
       selectedNode: null,
     }
   },
-  computed: {},
+  computed: {
+    // sortedTree () {
+    //   const sortedTree = this.tree.slice(0)
+    //   sortedTree.sort((a, b) => {
+    //     if (Array.isArray(a)) {
+    //       return -1
+    //     }
+
+    //     if (Array.isArray(b)) {
+    //       return 1
+    //     }
+
+    //     if (a.name < b.name) {
+    //       return -1
+    //     }
+
+    //     if (b.name < a.name) {
+    //       return 1
+    //     }
+
+    //     return 0
+    //   })
+    //   return sortedTree
+    // }
+  },
   watch: {
     selectedNode (newVal) {
       if (!this.optionGroup) {
         return
       }
 
-      for (let i = 0, l = this.tree.length; i < l; i += 1) {
-        const newNode = this.tree[i]
-        newNode.selected = (newVal === i)
-        this.tree.splice(i, 1, newNode)
+      const treeCopy = this.tree.splice(0)
+      for (let i = 0, l = treeCopy.length; i < l; i += 1) {
+        treeCopy[i].selected = (newVal === i)
 
-        if (!newNode.selected) {
+        if (!treeCopy[i].selected) {
           this.showChildren[i] = false
         }
       }
 
       this.$emit('update', {
         parentIdx: this.parentIdx,
-        tree: this.tree,
+        tree: treeCopy,
       })
     }
   },
@@ -121,9 +158,12 @@ export default {
   },
   methods: {
     handleTreeUpdate ({ parentIdx, tree }) {
-      const node = this.tree[parentIdx]
+      let node = this.tree[parentIdx]
+      const treeCopy = this.tree.splice(0)
 
-      if (node.num_recipes > 1) {
+      if (Array.isArray(node)) {
+        node = tree
+      } else if (node.num_recipes > 1) {
         node.recipes = tree
       } else if (node.num_recipes === 1) {
         node.recipes[0].ingredients = tree
@@ -131,11 +171,13 @@ export default {
         node.ingredients = tree
       }
 
-      this.tree.splice(parentIdx, 1, node)
+      treeCopy[parentIdx] = node
+
+      // this.tree.splice(parentIdx, 1, node)
 
       this.$emit('update', {
         parentIdx: this.parentIdx,
-        tree: this.tree,
+        tree: treeCopy,
       })
     },
     toggleChildren (ni) {

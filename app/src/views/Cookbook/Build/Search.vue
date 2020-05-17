@@ -12,8 +12,8 @@
     <div class="search__items scroller" v-if="showItems">
       <ol v-if="renderData.hasItems">
         <li
-          v-for="(item, index) in renderData.items"
-          :key="index">
+          v-for="(item) in renderData.items"
+          :key="item.name">
           <div v-if="item.type === 'header'" class="item-group">
             <a :id="item.letter"></a>
             <h2>{{ item.letter }}</h2>
@@ -66,8 +66,8 @@
 
     <ol class="search__alpha">
         <li
-          v-for="(letter, index) in navi.alpha"
-          :key="index">
+          v-for="letter in navi.alpha"
+          :key="letter">
 
           <a
             v-if="renderData.letters[letter]"
