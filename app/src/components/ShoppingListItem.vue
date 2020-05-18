@@ -63,12 +63,6 @@ export default {
       },
       set (newVal) {
         const haveAmount = newVal - this.item.implied_have
-        console.log(
-          this.item.name,
-          newVal,
-          this.item.implied_have,
-          haveAmount
-        )
         this.item = Object.assign({}, this.item, { have: haveAmount })
       }
     },

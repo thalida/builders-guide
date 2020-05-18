@@ -147,13 +147,9 @@ def generate_correct_item_name(
     # Check if the word is a valid item
     is_valid = is_valid_item(name, all_items, all_tags, all_recipes)
 
-    print(name, name_parts, is_valid)
-    print(list(all_items.keys()))
-
     # If it's not valid try to generate another version of the item name
     if not is_valid:
         if is_retry is False:
-            print("in here again")
             return generate_correct_item_name(
                 raw_name, item_mappings, all_items, all_tags, all_recipes, is_retry=True
             )

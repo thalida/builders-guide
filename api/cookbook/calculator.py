@@ -237,7 +237,6 @@ def create_recipe_tree(
     all_tags,
     supported_recipes,
     ancestors=None,
-    recipe_multiplier=1,
     is_group=False,
 ):
     """Using the list of `items` provided, generate it's recipe tree. A recipe tree
@@ -271,8 +270,6 @@ def create_recipe_tree(
         else:
             amount_required = 1
 
-        # amount_required = amount_required * recipe_multiplier
-
         # correctly format the item
         if has_no_ancestors:
             item = format_recipe_ingredients(
@@ -293,7 +290,6 @@ def create_recipe_tree(
                 supported_recipes=supported_recipes,
                 ancestors=ancestors,
                 is_group=True,
-                recipe_multiplier=recipe_multiplier,
             )
 
             # Oh, dear -- did we get an error? I only throw errors if there's
@@ -364,12 +360,7 @@ def create_recipe_tree(
                 continue
 
             # How much does this recipe create?
-            recipe_result_count = recipe["result"].get("count", 1)
-            # How many times do we need to call this recipe?
-            next_recipe_multiplier = math.ceil(amount_required / recipe_result_count)
-            # How much is created in the end?
-            # amount_created = recipe_result_count * next_recipe_multiplier
-            amount_created = recipe_result_count
+            amount_created = recipe["result"].get("count", 1)
 
             # Get a list of all the ingredients
             ingredients = get_ingredients(recipe, all_tags)
@@ -383,7 +374,6 @@ def create_recipe_tree(
                 all_tags=all_tags,
                 supported_recipes=supported_recipes,
                 ancestors=new_ancestors,
-                recipe_multiplier=next_recipe_multiplier,
             )
 
             # Oh, dear -- did we get an error? I only throw errors if there's
@@ -407,7 +397,6 @@ def create_recipe_tree(
                 "id": f'recipe-{recipe_name}-{time.time()}',
                 "name": recipe_name,
                 "type": recipe["type"],
-                "recipe_result_count": recipe_result_count,
                 "amount_required": amount_required,
                 "amount_created": amount_created,
                 "ingredients": response,
@@ -466,8 +455,6 @@ def create_shopping_list(
         amount_required = node["amount_required"]
         amount_required = amount_required * recipe_multiplier
 
-        print(node_name, parent_node, amount_required, recipe_multiplier)
-
         # We've found a node we haven't seen before! Let's get it's dict setup
         if node_name not in shopping_list:
             have = have_already.get(node_name, 0)
@@ -476,7 +463,6 @@ def create_shopping_list(
                 "level": level,
                 "has_recipe": node["num_recipes"] > 0,
                 "amount_required": 0,
-                "amount_uncrafted": 0,
                 "amount_available": have,
                 "have": have,
                 "implied_have": 0,
@@ -487,8 +473,6 @@ def create_shopping_list(
                 "requires": [],
                 "total_created": 0,
             }
-
-            shopping_list[node_name]["amount_uncrafted"] = amount_required - have
 
         if level < shopping_list[node_name]["level"]:
             shopping_list[node_name]["level"] = level
@@ -534,19 +518,12 @@ def create_shopping_list(
         # v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v
 
         recipe_amount_created = chosen_recipe.get("amount_created", 1)
-        recipe_result_count = chosen_recipe.get("recipe_result_count")
-
-        if recipe_result_count is not None:
-            shopping_list[node_name]["amount_recipe_creates"] = chosen_recipe.get(
-                "recipe_result_count"
-            )
+        shopping_list[node_name]["amount_recipe_creates"] = recipe_amount_created
 
         if node_used_leftovers:
-            next_recipe_multiplier = 1
+            next_recipe_multiplier = 0
         else:
             missing_amount = abs(amount_available)
-            print('missing_amount', missing_amount)
-            print('recipe_amount_created', recipe_amount_created)
             next_recipe_multiplier = math.ceil(missing_amount / recipe_amount_created)
             amount_created = recipe_amount_created * next_recipe_multiplier
             shopping_list[node_name]["total_created"] += amount_created
@@ -557,7 +534,6 @@ def create_shopping_list(
         # Now it's time to get the shopping list required for every ingredient!
         ingredients = chosen_recipe["ingredients"]
         for idx, ingredient in enumerate(ingredients):
-            print('next_recipe_multiplier', next_recipe_multiplier)
             # Now get a new shopping list!
             new_shopping_list = create_shopping_list(
                 [ingredient],
