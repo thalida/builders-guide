@@ -16,7 +16,7 @@
       Required For:
       <span
         v-for="(usedForItem, index) in usedForItems"
-        v-show="usedForItem !== 'self'"
+        v-show="usedForItem !== 'self' && usedForItem !== 'recipes'"
         :key="index">
         <img :src="getItemImage(usedForItem)" />
         {{ usedForItem }}
@@ -90,7 +90,7 @@ export default {
             ? newVal - this.item.amount_used_for.recipes
             : 0
 
-        const selectedCopy = this.selectedItems.splice(0)
+        const selectedCopy = this.selectedItems.slice(0)
         for (let i = 0, l = selectedCopy.length; i < l; i += 1) {
           const selectedItem = selectedCopy[i]
           if (selectedItem.name === this.item.name) {
