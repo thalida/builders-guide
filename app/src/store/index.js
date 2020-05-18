@@ -60,6 +60,17 @@ export default new Vuex.Store({
     recipeTree: [],
     shoppingList: {},
   },
+  getters: {
+    selectedByName (state) {
+      const selectedByName = {}
+      for (let i = 0, l = state.selectedItems.length; i < l; i += 1) {
+        const item = state.selectedItems[i]
+        selectedByName[item.name] = item
+      }
+
+      return selectedByName
+    }
+  },
   mutations: {
     setSkipSplash (state, bool) {
       state.skipSplash = bool
@@ -106,13 +117,8 @@ export default new Vuex.Store({
         commit('setTmpSelectedItems', selectedItemNames)
       }
     },
-    setSelectedFromTmp ({ state, commit }, tmpItems) {
-      const selectedByName = {}
-      for (let i = 0, l = state.selectedItems.length; i < l; i += 1) {
-        const item = state.selectedItems[i]
-        selectedByName[item.name] = item
-      }
-
+    setSelectedFromTmp ({ state, commit, getters }, tmpItems) {
+      const selectedByName = getters.selectedByName
       const selectedItems = []
       for (let i = 0, l = tmpItems.length; i < l; i += 1) {
         const itemName = tmpItems[i]
@@ -189,6 +195,10 @@ export default new Vuex.Store({
         .then(response => {
           commit('setShoppingList', response.data)
         })
+    },
+    updateSelectedItems ({ commit, dispatch }, newItems) {
+      commit('setSelectedItems', newItems)
+      dispatch('setupRecipeTree')
     },
     updateRecipeTree ({ commit, dispatch }, newTree) {
       commit('setRecipeTree', newTree)

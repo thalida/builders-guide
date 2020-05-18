@@ -11,7 +11,7 @@
       type="number"
       v-model.number="amountRequired"
       min="0"
-      :disabled="item.amount_used_for.self === 0" />
+      :disabled="!isUserSelected" />
     <div>
       Required For:
       <span
@@ -34,6 +34,20 @@ export default {
     return {}
   },
   computed: {
+    selectedItems: {
+      get () {
+        return this.$store.state.selectedItems
+      },
+      set (newList) {
+        this.$store.dispatch('updateSelectedItems', newList)
+      }
+    },
+    selectedItemsByName () {
+      return this.$store.getters.selectedByName
+    },
+    isUserSelected () {
+      return typeof this.selectedItemsByName[this.item.name] !== 'undefined'
+    },
     shoppingList: {
       get () {
         return this.$store.state.shoppingList
@@ -68,23 +82,22 @@ export default {
     },
     amountRequired: {
       get () {
-        return this.item.amount_required
+        return this.item.amount_used_for.self + this.item.amount_used_for.recipes
       },
       set (newVal) {
-        const remainder = newVal - this.item.amount_used_for.recipes
-        let amountRequired = 0
-        // let selfAmount = 0
-        if (remainder < this.item.amount_used_for.recipes) {
-          amountRequired = this.item.amount_used_for.recipes
-          // selfAmount = 0
-        } else {
-          amountRequired = newVal
-          // selfAmount = remainder
+        const newSelectedAmount =
+          (newVal > this.item.amount_used_for.recipes)
+            ? newVal - this.item.amount_used_for.recipes
+            : 0
+
+        const selectedCopy = this.selectedItems.splice(0)
+        for (let i = 0, l = selectedCopy.length; i < l; i += 1) {
+          const selectedItem = selectedCopy[i]
+          if (selectedItem.name === this.item.name) {
+            selectedItem.amount = newSelectedAmount
+          }
         }
-        // const newSelf = newVal - everythingElse
-        this.item = Object.assign({}, this.item, {
-          amount_required: amountRequired
-        })
+        this.selectedItems = selectedCopy
       }
     },
     hasAll () {
