@@ -64,11 +64,22 @@ export default {
       for (let i = 0, l = list.length; i < l; i += 1) {
         const itemName = list[i]
         const item = this.shoppingList[itemName]
-        if (item.have + item.implied_have >= item.amount_required) {
+        if (this.meetsRequirements(item)) {
           continue
         }
 
-        if (item.has_recipe) {
+        let hasAllRequirements = true
+        for (let j = 0, ll = item.requires.length; j < ll; j += 1) {
+          const requiredItemName = item.requires[j]
+          const requiredItem = this.shoppingList[requiredItemName]
+
+          if (!this.meetsRequirements(requiredItem)) {
+            hasAllRequirements = false
+            break
+          }
+        }
+
+        if (!hasAllRequirements) {
           continue
         }
 
@@ -112,6 +123,9 @@ export default {
     }
   },
   methods: {
+    meetsRequirements (item) {
+      return item.have + item.implied_have >= item.amount_required
+    },
     toggleNextIngredients () {
       this.showNextIngredients = !this.showNextIngredients
     },
