@@ -271,7 +271,7 @@ def create_recipe_tree(
         else:
             amount_required = 1
 
-        amount_required = amount_required * recipe_multiplier
+        # amount_required = amount_required * recipe_multiplier
 
         # correctly format the item
         if has_no_ancestors:
@@ -368,7 +368,8 @@ def create_recipe_tree(
             # How many times do we need to call this recipe?
             next_recipe_multiplier = math.ceil(amount_required / recipe_result_count)
             # How much is created in the end?
-            amount_created = recipe_result_count * next_recipe_multiplier
+            # amount_created = recipe_result_count * next_recipe_multiplier
+            amount_created = recipe_result_count
 
             # Get a list of all the ingredients
             ingredients = get_ingredients(recipe, all_tags)
@@ -433,6 +434,7 @@ def create_shopping_list(
     parent_used_leftovers=False,
     parent_node=None,
     shopping_list=None,
+    recipe_multiplier=1,
     level=0
 ):
     """Based on the recipe tree create the shopping list we need
@@ -459,9 +461,12 @@ def create_shopping_list(
         have_already = {}
 
     for node_idx, node in enumerate(path):
+        node_used_leftovers = parent_used_leftovers
         node_name = node["name"]
         amount_required = node["amount_required"]
-        node_used_leftovers = parent_used_leftovers
+        amount_required = amount_required * recipe_multiplier
+
+        print(node_name, parent_node, amount_required, recipe_multiplier)
 
         # We've found a node we haven't seen before! Let's get it's dict setup
         if node_name not in shopping_list:
@@ -471,6 +476,7 @@ def create_shopping_list(
                 "level": level,
                 "has_recipe": node["num_recipes"] > 0,
                 "amount_required": 0,
+                "amount_uncrafted": 0,
                 "amount_available": have,
                 "have": have,
                 "implied_have": 0,
@@ -481,6 +487,8 @@ def create_shopping_list(
                 "requires": [],
                 "total_created": 0,
             }
+
+            shopping_list[node_name]["amount_uncrafted"] = amount_required - have
 
         if level < shopping_list[node_name]["level"]:
             shopping_list[node_name]["level"] = level
@@ -502,7 +510,9 @@ def create_shopping_list(
         else:
             shopping_list[node_name]["amount_used_for"]["self"] += amount_required
 
-        if not node_used_leftovers:
+        if node_used_leftovers:
+             shopping_list[node_name]["implied_have"] += amount_required
+        else:
             shopping_list[node_name]["amount_required"] += amount_required
             amount_available -= amount_required
 
@@ -531,10 +541,14 @@ def create_shopping_list(
                 "recipe_result_count"
             )
 
-        if not node_used_leftovers:
+        if node_used_leftovers:
+            next_recipe_multiplier = 1
+        else:
             missing_amount = abs(amount_available)
-            recipe_multiplier = math.ceil(missing_amount / recipe_amount_created)
-            amount_created = recipe_amount_created * recipe_multiplier
+            print('missing_amount', missing_amount)
+            print('recipe_amount_created', recipe_amount_created)
+            next_recipe_multiplier = math.ceil(missing_amount / recipe_amount_created)
+            amount_created = recipe_amount_created * next_recipe_multiplier
             shopping_list[node_name]["total_created"] += amount_created
             shopping_list[node_name]["amount_available"] = amount_created - missing_amount
 
@@ -543,6 +557,7 @@ def create_shopping_list(
         # Now it's time to get the shopping list required for every ingredient!
         ingredients = chosen_recipe["ingredients"]
         for idx, ingredient in enumerate(ingredients):
+            print('next_recipe_multiplier', next_recipe_multiplier)
             # Now get a new shopping list!
             new_shopping_list = create_shopping_list(
                 [ingredient],
@@ -550,6 +565,7 @@ def create_shopping_list(
                 shopping_list=shopping_list,
                 have_already=have_already,
                 parent_used_leftovers=node_used_leftovers,
+                recipe_multiplier=next_recipe_multiplier,
                 level=level + 1
             )
             # Let's join our current list with the new data
