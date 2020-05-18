@@ -142,10 +142,23 @@ export default new Vuex.Store({
         })
       }
 
+      items.sort((a, b) => {
+        if (a.name < b.name) {
+          return -1
+        }
+
+        if (b.name < a.name) {
+          return 1
+        }
+
+        return 0
+      })
+
       axios
         .post('http://0.0.0.0:5000/api/1.15/recipe_tree', { items })
         .then(response => {
           commit('setRecipeTree', response.data)
+          dispatch('setupShoppingList')
         })
     },
     setupShoppingList ({ state, commit }) {

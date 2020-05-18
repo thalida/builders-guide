@@ -355,6 +355,7 @@ def create_recipe_tree(
         # For every recipe we want to get it's ingredients, then generate another
         # branch of the recipe tree for how to craft those items -- sounds like
         # a lot and it is! Let's get started...
+        found_recipes.sort()
         for (recipe_index, recipe_name) in enumerate(found_recipes):
             recipe = all_recipes[recipe_name]
 
