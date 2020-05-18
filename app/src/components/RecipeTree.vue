@@ -52,6 +52,7 @@
 
       <!-- Has one recipe, so directly start showing ingredients -->
       <div v-else-if="node.num_recipes == 1">
+        <span>{{ node.recipes[0].type }}</span>
         <span class="recipe-tree__node-toggle" @click="toggleChildren(ni)">{{ node.recipes[0].ingredients.length }} ingredients</span>
         <recipe-tree
           v-if="showChildren[ni]"
@@ -65,6 +66,7 @@
 
       <!-- For each ingredient show it's tree -->
       <div v-else-if="node.ingredients && node.ingredients.length > 0">
+        {{ node.type }}
         <span class="recipe-tree__node-toggle" @click="toggleChildren(ni)">{{ node.ingredients.length }} ingredients</span>
         <recipe-tree
           v-if="showChildren[ni]"
@@ -145,8 +147,6 @@ export default {
       }
 
       treeCopy[parentIdx] = node
-
-      console.log(parentIdx, treeCopy, optionGroup)
 
       this.$emit('update', {
         parentIdx: this.parentIdx,

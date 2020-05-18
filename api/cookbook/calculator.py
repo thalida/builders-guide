@@ -345,7 +345,7 @@ def create_recipe_tree(
             tree.append(node)
             continue
 
-        node_has_circular_ref = False
+        # node_has_circular_ref = False
         recipe_tree = []
 
         # For every recipe we want to get it's ingredients, then generate another
@@ -379,17 +379,18 @@ def create_recipe_tree(
             # Oh, dear -- did we get an error? I only throw errors if there's
             # a circular ref so let's handle that!
             if is_recipe_error(response):
-                # Check if our current item is the item with the circular reference.
-                # Basically, are we the ancestor who somehow needed ourself in
-                # our recipe tree?
-                if response.get("data") == item_name:
-                    # Rage quit and handle this issue.
-                    node_has_circular_ref = True
-                    break
-                # Oh, we're not the correct ancestor, let's pass this error UP
-                # the tree!
-                else:
-                    return response
+                continue
+                # # Check if our current item is the item with the circular reference.
+                # # Basically, are we the ancestor who somehow needed ourself in
+                # # our recipe tree?
+                # if response.get("data") == item_name:
+                #     # Rage quit and handle this issue.
+                #     node_has_circular_ref = True
+                #     break
+                # # Oh, we're not the correct ancestor, let's pass this error UP
+                # # the tree!
+                # else:
+                #     return response
 
             # Wow wow, we've finally made it! We have a final recipe node for
             # a given item!
@@ -406,8 +407,8 @@ def create_recipe_tree(
 
         # So, we rage quit. Let's throw away our entire tree, and pretend that
         # never happened!
-        if node_has_circular_ref:
-            recipe_tree = []
+        # if node_has_circular_ref:
+        #     recipe_tree = []
 
         node["num_recipes"] = len(recipe_tree)
         node["recipes"] = recipe_tree
@@ -519,6 +520,7 @@ def create_shopping_list(
 
         recipe_amount_created = chosen_recipe.get("amount_created", 1)
         shopping_list[node_name]["amount_recipe_creates"] = recipe_amount_created
+        shopping_list[node_name]["recipe_type"] = chosen_recipe['type']
 
         if node_used_leftovers:
             next_recipe_multiplier = 0

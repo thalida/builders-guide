@@ -13,6 +13,8 @@
       min="0"
       :disabled="!isUserSelected" />
     <div>
+      <a :href="`https://minecraft.gamepedia.com/${itemName}`" target="_blank">Minecraft Wiki</a>
+      {{ item.recipe_type }}
       Required For:
       <span
         v-for="(usedForItem, index) in usedForItems"

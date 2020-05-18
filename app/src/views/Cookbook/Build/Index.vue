@@ -23,6 +23,7 @@
         <input type="number" min="0" v-model.number="selectedItems[i].amount" />
         <img :src="getItemImage(item.name)" />
         {{item.name}}
+        <a :href="`https://minecraft.gamepedia.com/${item.name}`" target="_blank">Minecraft Wiki</a>
         <button v-on:click="removeSelectedItem(i)">x</button>
       </div>
     </div>

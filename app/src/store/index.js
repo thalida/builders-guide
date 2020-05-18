@@ -81,6 +81,7 @@ export default new Vuex.Store({
         gameData[state.selectedVersion] = {}
       }
       gameData[state.selectedVersion].items = itemsArr
+      gameData[state.selectedVersion].numItems = itemsArr.length
       state.gameData = Object.assign({}, state.gameData, gameData)
     },
     setSelectedItems (state, itemsArr) {
