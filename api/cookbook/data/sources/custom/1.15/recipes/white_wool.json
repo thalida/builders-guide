@@ -1,7 +1,7 @@
 {
   "type": "cookbook:naturally_occurring",
   "ingredient": {
-    "item": "minecraft:white_wool"
+    "item": "minecraft:sheep"
   },
   "result": {
     "item": "minecraft:white_wool"

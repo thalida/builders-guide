@@ -1,9 +1,9 @@
 {
   "type": "cookbook:naturally_occurring",
   "ingredient": {
-    "item": "minecraft:nether_quartz_ore"
+    "item": "minecraft:diamond_ore"
   },
   "result": {
-    "item": "minecraft:quartz"
+    "item": "minecraft:diamond"
   }
 }
