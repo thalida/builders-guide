@@ -348,11 +348,22 @@ def create_recipe_tree(
         # node_has_circular_ref = False
         recipe_tree = []
 
+        custom_recipes = []
+        game_recipes = []
+        for recipe_name in found_recipes:
+            if "custom-" in recipe_name:
+                custom_recipes.append(recipe_name)
+            else:
+                game_recipes.append(recipe_name)
+
+        custom_recipes.sort()
+        game_recipes.sort()
+        sorted_recipes = custom_recipes + game_recipes
+
         # For every recipe we want to get it's ingredients, then generate another
         # branch of the recipe tree for how to craft those items -- sounds like
         # a lot and it is! Let's get started...
-        found_recipes.sort()
-        for (recipe_index, recipe_name) in enumerate(found_recipes):
+        for (recipe_index, recipe_name) in enumerate(sorted_recipes):
             recipe = all_recipes[recipe_name]
 
             # Somehow this recipe isn't supported, and ya know what. F-it let's skip
