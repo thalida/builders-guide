@@ -1,84 +1,54 @@
 <template>
   <div
-    class="recipe-tree"
+    class="recipe"
     :class="[
-      {'recipe-tree--is-group': optionGroup}
+      {'recipe--is-multi-select': isMultiSelect }
     ]">
-    <div
-      class="recipe-tree__node"
-      v-for="(node, ni) in tree"
-      :key="`${path}${ni}`">
 
-      <label v-if="optionGroup">
-        <input
-          type="radio"
-          v-model="selectedNode"
-          :value="ni" />
-          {{ node.name }}
-      </label>
-      <label v-else-if="!Array.isArray(node)">
+    <div
+      class="recipe__node"
+      v-if="!hasMultipleOptions">
+      <label @click="toggleSelected">
         <input
           type="checkbox"
-          v-model="node.selected"
+          :checked="node.selected"
           disabled="true" />
           {{ node.name }}
       </label>
+      {{ node.type }}
+      <span class="recipe__toggle" @click="toggleTree">
+        <span v-if="node.num_recipes > 1">
+          {{ node.num_recipes }} recipes
+        </span>
+        <span v-else-if="node.num_recipes == 1">
+          {{ node.recipes[0].ingredients.length }} ingredients
+        </span>
+        <span v-else-if="node.ingredients && node.ingredients.length > 0">
+          {{ node.ingredients.length }} ingredients
+        </span>
+      </span>
+    </div>
 
-      <!-- Option group of items -->
-      <!-- Should only be able to select one from this group -->
+    <div
+      v-show="showTree || hasMultipleOptions"
+      v-if="tree.length > 0"
+      class="recipe__tree"
+      :class="[
+        {'recipe__tree--is-group': isOptionGroup}
+      ]">
       <recipe-tree
-        v-if="Array.isArray(node)"
-        :parent-idx="ni"
+        v-for="(childNode, ni) in tree"
+        ref="children"
+        :key="`${path}${ni}`"
         :path="`${path}${ni}`"
-        :tree="node"
-        :option-group="true"
         :level="level + 1"
-        @update="handleTreeUpdate">
+        :parent-idx="ni"
+        :node="childNode"
+        :is-multi-select="isOptionGroup"
+        @select="onSelect"
+        @update="onTreeUpdate">
       </recipe-tree>
-
-      <!-- Has multiple recipes -->
-      <div v-else-if="node.num_recipes > 1">
-        <span class="recipe-tree__node-toggle" @click="toggleChildren(ni)">{{ node.num_recipes }} recipes</span>
-        <recipe-tree
-          v-if="showChildren[ni]"
-          :parent-idx="ni"
-          :path="`${path}${ni}`"
-          :tree="node.recipes"
-          :option-group="true"
-          :level="level + 1"
-          @update="handleTreeUpdate">
-        </recipe-tree>
-      </div>
-
-      <!-- Has one recipe, so directly start showing ingredients -->
-      <div v-else-if="node.num_recipes == 1">
-        <span>{{ node.recipes[0].type }}</span>
-        <span class="recipe-tree__node-toggle" @click="toggleChildren(ni)">{{ node.recipes[0].ingredients.length }} ingredients</span>
-        <recipe-tree
-          v-if="showChildren[ni]"
-          :parent-idx="ni"
-          :path="`${path}${ni}`"
-          :tree="node.recipes[0].ingredients"
-          :level="level + 1"
-          @update="handleTreeUpdate">
-        </recipe-tree>
-      </div>
-
-      <!-- For each ingredient show it's tree -->
-      <div v-else-if="node.ingredients && node.ingredients.length > 0">
-        {{ node.type }}
-        <span class="recipe-tree__node-toggle" @click="toggleChildren(ni)">{{ node.ingredients.length }} ingredients</span>
-        <recipe-tree
-          v-if="showChildren[ni]"
-          :parent-idx="ni"
-          :path="`${path}${ni}`"
-          :tree="node.ingredients"
-          :level="level + 1"
-          @update="handleTreeUpdate">
-        </recipe-tree>
-      </div>
-
-    </div> <!-- End Node Loop -->
+    </div>
   </div> <!-- End Tree -->
 </template>
 <script>
@@ -87,115 +57,157 @@ export default {
     parentIdx: Number,
     path: String,
     level: Number,
-    tree: Array,
-    optionGroup: Boolean,
+    node: [Object, Array],
+    isMultiSelect: Boolean,
   },
   name: 'recipe-tree',
   data () {
     return {
-      showChildren: new Array(this.tree.length),
-      selectedNode: null,
+      showTree: false,
     }
   },
-  computed: {},
-  watch: {
-    selectedNode (newVal) {
-      if (!this.optionGroup) {
+  computed: {
+    hasParent () {
+      return typeof this.parentIdx !== 'undefined'
+    },
+    hasMultipleOptions () {
+      return Array.isArray(this.node)
+    },
+    hasManyRecipes () {
+      if (this.hasMultipleOptions) {
+        return false
+      }
+
+      return this.node.num_recipes > 1
+    },
+    isOptionGroup () {
+      return this.hasParent && (this.hasMultipleOptions || this.hasManyRecipes)
+    },
+    isSelected () {
+      return (this.isMultiSelect) ? this.node.selected : false
+    },
+    tree: {
+      get () {
+        let tree = []
+
+        if (Array.isArray(this.node)) {
+          tree = this.node
+        } else if (this.node.num_recipes > 1) {
+          tree = this.node.recipes
+        } else if (this.node.num_recipes === 1) {
+          tree = this.node.recipes[0].ingredients
+        } else if (this.node.ingredients && this.node.ingredients.length > 0) {
+          tree = this.node.ingredients
+        }
+
+        return tree
+      },
+      set (newTree) {
+        let nodeCopy =
+          (Array.isArray(this.node))
+            ? this.node.slice(0)
+            : Object.assign({}, this.node)
+
+        if (this.hasMultipleOptions && !Array.isArray(newTree)) {
+          newTree = [newTree]
+        }
+
+        if (Array.isArray(this.node)) {
+          nodeCopy = newTree
+        } else if (this.node.num_recipes > 1) {
+          nodeCopy.recipes = newTree
+        } else if (this.node.num_recipes === 1) {
+          nodeCopy.recipes[0].ingredients = newTree
+        } else if (this.node.ingredients && this.node.ingredients.length > 0) {
+          nodeCopy.ingredients = newTree
+        }
+
+        this.$emit('update', { tree: nodeCopy, parentIdx: this.parentIdx })
+      }
+    },
+  },
+  mounted () {},
+  methods: {
+    toggleSelected () {
+      if (!this.isMultiSelect) {
         return
       }
 
+      this.$emit('select', {
+        nodeName: this.node.name,
+        state: !this.node.selected,
+      })
+    },
+    onSelect ({ nodeName, state }) {
       const treeCopy = this.tree.slice(0)
       for (let i = 0, l = treeCopy.length; i < l; i += 1) {
-        treeCopy[i].selected = (newVal === i)
-
-        if (!treeCopy[i].selected) {
-          this.showChildren[i] = false
-        }
+        treeCopy[i].selected = (treeCopy[i].name === nodeName)
       }
-
-      this.$emit('update', {
-        parentIdx: this.parentIdx,
-        tree: treeCopy,
-        optionGroup: this.optionGroup,
-      })
-    }
-  },
-  mounted () {
-    if (this.optionGroup) {
-      for (let i = 0, l = this.tree.length; i < l; i += 1) {
-        const node = this.tree[i]
-        if (node.selected) {
-          this.selectedNode = i
-          break
-        }
-      }
-    }
-  },
-  methods: {
-    handleTreeUpdate ({ parentIdx, tree, optionGroup }) {
-      let node = this.tree[parentIdx]
+      this.tree = treeCopy
+    },
+    onTreeUpdate ({ tree, parentIdx }) {
       const treeCopy = this.tree.slice(0)
-
-      if (Array.isArray(node)) {
-        node = tree
-      } else if (node.num_recipes > 1) {
-        node.recipes = tree
-      } else if (node.num_recipes === 1) {
-        node.recipes[0].ingredients = tree
-      } else if (node.ingredients && node.ingredients.length > 0) {
-        node.ingredients = tree
-      }
-
-      treeCopy[parentIdx] = node
-
-      this.$emit('update', {
-        parentIdx: this.parentIdx,
-        tree: treeCopy,
-        optionGroup: this.optionGroup,
-      })
+      treeCopy[parentIdx] = tree
+      this.tree = treeCopy
     },
-    toggleChildren (ni) {
-      if (typeof this.showChildren[ni] === 'undefined') {
-        this.showChildren[ni] = false
-      }
-
-      this.showChildren.splice(ni, 1, !this.showChildren[ni])
-
-      if (this.showChildren[ni] === true) {
-        this.selectedNode = ni
+    toggleTree () {
+      if (this.showTree) {
+        this.collapseTree()
+      } else {
+        this.expandTree()
       }
     },
-    setChildren (ni, isVisible) {
-      this.showChildren[ni] = isVisible
+    collapseTree (cascade) {
+      this.showTree = false
+
+      const children = this.$refs.children
+      if (cascade && typeof children !== 'undefined') {
+        this.$refs.children.forEach((c) => c.collapseTree(cascade))
+      }
+    },
+    expandTree (cascade) {
+      this.showTree = true
+
+      const children = this.$refs.children
+      if (cascade && typeof children !== 'undefined') {
+        this.$refs.children.forEach((c) => c.expandTree(cascade))
+      }
+      if (!cascade && this.isMultiSelect) {
+        this.$emit('select', {
+          nodeName: this.node.name,
+          state: this.showTree,
+        })
+      }
     }
   },
 }
 </script>
 <style lang="scss" scoped>
-.recipe-tree {
-  display: flex;
-  justify-content: center;
-  flex-flow: column nowrap;
-  width: 100vw;
-  overflow: auto;
+.recipe {
+  &--is-multi-select {
+    width: auto;
+  }
 
   &__node {
     display: flex;
     flex: 1 0 auto;
+    justify-content: left;
     flex-flow: column nowrap;
     margin: 15px 0;
-    background: rgba(0,0,0,0.1);
   }
 
-  &__node-toggle {
-    cursor: pointer;
-  }
-
-  &--is-group {
-    flex: 1 0 auto;
-    flex-flow: row nowrap;
+  &__tree {
+    display: flex;
+    flex-flow: column nowrap;
     justify-content: left;
-  }
+    width: 100vw;
+    overflow: auto;
+    background: rgba(0,0,0,0.1);
 
+    &--is-group {
+      flex: 1 0 auto;
+      flex-flow: row nowrap;
+    }
+  }
 }
 </style>
