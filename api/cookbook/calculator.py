@@ -263,7 +263,7 @@ def create_recipe_tree(
         ancestors = []
 
     tree = []
-
+    is_first_item = True
     for (item_index, item) in enumerate(items):
         if isinstance(item, dict):
             amount_required = item.get("amount_required", 1)
@@ -305,6 +305,10 @@ def create_recipe_tree(
 
         item_name = item["name"]
 
+        # Skip any ingredients which are self placeholders
+        if (item_name == 'self'):
+            continue
+
         if item_name in ancestors:
             # If we're here we've found a circular reference. That means the current
             # item has already been found earlier in the recipe tree. We should
@@ -328,7 +332,7 @@ def create_recipe_tree(
 
         if not is_group:
             node["selected"] = True
-        elif is_group and item_index == 0:
+        elif is_group and is_first_item:
             node["selected"] = True
 
         # Create a new copy of the ancestors for this branch of the tree
@@ -343,6 +347,7 @@ def create_recipe_tree(
         # Oh! This item does not need to be crafted, let's continue
         if found_recipes is None:
             tree.append(node)
+            is_first_item = False
             continue
 
         # node_has_circular_ref = False
@@ -363,6 +368,7 @@ def create_recipe_tree(
         # For every recipe we want to get it's ingredients, then generate another
         # branch of the recipe tree for how to craft those items -- sounds like
         # a lot and it is! Let's get started...
+        is_first_recipe = True
         for (recipe_index, recipe_name) in enumerate(sorted_recipes):
             recipe = all_recipes[recipe_name]
 
@@ -412,9 +418,10 @@ def create_recipe_tree(
                 "amount_required": amount_required,
                 "amount_created": amount_created,
                 "ingredients": response,
-                "selected": recipe_index == 0,
+                "selected": is_first_recipe,
             }
             recipe_tree.append(recipe_node)
+            is_first_recipe = False
 
         # So, we rage quit. Let's throw away our entire tree, and pretend that
         # never happened!
@@ -423,6 +430,7 @@ def create_recipe_tree(
 
         node["num_recipes"] = len(recipe_tree)
         node["recipes"] = recipe_tree
+        is_first_item = False
         tree.append(node)
 
     # Wow, we got a tree -- perfect!
