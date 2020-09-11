@@ -10,6 +10,7 @@
       v-if="!hasMultipleOptions">
       <label @click="toggleSelected">
         <input
+          v-show="isMultiSelect"
           type="checkbox"
           :checked="node.selected"
           disabled="true" />
@@ -34,7 +35,10 @@
       v-if="tree.length > 0"
       class="recipe__tree"
       :class="[
-        {'recipe__tree--is-group': isOptionGroup}
+        {
+          'recipe__tree--is-group': isOptionGroup,
+          'recipe__tree--has-multi-options': hasMultipleOptions
+        }
       ]">
       <recipe-tree
         v-for="(childNode, ni) in tree"
@@ -84,7 +88,7 @@ export default {
       return this.hasParent && (this.hasMultipleOptions || this.hasManyRecipes)
     },
     isSelected () {
-      return (this.isMultiSelect) ? this.node.selected : false
+      return this.node.selected
     },
     tree: {
       get () {
@@ -125,6 +129,13 @@ export default {
         this.$emit('update', { tree: nodeCopy, parentIdx: this.parentIdx })
       }
     },
+  },
+  watch: {
+    isSelected (newState) {
+      if (newState === false) {
+        this.collapseTree(true)
+      }
+    }
   },
   mounted () {},
   methods: {
@@ -207,6 +218,10 @@ export default {
     &--is-group {
       flex: 1 0 auto;
       flex-flow: row nowrap;
+    }
+
+    &--has-multi-options {
+      background: transparent;
     }
   }
 }
