@@ -1,5 +1,6 @@
 <template>
   <div class="shopping-list-item">
+    <a v-if="isAnchor" :id="itemName"></a>
     <input
       type="checkbox"
       :checked="hasAll"
@@ -20,8 +21,10 @@
         v-for="(usedForItem, index) in usedForItems"
         v-show="usedForItem !== 'self' && usedForItem !== 'recipes'"
         :key="index">
-        <img :src="getItemImage(usedForItem)" />
-        {{ usedForItem }}
+        <a :href="`#${usedForItem}`">
+          <img :src="getItemImage(usedForItem)" />
+          {{ usedForItem }}
+        </a>
       </span>
     </div>
   </div>
@@ -31,6 +34,10 @@
 export default {
   props: {
     itemName: String,
+    isAnchor: {
+      type: Boolean,
+      default: false,
+    }
   },
   data () {
     return {}

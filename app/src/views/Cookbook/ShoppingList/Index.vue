@@ -27,7 +27,8 @@
           <shopping-list-item
             v-for="item in buildProcess[level]"
             :key="item"
-            :item-name="item">
+            :item-name="item"
+            :is-anchor="true">
           </shopping-list-item>
         </div>
       </div>
