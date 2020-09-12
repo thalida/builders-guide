@@ -48,6 +48,9 @@ requested_items = [
 for item_name in all_crafting_data["supported_craftable_items"]
 ]
 
+30 Torches
+5 glass panes
+
 input_strs = [
 "Observer: 334",
 "Redstone Dust: 287",

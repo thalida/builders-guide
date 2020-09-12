@@ -104,7 +104,7 @@ export default new Vuex.Store({
         typeof state.gameData[state.selectedVersion].items === 'undefined'
       ) {
         axios
-          .get('http://0.0.0.0:5000/api/1.15/items')
+          .get(`http://0.0.0.0:5000/api/${state.selectedVersion}/items`)
           .then(response => {
             commit('setItems', response.data)
           })
@@ -162,7 +162,7 @@ export default new Vuex.Store({
       })
 
       axios
-        .post('http://0.0.0.0:5000/api/1.15/recipe_tree', { items })
+        .post(`http://0.0.0.0:5000/api/${state.selectedVersion}/recipe_tree`, { items })
         .then(response => {
           commit('setRecipeTree', response.data)
           dispatch('setupShoppingList')
@@ -189,7 +189,7 @@ export default new Vuex.Store({
       }
 
       axios
-        .post('http://0.0.0.0:5000/api/1.15/shopping_list', {
+        .post(`http://0.0.0.0:5000/api/${state.selectedVersion}/shopping_list`, {
           recipe_path: recipePath,
           have_already: haveAlready,
         })

@@ -101,7 +101,7 @@ def generate_correct_item_name(
     Arguments:
         raw_name {string} -- The original name
         item_mappings {dict} -- Mapping of invalid item names to correct versions
-        all_items {dict} -- All game items
+        all_items {list} -- All game items
         all_tags {dict} -- All game tags
         all_recipes {dict} -- All game recipes
 
@@ -161,7 +161,7 @@ def generate_correct_item_name(
 
 def is_valid_item(name, all_items, all_tags, all_recipes):
     return (
-        all_items.get(name) is not None
+        name in all_items
         or all_tags.get(name) is not None
         or all_recipes.get(name) is not None
     )
@@ -176,7 +176,7 @@ def parse_items_from_string(
 
     Arguments:
         input_strings {dict} -- The strings to be converted to proper items
-        all_items {dict} -- All the minecraft items for a given version
+        all_items {list} -- All the minecraft items for a given version
         all_tags {dict} -- All the minecraft tags for a given version
         all_recipes {dict} -- All the minecraft recipes for a given version
         item_mappings {dict} -- A map of bad item names to correct values
@@ -198,6 +198,9 @@ def parse_items_from_string(
 
     try:
         for line in input_strings:
+            if len(line) == 0:
+                continue
+
             # Use regex to get the amount and name from the string
             matches = re.match(ITEM_LIST_REGEX, line, re.MULTILINE | re.IGNORECASE)
             groups = matches.groupdict()
@@ -238,7 +241,7 @@ def parse_items_from_string(
                 # Does this item exist in the list of all items?
                 #   This *could* be a sign of two of different errors, either
                 #   with the list of items stored or invalid name
-                if all_items.get(name) is None:
+                if name not in all_items:
                     no_item_found.append(name)
 
                 # Does a recipe exist for this item?
@@ -261,8 +264,11 @@ def parse_items_from_string(
     except Exception as e:
         logger.exception(e)
 
+    num_errors = len(no_name_found) + len(no_recipe_found) + len(no_item_found)
     return {
         "items": items,
+        "num_errors": num_errors,
+        "has_errors": num_errors > 0,
         "errors": {
             "no_name_found": no_name_found,
             "no_recipe_found": no_recipe_found,
