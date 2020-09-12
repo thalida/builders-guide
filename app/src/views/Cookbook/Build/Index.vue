@@ -16,6 +16,7 @@
     </div>
 
     <div v-if="hasSelectedItems">
+      <button v-on:click="removeAllItems()">clear all</button>
       <div
         class="item-row"
         v-for="(item, i) in selectedItems"
@@ -72,6 +73,9 @@ export default {
       } catch (error) {
         return images('./air.png')
       }
+    },
+    removeAllItems () {
+      this.selectedItems.splice(0, this.selectedItems.length)
     },
     removeSelectedItem (i) {
       this.selectedItems.splice(i, 1)

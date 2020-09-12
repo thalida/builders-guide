@@ -23,6 +23,7 @@ ITEM_TAGS_FILES_DIR = MINECRAFT_DATA_DIR + "{version}/tags/items/*"
 # Source Custom Data
 CUSTOM_DATA_DIR = DATA_DIR + "sources/custom/"
 CUSTOM_RECIPES_FILES_DIR = CUSTOM_DATA_DIR + "{version}/recipes/*"
+CUSTOM_ITEM_TAGS_FILES_DIR = CUSTOM_DATA_DIR + "{version}/tags/items/*"
 ITEM_MAPPINGS_FILE = CUSTOM_DATA_DIR + "{version}/item_mappings.json"
 
 # Generated Data
@@ -321,7 +322,18 @@ def generate_all_tags(version):
     tags_file_dir = ITEM_TAGS_FILES_DIR.format(version=version)
     tags_file_dir = os.path.join(cur_dir, tags_file_dir)
     item_tag_files = glob.glob(tags_file_dir)
-    for filepath in item_tag_files:
+
+    # Collect all of the custom tags I created
+    custom_tag_file_dir = CUSTOM_ITEM_TAGS_FILES_DIR.format(version=version)
+    custom_tag_file_dir = os.path.join(cur_dir, custom_tag_file_dir)
+    custom_tag_files = glob.glob(custom_tag_file_dir)
+
+    # combine both sets of recipes, custom_recipe_files MUST be the first
+    # set of items in the array
+    all_tag_files = custom_tag_files + item_tag_files
+    for filepath in all_tag_files:
+        # prefix all custom recipes with "custom" so that we don't overwrite
+        # any existing Minecraft recipes with the same name
         with open(filepath, "r") as f:
             data = f.read()
             item_tag_data = json.loads(data)

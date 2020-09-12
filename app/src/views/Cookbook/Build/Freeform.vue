@@ -39,7 +39,6 @@ export default {
   methods: {
     submit () {
       const textareaStrArray = this.textareaInput.split(/\r?\n/)
-      console.log(textareaStrArray)
       const selectedVersion = this.$store.state.selectedVersion
       axios
         .post(`http://0.0.0.0:5000/api/${selectedVersion}/parse_items_from_string`, {
@@ -47,6 +46,15 @@ export default {
         })
         .then(response => {
           console.log(response.data)
+          const res = response.data
+
+          if (!res.has_errors) {
+            this.$store.dispatch('extendSelectedItems', res.items)
+            this.$router.push('/cookbook/build')
+            return
+          }
+
+          console.log('do this thing?')
           // commit('setRecipeTree', response.data)
           // dispatch('setupShoppingList')
         })

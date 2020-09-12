@@ -121,17 +121,52 @@ export default new Vuex.Store({
     setSelectedFromTmp ({ state, commit, getters }, tmpItems) {
       const selectedByName = getters.selectedByName
       const selectedItems = []
+
       for (let i = 0, l = tmpItems.length; i < l; i += 1) {
         const itemName = tmpItems[i]
-        const amount = (selectedByName[itemName]) ? selectedByName[itemName].amount : 1
-        selectedItems.push({
-          name: itemName,
-          amount
-        })
+        if (typeof selectedByName[itemName] !== 'undefined') {
+          selectedItems.push(selectedByName[itemName])
+        } else {
+          selectedItems.push({
+            name: itemName,
+            amount: 1
+          })
+        }
       }
 
       commit('setSelectedItems', selectedItems)
       commit('setTmpSelectedItems', null)
+    },
+    extendSelectedItems ({ state, commit, getters }, items) {
+      const selectedItems = state.selectedItems
+      for (let i = 0, l = items.length; i < l; i += 1) {
+        const item = items[i]
+        const isTag = (typeof item.tag !== 'undefined')
+        const itemName = (isTag) ? item.tag : item.name
+        const itemAmount = item.amount_required
+
+        let found = false
+
+        for (let j = 0, k = selectedItems.length; j < k; j += 1) {
+          if (itemName === selectedItems[j].name) {
+            found = true
+            selectedItems[j].amount += itemAmount
+            break
+          }
+        }
+
+        if (!found) {
+          const newItem = {
+            name: itemName,
+            amount: itemAmount,
+            isTag: isTag
+          }
+
+          selectedItems.push(newItem)
+        }
+      }
+
+      commit('setSelectedItems', selectedItems)
     },
     setupRecipeTree ({ state, commit, dispatch }) {
       const numSelectedItems = state.selectedItems.length
@@ -143,10 +178,17 @@ export default new Vuex.Store({
       const items = []
       for (let i = 0; i < numSelectedItems; i += 1) {
         const item = state.selectedItems[i]
-        items.push({
-          name: item.name,
+        const newItem = {
           amount_required: item.amount
-        })
+        }
+
+        if (item.isTag) {
+          newItem.tag = item.name
+        } else {
+          newItem.name = item.name
+        }
+
+        items.push(newItem)
       }
 
       items.sort((a, b) => {

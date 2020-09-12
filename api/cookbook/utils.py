@@ -149,6 +149,7 @@ def generate_correct_item_name(
 
     # If it's not valid try to generate another version of the item name
     if not is_valid:
+        print('========>', name)
         if is_retry is False:
             return generate_correct_item_name(
                 raw_name, item_mappings, all_items, all_tags, all_recipes, is_retry=True
@@ -188,9 +189,7 @@ def parse_items_from_string(
         }
     """
     items = []
-    no_name_found = []
-    no_recipe_found = []
-    no_item_found = []
+    items_not_found = []
 
     # Make sure we're working with a list of strings
     if not isinstance(input_strings, list):
@@ -237,23 +236,16 @@ def parse_items_from_string(
             # Whew, we've made it -- let's setup the item dictionary with the amount
             item = {"amount_required": amount}
 
-            if all_tags.get(name) is None:
-                # Does this item exist in the list of all items?
-                #   This *could* be a sign of two of different errors, either
-                #   with the list of items stored or invalid name
-                if name not in all_items:
-                    no_item_found.append(name)
+            is_tag = all_tags.get(name) is not None
+            is_item = name in all_items
+            is_recipe = all_recipes.get(name) is not None
 
-                # Does a recipe exist for this item?
-                #   Not having a recipe *is* a valid state for example, red_tulip
-                #   But, logging with errors in case there's a problem with the logic
-                #   above for figuring out item name.
-                if all_recipes.get(name) is None:
-                    no_recipe_found.append(name)
+            if not is_tag and not is_item and not is_recipe:
+                items_not_found.append(name)
 
             # If there's no recipe for this item BUT it has a matching tag then
             # let's call the item a tag.
-            if all_recipes.get(name) is None and all_tags.get(name) is not None:
+            if not is_recipe and is_tag:
                 item["tag"] = name
             else:
                 item["name"] = name
@@ -264,14 +256,12 @@ def parse_items_from_string(
     except Exception as e:
         logger.exception(e)
 
-    num_errors = len(no_name_found) + len(no_recipe_found) + len(no_item_found)
+    num_errors = len(items_not_found)
     return {
         "items": items,
         "num_errors": num_errors,
         "has_errors": num_errors > 0,
         "errors": {
-            "no_name_found": no_name_found,
-            "no_recipe_found": no_recipe_found,
-            "no_item_found": no_item_found,
+            "items_not_found": items_not_found,
         },
     }

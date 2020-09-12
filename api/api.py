@@ -178,16 +178,13 @@ def api_recipe_tree(version):
     Arguments:
         version {string} -- Version of Minecraft Java Edition
         requested_items {list} -- The items (already formatted) that you'd like crafted
-        parse_item_strings {list} -- The strings you'd like converted to an item array
 
     Returns:
         [dict] -- [description]
     """
     try:
         req_json = request.get_json(force=True)
-        # We'll use requested_items by default, and fallback to parse_strings
         requested_items = req_json.get("items", [])
-        parse_strings = req_json.get("parse_item_strings")
     except Exception:
         logger.exception(e)
         abort(SERVER_ERROR)
@@ -196,18 +193,6 @@ def api_recipe_tree(version):
         all_crafting_data = cookbook.data.get_all_crafting_data(
             version, force_create=app.debug
         )
-
-        # If no requested items where provied, check if we have strings to parse
-        # If so, do so
-        if len(requested_items) == 0 and parse_strings is not None:
-            parsed_items = cookbook.utils.parse_items_from_string(
-                parse_strings,
-                all_items=all_crafting_data["items"],
-                all_tags=all_crafting_data["tags"],
-                all_recipes=all_crafting_data["recipes"],
-                item_mappings=all_crafting_data["item_mappings"],
-            )
-            requested_items = parsed_items["items"]
 
         recipe_tree = cookbook.calculator.create_recipe_tree(
             requested_items,
