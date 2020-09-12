@@ -13,10 +13,16 @@
       <ol v-if="renderData.hasItems">
         <li
           v-for="(item) in renderData.items"
-          :key="item.name">
+          v-observe-visibility="{
+            callback: onVisibilityChanged,
+            intersection: navi.intersectionOptions,
+          }"
+          :key="item.name"
+          :data-letter="item.letter">
           <div v-if="item.type === 'header'" class="item-group">
-            <a :id="item.letter"></a>
-            <h2>{{ item.letter }}</h2>
+            <a class="search__anchor" :id="item.letter">
+              <h2>{{ item.letter }}</h2>
+            </a>
           </div>
           <div v-if="item.type === 'item'" class="item-row">
             <label>
@@ -38,31 +44,6 @@
     <div class="search__items scroller" v-else>
       loading...
     </div>
-
-    <!-- <ol class="search__items" v-show="showItems">
-      <RecycleScroller
-        class="scroller"
-        :items="renderData.items"
-        v-slot="{ item }">
-        <li v-if="item.type === 'header'" class="item-group">
-          <a :id="item.letter"></a>
-          <h2>{{ item.letter }}</h2>
-        </li>
-        <li v-if="item.type === 'item'" class="item-row">
-          <label>
-            <input
-              type="checkbox"
-              :value="item.name"
-              v-model="tmpSelectedItems" />
-            <img :src="item.src" />
-            <span
-              v-for="(stringPart, spi) in item.nameParts"
-              :key="spi"
-              :class="[`is-${stringPart.style}`]">{{stringPart.value}}</span>
-          </label>
-        </li>
-      </RecycleScroller>
-    </ol> -->
 
     <ol class="search__alpha">
         <li
@@ -110,7 +91,7 @@ export default {
       showItems: false,
       navi: {
         alpha,
-        inViewport: [],
+        inViewport: {},
         selected: null,
         fromUserClick: false,
         arrivedAtLetter: false,
@@ -148,6 +129,16 @@ export default {
     renderData () {
       return this.getRenderDataByQuery(this.inputQuery)
     },
+    focusedLetterInView () {
+      const letters = Object.keys(this.navi.inViewport)
+
+      if (letters.length === 0) {
+        return null
+      }
+
+      letters.sort()
+      return letters[0]
+    },
   },
   mounted () {
     this.$store.dispatch('setupSearchStore')
@@ -182,7 +173,7 @@ export default {
             id: letter,
             letter,
             type: 'header',
-            size: 35
+            size: 35,
           })
           letterHasItems[letter] = false
         }
@@ -190,8 +181,9 @@ export default {
         renderItems.push({
           id: name,
           name,
+          letter,
           type: 'item',
-          size: 40
+          size: 40,
         })
 
         letterHasItems[letter] = true
@@ -249,34 +241,36 @@ export default {
     onLetterClick (letter) {
       this.navi.selected = letter
       this.navi.fromUserClick = true
-      this.navi.arrivedAtLetter = this.navi.inViewport.indexOf(this.navi.selected) === 0
+      this.navi.arrivedAtLetter = this.focusedLetterInView === letter
     },
     onVisibilityChanged (isVisible, e) {
       const elem = e.target
       const letter = elem.dataset.letter
-      const visibleIndex = this.navi.inViewport.indexOf(letter)
 
-      if (isVisible && visibleIndex === -1) {
-        this.navi.inViewport.push(letter)
-      } else if (!isVisible && visibleIndex >= 0) {
-        this.navi.inViewport.splice(visibleIndex, 1)
+      if (isVisible || letter in this.navi.inViewport) {
+        let count = this.navi.inViewport[letter] || 0
+
+        if (isVisible) {
+          count += 1
+        } else {
+          count -= 1
+        }
+
+        if (count > 0) {
+          this.$set(this.navi.inViewport, letter, count)
+        } else {
+          this.$delete(this.navi.inViewport, letter)
+        }
       }
-
-      this.navi.inViewport = this.navi.inViewport.filter((letter) => {
-        return this.itemAlpha.indexOf(letter) >= 0
-      })
-
-      this.navi.inViewport.sort()
 
       if (this.navi.fromUserClick) {
         this.navi.arrivedAtLetter = (
-          letter === this.navi.selected ||
-          this.navi.inViewport.indexOf(this.navi.selected) >= 0
+          letter === this.navi.selected || letter in this.navi.inViewport
         )
         return
       }
 
-      this.navi.selected = this.navi.inViewport[0]
+      this.navi.selected = this.focusedLetterInView
       this.navi.fromUserClick = false
       this.navi.arrivedAtLetter = true
     },
@@ -328,7 +322,9 @@ export default {
     position: fixed;
     height: 80%;
     top: 10%;
-    right:10%;
+    right: 2%;
+    padding-right: 30px;
+    overflow: auto;
     background: white;
     text-align: center;
 
@@ -346,6 +342,10 @@ export default {
     z-index: 1;
   }
 
+  &__anchor {
+    display: block;
+  }
+
   .is-bold {
     font-weight: bold;
   }
@@ -355,6 +355,7 @@ export default {
   }
 
   .item-group {
+    margin-top: 30px;
     height: 35px;
     display: flex;
     align-items: center;
