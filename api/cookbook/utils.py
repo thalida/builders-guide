@@ -188,17 +188,22 @@ def parse_items_from_string(
             errors: A collection of all errors / problem items found
         }
     """
-    items = []
-    items_not_found = []
-
     # Make sure we're working with a list of strings
     if not isinstance(input_strings, list):
         input_strings = [input_strings]
+
+    items = []
+    errors = []
+    num_processed_lines = 0
+    num_errors = None
+    success_rate = None
 
     try:
         for line in input_strings:
             if len(line) == 0:
                 continue
+
+            num_processed_lines += 1
 
             # Use regex to get the amount and name from the string
             matches = re.match(ITEM_LIST_REGEX, line, re.MULTILINE | re.IGNORECASE)
@@ -206,7 +211,9 @@ def parse_items_from_string(
 
             # If we couldn't parse the name, log to errors and move on
             if groups.get("name") is None:
-                no_name_found.append(line)
+                errors.append({
+                    "line": line
+                })
                 continue
 
             # Try to get the amount of the given item, the regex supports two formats:
@@ -233,15 +240,19 @@ def parse_items_from_string(
             if name is False:
                 name = src_name
 
-            # Whew, we've made it -- let's setup the item dictionary with the amount
-            item = {"amount_required": amount}
-
             is_tag = all_tags.get(name) is not None
             is_item = name in all_items
             is_recipe = all_recipes.get(name) is not None
 
             if not is_tag and not is_item and not is_recipe:
-                items_not_found.append(name)
+                errors.append({
+                    "name": name,
+                    "line": line,
+                })
+                continue
+
+            # Whew, we've made it -- let's setup the item dictionary with the amount
+            item = {"amount_required": amount}
 
             # If there's no recipe for this item BUT it has a matching tag then
             # let's call the item a tag.
@@ -256,12 +267,12 @@ def parse_items_from_string(
     except Exception as e:
         logger.exception(e)
 
-    num_errors = len(items_not_found)
+    num_errors = len(errors)
     return {
         "items": items,
+        "errors": errors,
         "num_errors": num_errors,
         "has_errors": num_errors > 0,
-        "errors": {
-            "items_not_found": items_not_found,
-        },
+        "num_processed_lines": num_processed_lines,
+        "success_rate": (num_processed_lines - num_errors) / num_processed_lines,
     }
