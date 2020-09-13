@@ -15,7 +15,8 @@ inflect_engine = inflect.engine()
 
 # Regex used to get the amount and item name from a string
 ITEM_LIST_REGEX = (
-    r"^(?P<amount1>[\d,]+)?(.*?)(?P<name>[A-Za-z\-_ ]+)(.*?)(?P<amount2>[\d,]+)?$"
+    # r"^(?P<amount1>[\d,]+)?(.*?)(?P<name>[A-Za-z\-_ ]+)(.*?)(?P<amount2>[\d,]+)?$"
+    r"^(?P<amount1>[\d,\-\s]+)?(.*?)(?P<name>[A-Za-z\-_ ]+)(.*?)(?P<amount2>[\d,\-\s]+)?$"
 )
 
 # Regex used to split a string into words
@@ -141,6 +142,11 @@ def generate_correct_item_name(
     # Rejoin the word with underscores
     name = "_".join(name_parts).lower()
 
+    # Check if the format "Blocks of Item"
+    if name.find("blocks_of_") >= 0:
+        name = name.replace("blocks_of_", "")
+        name = f'{name}_block'
+
     # Check if this itemname maps to something else
     name = item_mappings.get(name, name)
 
@@ -149,7 +155,6 @@ def generate_correct_item_name(
 
     # If it's not valid try to generate another version of the item name
     if not is_valid:
-        print('========>', name)
         if is_retry is False:
             return generate_correct_item_name(
                 raw_name, item_mappings, all_items, all_tags, all_recipes, is_retry=True
@@ -229,6 +234,10 @@ def parse_items_from_string(
             else:
                 amount = 1
 
+            if isinstance(amount, str):
+                amount_arr = amount.split('-')
+                amount = amount_arr[-1]
+
             # Make sure it's an int -- no partial crafting allowed
             amount = int(amount)
 
@@ -246,8 +255,9 @@ def parse_items_from_string(
 
             if not is_tag and not is_item and not is_recipe:
                 errors.append({
-                    "name": name,
                     "line": line,
+                    "name": name,
+                    "amount_required": amount,
                 })
                 continue
 

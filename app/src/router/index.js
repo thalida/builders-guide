@@ -5,7 +5,6 @@ import Splash from '../views/Splash/Index.vue'
 import Cookbook from '../views/Cookbook/Index.vue'
 import CookbookBuild from '../views/Cookbook/Build/Index.vue'
 import CookbookBuildSearch from '../views/Cookbook/Build/Search.vue'
-import CookbookBuildLibrary from '../views/Cookbook/Build/Library.vue'
 import CookbookBuildFreeform from '../views/Cookbook/Build/Freeform.vue'
 import CookbookRecipes from '../views/Cookbook/Recipes/Index.vue'
 import CookbookShoppingList from '../views/Cookbook/ShoppingList/Index.vue'
@@ -41,13 +40,6 @@ const routes = [
               returnFocusOnDeactivate: false
             },
             props: (route) => ({ query: route.query.q }),
-          },
-          {
-            path: 'library',
-            component: CookbookBuildLibrary,
-            meta: {
-              modal: true,
-            },
           },
           {
             path: 'freeform',

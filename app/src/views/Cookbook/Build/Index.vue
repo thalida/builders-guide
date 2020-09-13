@@ -11,7 +11,6 @@
         placeholder="What do you need?"
         v-on:focus="goToSearch" />
 
-      <router-link to="/cookbook/build/library">L</router-link>
       <router-link to="/cookbook/build/freeform">F</router-link>
     </div>
 
