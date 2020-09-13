@@ -45,18 +45,14 @@ export default {
           parse_strings: textareaStrArray
         })
         .then(response => {
-          console.log(response.data)
           const res = response.data
-
           if (!res.has_errors) {
-            this.$store.dispatch('extendSelectedItems', res.items)
+            this.$store.dispatch('mergeSelectedItems', res.items)
             this.$router.push('/cookbook/build')
             return
           }
 
-          console.log('do this thing?')
-          // commit('setRecipeTree', response.data)
-          // dispatch('setupShoppingList')
+          console.log(res)
         })
     },
     cancel () {

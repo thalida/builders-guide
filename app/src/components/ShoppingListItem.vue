@@ -51,11 +51,11 @@ export default {
         this.$store.dispatch('updateSelectedItems', newList)
       }
     },
-    selectedItemsByName () {
-      return this.$store.getters.selectedByName
+    selectedItemsByKey () {
+      return this.$store.getters.selectedByKey
     },
     isUserSelected () {
-      return typeof this.selectedItemsByName[this.item.name] !== 'undefined'
+      return typeof this.selectedItemsByKey[this.item.name] !== 'undefined'
     },
     shoppingList: {
       get () {

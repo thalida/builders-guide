@@ -61,14 +61,14 @@ export default new Vuex.Store({
     shoppingList: {},
   },
   getters: {
-    selectedByName (state) {
-      const selectedByName = {}
+    selectedByKey (state) {
+      const selectedByKey = {}
       for (let i = 0, l = state.selectedItems.length; i < l; i += 1) {
         const item = state.selectedItems[i]
-        selectedByName[item.name] = item
+        selectedByKey[item.key] = item
       }
 
-      return selectedByName
+      return selectedByKey
     }
   },
   mutations: {
@@ -113,23 +113,24 @@ export default new Vuex.Store({
       if (state.tmpSelectedItems === null) {
         const selectedItemNames = []
         for (let i = 0, l = state.selectedItems.length; i < l; i += 1) {
-          selectedItemNames.push(state.selectedItems[i].name)
+          selectedItemNames.push(state.selectedItems[i].key)
         }
         commit('setTmpSelectedItems', selectedItemNames)
       }
     },
     setSelectedFromTmp ({ state, commit, getters }, tmpItems) {
-      const selectedByName = getters.selectedByName
+      const selectedByKey = getters.selectedByKey
       const selectedItems = []
 
       for (let i = 0, l = tmpItems.length; i < l; i += 1) {
         const itemName = tmpItems[i]
-        if (typeof selectedByName[itemName] !== 'undefined') {
-          selectedItems.push(selectedByName[itemName])
+        if (typeof selectedByKey[itemName] !== 'undefined') {
+          selectedItems.push(selectedByKey[itemName])
         } else {
           selectedItems.push({
+            key: itemName,
             name: itemName,
-            amount: 1
+            amount_required: 1
           })
         }
       }
@@ -137,29 +138,33 @@ export default new Vuex.Store({
       commit('setSelectedItems', selectedItems)
       commit('setTmpSelectedItems', null)
     },
-    extendSelectedItems ({ state, commit, getters }, items) {
+    mergeSelectedItems ({ state, commit, getters }, items) {
       const selectedItems = state.selectedItems
       for (let i = 0, l = items.length; i < l; i += 1) {
         const item = items[i]
-        const isTag = (typeof item.tag !== 'undefined')
-        const itemName = (isTag) ? item.tag : item.name
+        const itemKey = item.name || item.tag
         const itemAmount = item.amount_required
 
         let found = false
 
         for (let j = 0, k = selectedItems.length; j < k; j += 1) {
-          if (itemName === selectedItems[j].name) {
+          if (itemKey === selectedItems[j].key) {
             found = true
-            selectedItems[j].amount += itemAmount
+            selectedItems[j].amount_required += itemAmount
             break
           }
         }
 
         if (!found) {
           const newItem = {
-            name: itemName,
-            amount: itemAmount,
-            isTag: isTag
+            key: itemKey,
+            amount_required: itemAmount,
+          }
+
+          if (typeof item.tag !== 'undefined') {
+            newItem.tag = itemKey
+          } else {
+            newItem.name = itemKey
           }
 
           selectedItems.push(newItem)
@@ -175,36 +180,8 @@ export default new Vuex.Store({
         return
       }
 
-      const items = []
-      for (let i = 0; i < numSelectedItems; i += 1) {
-        const item = state.selectedItems[i]
-        const newItem = {
-          amount_required: item.amount
-        }
-
-        if (item.isTag) {
-          newItem.tag = item.name
-        } else {
-          newItem.name = item.name
-        }
-
-        items.push(newItem)
-      }
-
-      items.sort((a, b) => {
-        if (a.name < b.name) {
-          return -1
-        }
-
-        if (b.name < a.name) {
-          return 1
-        }
-
-        return 0
-      })
-
       axios
-        .post(`http://0.0.0.0:5000/api/${state.selectedVersion}/recipe_tree`, { items })
+        .post(`http://0.0.0.0:5000/api/${state.selectedVersion}/recipe_tree`, { items: state.selectedItems })
         .then(response => {
           commit('setRecipeTree', response.data)
           dispatch('setupShoppingList')
