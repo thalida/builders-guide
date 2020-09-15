@@ -98,10 +98,30 @@ export default new Vuex.Store({
     },
   },
   actions: {
+    setupSplashStore ({ state, commit }) {
+      return new Promise((resolve, reject) => {
+        if (
+          typeof state.gameData[state.selectedVersion] === 'undefined' ||
+          typeof state.gameData[state.selectedVersion].items === 'undefined' ||
+          typeof state.gameData[state.selectedVersion].items[0] === 'undefined'
+        ) {
+          axios
+            .get(`http://0.0.0.0:5000/api/${state.selectedVersion}/items`)
+            .then(response => {
+              commit('setItems', response.data)
+              resolve()
+            })
+            .catch(err => reject(err))
+        } else {
+          resolve()
+        }
+      })
+    },
     setupSearchStore ({ state, commit }) {
       if (
         typeof state.gameData[state.selectedVersion] === 'undefined' ||
-        typeof state.gameData[state.selectedVersion].items === 'undefined'
+        typeof state.gameData[state.selectedVersion].items === 'undefined' ||
+        typeof state.gameData[state.selectedVersion].items[0] === 'undefined'
       ) {
         axios
           .get(`http://0.0.0.0:5000/api/${state.selectedVersion}/items`)
