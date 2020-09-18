@@ -29,6 +29,7 @@ const routes = [
         redirect: 'build'
       },
       {
+        name: 'build',
         path: 'build',
         component: CookbookBuild,
         children: [
@@ -51,10 +52,12 @@ const routes = [
         ],
       },
       {
+        name: 'recipes',
         path: 'recipes',
         component: CookbookRecipes
       },
       {
+        name: 'shoppingList',
         path: 'shopping-list',
         component: CookbookShoppingList
       }

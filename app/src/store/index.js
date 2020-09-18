@@ -196,7 +196,7 @@ export default new Vuex.Store({
     setupRecipeTree ({ state, commit, dispatch }) {
       const numSelectedItems = state.selectedItems.length
       if (numSelectedItems === 0) {
-        commit('setRecipeTree', [])
+        dispatch('updateRecipeTree', [])
         return
       }
 

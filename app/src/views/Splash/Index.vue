@@ -38,7 +38,7 @@
           to="/cookbook"
           class="splash__cta">
           Plan your build
-          <arrow-right />
+          <chevron-right />
         </router-link>
       </section>
     </div>
@@ -56,13 +56,13 @@
 </template>
 
 <script>
-import arrowRight from '../../components/icons/arrowRight.vue'
+import chevronRight from '../../components/icons/chevron-right.vue'
 
 // @ is an alias to /src
 export default {
   name: 'Splash',
   components: {
-    arrowRight
+    chevronRight
   },
   data: () => {
     return {
@@ -151,7 +151,7 @@ export default {
 
 .splash {
   $item-count: 16;
-  $circle-size: 80vh;
+  $circle-size: 85vh;
   $item-size: 10vh;
 
   display: flex;
@@ -174,6 +174,7 @@ export default {
   &__content {
     display: flex;
     width: 60vh;
+    margin-top: 10vh;
     flex-flow: column wrap;
     justify-content: center;
     align-items: center;
@@ -285,7 +286,8 @@ export default {
       $rot: 0;
       @for $i from 1 through $item-count {
         $circle_radius: $circle-size / 2;
-        $rand_translate: random(round($circle_radius / 4)) + $circle_radius;
+        $rand_translate: $circle_radius;
+        // $rand_translate: random(round($circle_radius / 4)) + $circle_radius;
         $rand_item_rot: random(22) + $rot;
 
         &:nth-of-type(#{$i}) {

@@ -44,6 +44,13 @@ export default {
   components: {
     ShoppingListItem,
   },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      if (!vm.hasSelectedItems) {
+        vm.$router.replace({ name: 'build' })
+      }
+    })
+  },
   data () {
     return {
       showNextIngredients: true,
@@ -51,6 +58,12 @@ export default {
     }
   },
   computed: {
+    selectedItems () {
+      return this.$store.state.selectedItems
+    },
+    hasSelectedItems () {
+      return this.selectedItems.length > 0
+    },
     shoppingList: {
       get () {
         return this.$store.state.shoppingList

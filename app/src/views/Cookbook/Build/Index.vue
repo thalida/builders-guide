@@ -1,5 +1,5 @@
 <template>
-  <div id="cookbook__build">
+  <div class="cookbook__build">
     <select>
       <option>v1.15.2</option>
     </select>
@@ -30,7 +30,7 @@
     <div v-else>
       <p>Search for something to create</p>
       <p>or</p>
-      <a href>Randomly Pick an Item</a>
+      <a v-on:click="selectRandomItem()">Randomly Pick an Item</a>
     </div>
 
     <!-- Router view for modals -->
@@ -48,6 +48,16 @@ export default {
     }
   },
   computed: {
+    items () {
+      if (
+        typeof this.$store.state.gameData[this.$store.state.selectedVersion] === 'undefined' ||
+        typeof this.$store.state.gameData[this.$store.state.selectedVersion].items === 'undefined'
+      ) {
+        return []
+      }
+
+      return this.$store.state.gameData[this.$store.state.selectedVersion].items
+    },
     selectedItems () {
       return this.$store.state.selectedItems
     },
@@ -78,6 +88,12 @@ export default {
     },
     removeSelectedItem (i) {
       this.selectedItems.splice(i, 1)
+    },
+    selectRandomItem () {
+      const len = this.items.length
+      const randIdx = Math.floor(Math.random() * Math.floor(len))
+      const item = this.items[randIdx]
+      this.$store.dispatch('setSelectedFromTmp', [item])
     },
     goToSearch () {
       const q = this.searchTerm

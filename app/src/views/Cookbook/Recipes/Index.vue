@@ -19,6 +19,13 @@ export default {
   components: {
     RecipeTree,
   },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      if (!vm.hasSelectedItems) {
+        vm.$router.replace({ name: 'build' })
+      }
+    })
+  },
   computed: {
     recipeTree: {
       get () {
@@ -27,6 +34,12 @@ export default {
       set (newTree) {
         this.$store.dispatch('updateRecipeTree', newTree)
       }
+    },
+    selectedItems () {
+      return this.$store.state.selectedItems
+    },
+    hasSelectedItems () {
+      return this.selectedItems.length > 0
     },
   },
   mounted () {
