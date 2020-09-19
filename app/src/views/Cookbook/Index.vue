@@ -19,25 +19,43 @@
         <router-link
           to="/cookbook/build"
           class="cookbook__navbar__link cookbook__navbar__link--build">
-          <build-filled v-if="currRoute==='build' && hasSelectedItems" />
-          <build-selected v-else-if="currRoute==='build'" />
-          <build-default v-else />
+          <build-icon
+            :class="[
+            {
+              'outlined': currRoute!=='build',
+              'filled': currRoute==='build' && !hasSelectedItems,
+              'highlighted': currRoute==='build' && hasSelectedItems,
+            }]" />
         </router-link>
-        <arrow-right />
+
+        <arrow-right-icon :class="hasSelectedItems ? 'highlighted' : 'faded'" />
+
         <component
           :is="hasSelectedItems ? 'router-link' : 'span'"
           to="/cookbook/recipes"
-          class="cookbook__navbar__link cookbook__navbar__link--recipies">
-          <recipies-selected v-if="currRoute==='recipes'" />
-          <recipies-default v-else />
+          class="cookbook__navbar__link cookbook__navbar__link--recipes">
+          <recipes-icon
+            :class="[
+            {
+              'faded': currRoute!=='recipes' && !hasSelectedItems,
+              'outlined': currRoute!=='recipes' && hasSelectedItems,
+              'filled': currRoute==='recipes',
+            }]" />
         </component>
-        <arrow-right />
+
+        <arrow-right-icon :class="hasSelectedItems ? 'highlighted' : 'faded'" />
+
         <component
           :is="hasSelectedItems ? 'router-link' : 'span'"
           to="/cookbook/shopping-list"
           class="cookbook__navbar__link cookbook__navbar__link--shopping">
-          <shopping-selected v-if="currRoute==='shoppingList'" />
-          <shopping-default v-else />
+          <shopping-list-icon
+            :class="[
+            {
+              'faded': currRoute!=='shoppingList' && !hasSelectedItems,
+              'outlined': currRoute!=='shoppingList' && hasSelectedItems,
+              'filled': currRoute==='shoppingList',
+            }]" />
         </component>
       </div>
     </nav>
@@ -45,26 +63,18 @@
 </template>
 
 <script>
-import arrowRight from '../../components/icons/arrow-right.vue'
-import buildDefault from '../../components/icons/build-default.vue'
-import buildSelected from '../../components/icons/build-selected.vue'
-import buildFilled from '../../components/icons/build-filled.vue'
-import recipiesDefault from '../../components/icons/recipies-default.vue'
-import recipiesSelected from '../../components/icons/recipies-selected.vue'
-import shoppingDefault from '../../components/icons/shopping-default.vue'
-import shoppingSelected from '../../components/icons/shopping-selected.vue'
+import arrowRightIcon from '../../components/icons/arrow-right.vue'
+import buildIcon from '../../components/icons/build.vue'
+import recipesIcon from '../../components/icons/recipes.vue'
+import shoppingListIcon from '../../components/icons/shopping-list.vue'
 
 export default {
   name: 'Cookbook',
   components: {
-    arrowRight,
-    buildDefault,
-    buildSelected,
-    buildFilled,
-    recipiesDefault,
-    recipiesSelected,
-    shoppingDefault,
-    shoppingSelected,
+    arrowRightIcon,
+    buildIcon,
+    recipesIcon,
+    shoppingListIcon,
   },
   computed: {
     currRoute () {
@@ -108,34 +118,6 @@ $navbar-height: 6.4em;
       height: 100%;
       align-items: center;
       justify-content: space-evenly;
-    }
-
-    .icon {
-      transition: all 300ms;
-    }
-  }
-
-  &--no-selected-items {
-    .icon--arrow-right,
-    .icon--recipies,
-    .icon--shopping {
-      fill: #DBDCDD;
-    }
-  }
-
-  &--has-selected-items {
-    .icon--arrow-right {
-      fill: #A07532;
-    }
-
-    a.cookbook__navbar__link {
-      .icon--default {
-        fill: #918C88
-      }
-
-      &:hover .icon--default {
-        fill: #000;
-      }
     }
   }
 }
