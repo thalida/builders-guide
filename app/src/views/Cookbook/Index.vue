@@ -1,18 +1,18 @@
 <template>
-  <div
-    class="cookbook"
-    :class="[
-      {
-        'cookbook--has-selected-items': hasSelectedItems,
-        'cookbook--no-selected-items': !hasSelectedItems,
-      }
-    ]">
-    <header>
-      <router-link to="/cookbook">bg</router-link>
-      <router-link to="/about">About</router-link>
+  <div class="cookbook">
+    <header class="cookbook__header">
+      <div class="cookbook__header__inner">
+        <router-link class="wordmark wordmark--minimal" to="/cookbook">bg</router-link>
+        <h1>
+          <span v-if="currRoute==='build'">Build Selection</span>
+          <span v-if="currRoute==='recipes'">Build Recipes</span>
+          <span v-if="currRoute==='shoppingList'">Shopping List</span>
+        </h1>
+        <router-link class="link" to="/about">About</router-link>
+      </div>
     </header>
 
-    <router-view v-if="show"></router-view>
+    <router-view class="cookbook__content" v-if="show"></router-view>
 
     <nav class="cookbook__navbar">
       <div class="cookbook__navbar__inner">
@@ -106,6 +106,32 @@ $navbar-height: 6.4em;
   display: flex;
   flex-flow: column nowrap;
   margin-bottom: $navbar-height * 2;
+  align-items: center;
+
+  &__header {
+    display: flex;
+    position: relative;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+
+    &__inner {
+      display: flex;
+      position: relative;
+      width: 100%;
+      max-width: 80%;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-flow: column nowrap;
+    position: relative;
+    width: 100%;
+    max-width: 80%;
+  }
 
   &__navbar {
     display: flex;

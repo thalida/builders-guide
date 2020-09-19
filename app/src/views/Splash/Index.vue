@@ -13,7 +13,7 @@
 
     <div class="splash__container">
       <section class="splash__content">
-        <h1>builder's guide</h1>
+        <h1 class="wordmark">builder's guide</h1>
         <h2>A Minecraft Cookbook</h2>
         <p>
           Figure out the recipes and resources you’ll need for your next build!
@@ -164,11 +164,6 @@ export default {
     text-align: center;
   }
 
-  h1 {
-    font: 4.8em/1.2 'Grand Hotel', cursive;
-    margin: 0.4em 0;
-  }
-
   h2 {
     font-size: 2.2em;
     font-weight: 500;
@@ -181,6 +176,8 @@ export default {
   }
 
   &__checkbox {
+    font-size: 1.4em;
+
     label {
       cursor: pointer;
     }
@@ -237,8 +234,6 @@ export default {
     background-position: top center;
     background-size: cover;
     background-repeat: no-repeat;
-
-    font-size: 1.4em;
   }
 
   // https://css-tricks.com/snippets/sass/placing-items-circle/

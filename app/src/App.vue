@@ -53,8 +53,30 @@ p {
   padding: 0;
 }
 
+.wordmark {
+  margin: 0.4em 0;
+  font: 4.8em/1.2 'Grand Hotel', cursive;
+  color: #1D1007;
+  text-decoration: none;
+
+  &--minimal {
+    font-size: 2.4em;
+
+    &:hover {
+      color: rgba(12, 136, 68, 1);
+    }
+  }
+}
+
+h1 {
+  font-size: 1.6em;
+  font-weight: 500;
+  text-align: center;
+}
+
 a.link {
   position: relative;
+  font-size: 1.4em;
   color: rgba(82, 77, 71, 1);
   text-decoration: none;
 

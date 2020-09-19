@@ -1,5 +1,5 @@
 <template>
-  <div id="cookbook__recipes">
+  <div class="cookbook__recipes">
     <a @click="expandAll">expandAll</a>
     <a @click="collapseAll">collapseAll</a>
     <recipe-tree
