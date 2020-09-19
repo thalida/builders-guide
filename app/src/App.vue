@@ -74,26 +74,32 @@ h1 {
   text-align: center;
 }
 
+.font-weight--medium {
+  font-weight: 500;
+}
+
 a.link {
   position: relative;
   font-size: 1.4em;
-  color: rgba(82, 77, 71, 1);
+  color: rgba(12, 136, 68, 1);
+  // color: rgba(82, 77, 71, 1);
   text-decoration: none;
 
-  &:after {
-    content: "";
-    display: block;
-    position: absolute;
-    height: 0.05em;
-    width: 100%;
-    background: rgba(82, 77, 71, 1);
-    transition: height 300ms;
-  }
+  // &:after {
+  //   content: "";
+  //   display: block;
+  //   position: absolute;
+  //   height: 0.05em;
+  //   width: 100%;
+  //   background: rgba(82, 77, 71, 1);
+  //   transition: height 300ms;
+  // }
 
   &:hover {
-    &:after {
-      height: 0.15em;
-    }
+    text-decoration: underline;
+    // &:after {
+    //   height: 0.15em;
+    // }
   }
 }
 

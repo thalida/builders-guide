@@ -1,15 +1,21 @@
 <template>
   <div class="cookbook">
     <header class="cookbook__header">
-      <div class="cookbook__header__inner">
-        <router-link class="wordmark wordmark--minimal" to="/cookbook">bg</router-link>
-        <h1>
-          <span v-if="currRoute==='build'">Build Selection</span>
-          <span v-if="currRoute==='recipes'">Build Recipes</span>
-          <span v-if="currRoute==='shoppingList'">Shopping List</span>
-        </h1>
-        <router-link class="link" to="/about">About</router-link>
-      </div>
+      <!-- <div class="cookbook__header__inner"> -->
+        <div class="cookbook__header__cell">
+          <router-link class="wordmark wordmark--minimal" to="/cookbook">bg</router-link>
+        </div>
+        <div class="cookbook__header__cell">
+          <h1>
+            <span v-if="currRoute==='build'">Build Selection</span>
+            <span v-if="currRoute==='recipes'">Build Recipes</span>
+            <span v-if="currRoute==='shoppingList'">Shopping List</span>
+          </h1>
+        </div>
+        <div class="cookbook__header__cell">
+          <router-link class="link" to="/about">About</router-link>
+        </div>
+      <!-- </div> -->
     </header>
 
     <router-view class="cookbook__content" v-if="show"></router-view>
@@ -109,19 +115,19 @@ $navbar-height: 6.4em;
   align-items: center;
 
   &__header {
-    display: flex;
     position: relative;
-    width: 100%;
+    width: 80%;
+    margin: 2.0em auto 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
     align-items: center;
-    justify-content: center;
 
-    &__inner {
-      display: flex;
+    &__cell {
       position: relative;
-      width: 100%;
-      max-width: 80%;
-      align-items: center;
-      justify-content: space-between;
+
+      &:last-of-type {
+        justify-self: right;
+      }
     }
   }
 
@@ -146,11 +152,12 @@ $navbar-height: 6.4em;
 
     &__inner {
       display: flex;
-      width: 100%;
+      width: 80%;
       max-width: 60.0em;
       height: 100%;
       align-items: center;
-      justify-content: space-evenly;
+      // justify-content: space-evenly;
+      justify-content: space-between;
     }
   }
 }
