@@ -38,7 +38,7 @@
           to="/cookbook"
           class="splash__cta">
           Plan your build
-          <chevron-right />
+          <chevron-right-icon />
         </router-link>
       </section>
     </div>
@@ -56,13 +56,13 @@
 </template>
 
 <script>
-import chevronRight from '../../components/icons/chevron-right.vue'
+import chevronRightIcon from '../../components/icons/chevron-right.vue'
 
 // @ is an alias to /src
 export default {
   name: 'Splash',
   components: {
-    chevronRight
+    chevronRightIcon
   },
   data: () => {
     return {
