@@ -10,22 +10,6 @@
             :src="getItemImage(itemName)" />
         </div>
     </div>
-    <!-- <div class="splash__background splash__background--inner">
-        <div
-          class="splash__item"
-          v-for="n in (numBlocks / 2)"
-          :key="n">
-          <img :src="getItemImage(renderItems[n-1])" />
-        </div>
-    </div>
-    <div class="splash__background splash__background--outer">
-        <div
-          class="splash__item"
-          v-for="n in (numBlocks / 2)"
-          :key="n + (numBlocks / 2)">
-          <img :src="getItemImage(renderItems[n - 1 + (numBlocks / 2)])" />
-        </div>
-    </div> -->
 
     <div class="splash__container">
       <section class="splash__content">
@@ -94,7 +78,7 @@ export default {
   },
   mounted () {
     this.$store
-      .dispatch('setupSplashStore')
+      .dispatch('setupItems')
       .then(this.setupRenderItems)
   },
   methods: {
@@ -114,7 +98,6 @@ export default {
         this.renderItems.push(randItem.item)
         itemsCopy.splice(randItem.index, 1)
       }
-      console.log(this.renderItems)
     },
     getItemImage (item) {
       const images = require.context('../../assets/minecraft/1.15/128x128/', false, /\.png$/)

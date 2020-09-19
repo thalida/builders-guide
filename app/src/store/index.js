@@ -98,7 +98,7 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    setupSplashStore ({ state, commit }) {
+    setupItems ({ state, commit }) {
       return new Promise((resolve, reject) => {
         if (
           typeof state.gameData[state.selectedVersion] === 'undefined' ||
@@ -117,18 +117,8 @@ export default new Vuex.Store({
         }
       })
     },
-    setupSearchStore ({ state, commit }) {
-      if (
-        typeof state.gameData[state.selectedVersion] === 'undefined' ||
-        typeof state.gameData[state.selectedVersion].items === 'undefined' ||
-        typeof state.gameData[state.selectedVersion].items[0] === 'undefined'
-      ) {
-        axios
-          .get(`http://0.0.0.0:5000/api/${state.selectedVersion}/items`)
-          .then(response => {
-            commit('setItems', response.data)
-          })
-      }
+    setupSearchStore ({ state, commit, dispatch }) {
+      dispatch('setupItems')
 
       if (state.tmpSelectedItems === null) {
         const selectedItemNames = []
@@ -194,6 +184,8 @@ export default new Vuex.Store({
       commit('setSelectedItems', selectedItems)
     },
     setupRecipeTree ({ state, commit, dispatch }) {
+      dispatch('setupItems')
+
       const numSelectedItems = state.selectedItems.length
       if (numSelectedItems === 0) {
         dispatch('updateRecipeTree', [])
@@ -207,7 +199,9 @@ export default new Vuex.Store({
           dispatch('setupShoppingList')
         })
     },
-    setupShoppingList ({ state, commit }) {
+    setupShoppingList ({ state, commit, dispatch }) {
+      dispatch('setupItems')
+
       if (state.recipeTree.length === 0) {
         commit('setShoppingList', [])
         return

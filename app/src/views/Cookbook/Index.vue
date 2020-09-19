@@ -12,7 +12,7 @@
       <router-link to="/about">About</router-link>
     </header>
 
-    <router-view></router-view>
+    <router-view v-if="show"></router-view>
 
     <nav class="cookbook__navbar">
       <div class="cookbook__navbar__inner">
@@ -76,6 +76,11 @@ export default {
     recipesIcon,
     shoppingListIcon,
   },
+  data () {
+    return {
+      show: false,
+    }
+  },
   computed: {
     currRoute () {
       return this.$route.name
@@ -88,7 +93,9 @@ export default {
     },
   },
   mounted () {
-    console.log(this.$route)
+    this.$store
+      .dispatch('setupItems')
+      .then(() => { this.show = true })
   }
 }
 </script>
