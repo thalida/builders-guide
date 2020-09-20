@@ -79,11 +79,13 @@ h1 {
 }
 
 a.link {
+  cursor: pointer;
   position: relative;
   font-size: 1.4em;
   color: rgba(12, 136, 68, 1);
   // color: rgba(82, 77, 71, 1);
   text-decoration: none;
+  font-weight: 500;
 
   // &:after {
   //   content: "";
@@ -101,6 +103,11 @@ a.link {
     //   height: 0.15em;
     // }
   }
+}
+
+.item-title {
+  font-size: 1.6em;
+  font-weight: 500;
 }
 
 @media screen and (max-width: 500px) {

@@ -1,5 +1,9 @@
 <template>
-  <div class="cookbook-build">
+  <div
+    class="cookbook-build"
+    :class="[{
+      'cookbook-build--is-empty': !hasSelectedItems
+    }]">
     <select class="cookbook-build__version">
       <option>v1.15.2</option>
     </select>
@@ -24,18 +28,32 @@
     </div>
 
     <div v-if="hasSelectedItems">
-      <button v-on:click="removeAllItems()">clear all</button>
       <div
-        class="item-row"
+        class="cookbook-build__item-group"
         v-for="(item, i) in selectedItems"
         :key="item.key">
-        <input type="number" min="0" v-model.number="selectedItems[i].amount_required" />
-        <img :src="getItemImage(item.key)" />
-        {{item.key}}
-        <a :href="`https://minecraft.gamepedia.com/${item.name}`" target="_blank">Minecraft Wiki</a>
-        <button v-on:click="removeSelectedItem(i)">x</button>
+        <input
+          class="cookbook-build__item-group__input"
+          type="number"
+          min="0"
+          v-model.number="selectedItems[i].amount_required" />
+        <img class="cookbook-build__item-group__icon" :src="getItemImage(item.key)" />
+        <div class="cookbook-build__item-group__text">
+          <span class="item-title">{{item.key}}</span>
+          <a class="link" :href="`https://minecraft.gamepedia.com/${item.name}`" target="_blank">Minecraft Wiki</a>
+        </div>
+        <button
+          class="cookbook-build__item-group__remove-btn"
+          v-on:click="removeSelectedItem(i)">
+          <cross-icon />
+        </button>
+      </div>
+
+      <div class="cookbook-build__content-actions">
+        <a class="link" v-on:click="removeAllItems()">Clear All</a>
       </div>
     </div>
+
     <div v-else class="cookbook-build__empty">
       <blob />
       <p class="font-weight--medium">Search for something to create</p>
@@ -52,6 +70,7 @@
 import blob from '../../../components/blob.vue'
 import searchIcon from '../../../components/icons/search.vue'
 import plaintextInputIcon from '../../../components/icons/plaintext-input.vue'
+import crossIcon from '../../../components/icons/cross.vue'
 
 export default {
   name: 'CookbookBuild',
@@ -59,6 +78,7 @@ export default {
     blob,
     searchIcon,
     plaintextInputIcon,
+    crossIcon,
   },
   data () {
     return {
@@ -128,13 +148,16 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .cookbook-build {
   display: flex;
   flex-flow: column nowrap;
   width: 80%;
   max-width: 60.0em;
-  min-height: calc(100vh - 6.4em - 6.4em);
+
+  &--is-empty {
+    min-height: calc(100vh - 6.4em - 6.4em);
+  }
 
   &__version {
     margin-top: 0.5em;
@@ -211,6 +234,7 @@ export default {
     overflow: hidden;
 
     font-size: 1.8em;
+    line-height: 1.4;
 
     .blob {
       position: absolute;
@@ -226,6 +250,75 @@ export default {
         text-decoration: underline;
       }
     }
+  }
+
+  &__item-group {
+    display: flex;
+    position: relative;
+    width: 100%;
+    margin: 2.0em 0;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+
+    &__input {
+      flex: 0 1 32px;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 0;
+      border-bottom: 1px solid #918C88;
+      text-align: center;
+      font-size: 1.6em;
+      font-weight: 500;
+    }
+
+    &__icon {
+      flex: 0 1 32px;
+      height: 32px;
+      width: 32px;
+      margin: 0 1.0em;
+    }
+
+    &__text {
+      flex: 2 0 auto;
+      display: flex;
+      flex-flow: column wrap;
+      margin: 0 1.0em 0 0;
+
+      .item-title {
+        line-height: 1.6;
+      }
+    }
+
+    &__remove-btn {
+      cursor: pointer;
+      flex: 0 1 3.2px;
+      height: 32px;
+      width: 32px;
+      padding: 0;
+      margin: 0 0.8em 0 0;
+      border: 0;
+      background: transparent;
+
+      &:hover {
+        .icon__cross__path {
+          fill: #1D1007;
+        }
+      }
+    }
+  }
+
+  &__content-actions {
+    position: fixed;
+    display: flex;
+    width: 100%;
+    height: 3.4em;
+    left: 0;
+    bottom: 6.4em;
+    justify-content: center;
+    align-items: center;
+
+    background: #F1F1F1;
   }
 }
 </style>
