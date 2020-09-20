@@ -196,6 +196,7 @@ export default {
     align-items: center;
 
     &__btn {
+      flex: 0 0 4.0em;
       display: flex;
       width: 4.0em;
       height: 4.0em;
