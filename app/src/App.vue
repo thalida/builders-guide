@@ -62,7 +62,8 @@ p {
   &--minimal {
     font-size: 2.4em;
 
-    &:hover {
+    &:hover,
+    &:focus {
       color: rgba(12, 136, 68, 1);
     }
   }
@@ -97,7 +98,8 @@ a.link {
   //   transition: height 300ms;
   // }
 
-  &:hover {
+  &:hover,
+  &:focus {
     text-decoration: underline;
     // &:after {
     //   height: 0.15em;
@@ -108,6 +110,7 @@ a.link {
 .item-title {
   font-size: 1.6em;
   font-weight: 500;
+  text-transform: capitalize;
 }
 
 @media screen and (max-width: 500px) {

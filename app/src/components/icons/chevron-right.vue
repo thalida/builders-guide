@@ -13,6 +13,7 @@
 <style lang="scss">
 .icon__chevron-right {
     &__path {
+        transition: all 300ms;
         fill: #fff;
     }
 }

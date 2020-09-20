@@ -15,6 +15,7 @@
 <style lang="scss">
 .icon__plaintext-input {
     &__path {
+        transition: all 300ms;
         fill: #1D1007;
     }
 }

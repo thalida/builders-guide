@@ -39,7 +39,7 @@
           v-model.number="selectedItems[i].amount_required" />
         <img class="cookbook-build__item-group__icon" :src="getItemImage(item.key)" />
         <div class="cookbook-build__item-group__text">
-          <span class="item-title">{{item.key}}</span>
+          <span class="item-title">{{getTitle(item.key)}}</span>
           <a class="link" :href="`https://minecraft.gamepedia.com/${item.name}`" target="_blank">Minecraft Wiki</a>
         </div>
         <button
@@ -50,7 +50,13 @@
       </div>
 
       <div class="cookbook-build__content-actions">
-        <a class="link" v-on:click="removeAllItems()">Clear All</a>
+        <a
+          class="link"
+          tabindex="0"
+          v-on:click="removeAllItems()"
+          v-on:keyup.enter="removeAllItems()">
+          Clear All
+        </a>
       </div>
     </div>
 
@@ -58,7 +64,13 @@
       <blob />
       <p class="font-weight--medium">Search for something to create</p>
       <p>or</p>
-      <a class="rand-link" v-on:click="selectRandomItem()">Randomly Pick an Item</a>
+      <a
+        class="link"
+        tabindex="0"
+        v-on:click="selectRandomItem()"
+        v-on:keyup.enter="selectRandomItem()">
+        Randomly Pick an Item
+      </a>
     </div>
 
     <!-- Router view for modals -->
@@ -113,6 +125,9 @@ export default {
     }
   },
   methods: {
+    getTitle (item) {
+      return item.split('_').join(' ')
+    },
     getItemImage (item) {
       const images = require.context('../../../assets/minecraft/1.15/32x32/', false, /\.png$/)
       try {
@@ -205,15 +220,16 @@ export default {
       border: 1px solid #DBDCDD;
       background: #F1F1F1;
       border-radius: 50%;
+      transition: background 300ms;
 
-      &:hover {
-        background: darken(#F1F1F1, 10);
-        border: 1px solid darken(#DBDCDD, 10);
+      &:hover,
+      &:focus {
+        background: #fff;
       }
     }
 
     .searchbox {
-      flex: 2 0 auto;
+      flex: 2 1 auto;
       margin-right: 1.0em;
     }
   }
@@ -242,14 +258,8 @@ export default {
       z-index: -1;
     }
 
-    .rand-link {
-      cursor: pointer;
-      color: rgba(12, 136, 68, 1);
-      font-weight: 500;
-
-      &:hover {
-        text-decoration: underline;
-      }
+    .link {
+      font-size: 1.0em;
     }
   }
 
@@ -285,9 +295,14 @@ export default {
       display: flex;
       flex-flow: column wrap;
       margin: 0 1.0em 0 0;
+      width: calc(80% - 96px);
 
       .item-title {
         line-height: 1.6;
+      }
+
+      .link {
+        width: fit-content;
       }
     }
 
@@ -301,7 +316,8 @@ export default {
       border: 0;
       background: transparent;
 
-      &:hover {
+      &:hover,
+      &:focus {
         .icon__cross__path {
           fill: #1D1007;
         }

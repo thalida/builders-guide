@@ -21,11 +21,11 @@
 
 <style lang="scss">
 .icon__shopping-list {
-    .icon__shopping-list__shadow,
-    .icon__shopping-list__header,
-    .icon__shopping-list__header-border,
-    .icon__shopping-list__row,
-    .icon__shopping-list__border {
+    &__shadow,
+    &__header,
+    &__header-border,
+    &__row,
+    &__border {
         transition: all 300ms;
     }
 

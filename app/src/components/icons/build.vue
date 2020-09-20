@@ -16,11 +16,11 @@
 
 <style lang="scss">
 .icon__build {
-    .icon__build__door,
-    .icon__build__roof,
-    .icon__build__window-shadow,
-    .icon__build__window,
-    .icon__build__border {
+    &__door,
+    &__roof,
+    &__window-shadow,
+    &__window,
+    &__border {
         transition: all 300ms;
     }
 

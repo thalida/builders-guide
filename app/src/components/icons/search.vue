@@ -13,6 +13,7 @@
 <style lang="scss">
 .icon__search {
     &__path {
+        transition: all 300ms;
         fill: #1D1007;
     }
 }

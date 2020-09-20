@@ -13,6 +13,7 @@
 <style lang="scss">
 .icon__cross {
     &__path {
+        transition: all 300ms;
         fill: #D45953;
     }
 }

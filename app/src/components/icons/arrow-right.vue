@@ -12,7 +12,7 @@
 
 <style lang="scss">
 .icon__arrow-right {
-    .icon__arrow-right__path {
+    &__path {
         transition: all 300ms;
     }
 
