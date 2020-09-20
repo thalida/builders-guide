@@ -38,7 +38,7 @@ const routes = [
             component: CookbookBuildSearch,
             meta: {
               modal: true,
-              returnFocusOnDeactivate: false
+              returnFocusOnDeactivate: true
             },
             props: (route) => ({ query: route.query.q }),
           },

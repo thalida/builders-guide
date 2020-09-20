@@ -79,31 +79,21 @@ h1 {
   font-weight: 500;
 }
 
+.font-weight--bold {
+  font-weight: 700;
+}
+
 a.link {
   cursor: pointer;
   position: relative;
   font-size: 1.4em;
   color: rgba(12, 136, 68, 1);
-  // color: rgba(82, 77, 71, 1);
   text-decoration: none;
   font-weight: 500;
-
-  // &:after {
-  //   content: "";
-  //   display: block;
-  //   position: absolute;
-  //   height: 0.05em;
-  //   width: 100%;
-  //   background: rgba(82, 77, 71, 1);
-  //   transition: height 300ms;
-  // }
 
   &:hover,
   &:focus {
     text-decoration: underline;
-    // &:after {
-    //   height: 0.15em;
-    // }
   }
 }
 

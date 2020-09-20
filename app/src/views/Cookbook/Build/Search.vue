@@ -3,46 +3,73 @@
     class="search"
     :modal-aria-label="modalAriaLabel">
     <header class="search__header">
-      <input
-        v-model="inputQuery"
-        placeholder="What do you need?"
+      <div class="searchbox">
+        <search-icon class="searchbox__icon" />
+        <input
+          class="searchbox__field"
+          type="text"
+          v-model="inputQuery"
+          placeholder="What do you need?"
         v-on:keyup="onInputChange" />
+      </div>
     </header>
 
-    <div class="search__items scroller" v-if="showItems">
-      <ol v-if="renderData.hasItems">
+    <div class="search__scroll-container">
+      <ol class="search__content" v-if="showItems && renderData.hasItems">
         <li
-          v-for="(item) in renderData.items"
+          class="search__content__row"
+          v-for="(item, index) in renderData.items"
           v-observe-visibility="{
             callback: onVisibilityChanged,
             intersection: navi.intersectionOptions,
           }"
           :key="item.name"
           :data-letter="item.letter">
-          <div v-if="item.type === 'header'" class="item-group">
-            <a class="search__anchor" :id="item.letter">
-              <h2>{{ item.letter }}</h2>
-            </a>
-          </div>
-          <div v-if="item.type === 'item'" class="item-row">
-            <label>
-              <input
-                type="checkbox"
-                :value="item.name"
-                v-model="tmpSelectedItems" />
-              <img :src="getItemImage(item.name)" />
-              <span
-                v-for="(stringPart, spi) in getItemNameParts(item.name)"
-                :key="spi"
-                :class="[`is-${stringPart.style}`]">{{stringPart.value}}</span>
+
+          <a
+            v-if="item.type === 'header'"
+            class="search__letter-row"
+            :class="[{ 'is-first': index===0 }]"
+            :id="item.letter">
+            <h2>{{ item.letter }}</h2>
+          </a>
+
+          <div
+            v-if="item.type === 'item'"
+            class="search__item-row">
+            <label class="checkbox" tabindex="0">
+              <span class="search__item-row__input">
+                <input
+                  class="checkbox__input"
+                  type="checkbox"
+                  name="checkbox"
+                  :value="item.name"
+                  v-model="tmpSelectedItems">
+                <check-icon class="checkbox__checkmark" />
+              </span>
+              <span class="search__item-row__details">
+                <img
+                  class="search__item-row__icon"
+                  :src="getItemImage(item.name)" />
+                <span class="search__item-row__name">
+                  <span
+                    v-for="(stringPart, spi) in getItemNameParts(item.name)"
+                    :key="spi"
+                    :class="[{
+                      'font-weight--bold': stringPart.isBold
+                    }]">{{stringPart.value}}</span>
+                  </span>
+                </span>
             </label>
           </div>
         </li>
       </ol>
-      <div v-else>No results</div>
-    </div>
-    <div class="search__items scroller" v-else>
-      loading...
+      <div class="search__content" v-else-if="showItems && !renderData.hasItems">
+        No results
+      </div>
+      <div class="search__content" v-else>
+        loading...
+      </div>
     </div>
 
     <ol class="search__alpha">
@@ -54,7 +81,8 @@
             v-if="renderData.letters[letter]"
             :href="`#${letter}`"
             :class="{'is-selected': navi.selected === letter}"
-            v-on:click="onLetterClick(letter)">
+            v-on:click="onLetterClick(letter)"
+            v-on:keyup.enter="onLetterClick(letter)">
             {{letter}}
           </a>
           <span v-else>{{letter}}</span>
@@ -62,16 +90,29 @@
     </ol>
 
     <section class="search__action-bar">
-      <button v-on:click="cancel">Cancel</button>
-      <button v-on:click="submit">Continue with {{numSelected}} items</button>
+      <div class="search__action-bar__inner">
+        <button
+          class="button button--secondary"
+          v-on:click="cancel"
+          v-on:keyup.enter="cancel">
+          Cancel
+        </button>
+        <button
+          class="button button--primary"
+          v-on:click="submit"
+          v-on:keyup.enter="submit">
+          Continue with {{numSelected}} items
+        </button>
+      </div>
     </section>
   </Modal>
 </template>
 
 <script>
 import 'intersection-observer'
-
 import Modal from '@/components/Modal.vue'
+import searchIcon from '../../../components/icons/search.vue'
+import checkIcon from '../../../components/icons/check.vue'
 
 export default {
   name: 'CookbookBuildSearch',
@@ -80,11 +121,14 @@ export default {
   },
   components: {
     Modal,
+    searchIcon,
+    checkIcon,
   },
   data () {
     const alpha = 'abcdefghijklmnopqrstuvwxyz'.split('')
     const inputQuery = (typeof this.query === 'string' && this.query.length > 0) ? this.query : ''
     return {
+      $scrollContainer: null,
       modalAriaLabel: 'Search Modal',
       inputQuery,
       renderDataByQuery: {},
@@ -105,6 +149,9 @@ export default {
     }
   },
   computed: {
+    formattedInputQuery () {
+      return this.inputQuery.toLowerCase()
+    },
     items () {
       if (
         typeof this.$store.state.gameData[this.$store.state.selectedVersion] === 'undefined' ||
@@ -137,16 +184,28 @@ export default {
       }
 
       letters.sort()
-      return letters[0]
+      const focusedLetter = letters[0]
+
+      if (this.$route.hash.indexOf(focusedLetter) < 0) {
+        this.$router.replace({
+          path: this.$route.path,
+          query: { q: this.inputQuery },
+          hash: focusedLetter
+        })
+      }
+
+      return focusedLetter
     },
   },
   mounted () {
+    this.$scrollContainer = this.$el.querySelector('.search__scroll-container')
     this.$store.dispatch('setupSearchStore')
-    this.navi.intersectionOptions.root = this.$elem
-    this.$el.addEventListener('scroll', this.onScroll)
-    this.scrollToHash()
-
-    setTimeout(() => (this.showItems = true), 0)
+    this.navi.intersectionOptions.root = this.$scrollContainer
+    this.$scrollContainer.addEventListener('scroll', this.onScroll)
+    this.showItems = true
+    setTimeout(() => {
+      this.scrollToHash()
+    }, 0)
   },
   destroyed () {
     document.removeEventListener('scroll', this.onScroll)
@@ -208,13 +267,19 @@ export default {
       }
     },
     getItemNameParts (item) {
-      const boldStart = item.indexOf(this.inputQuery)
-      const boldEnd = boldStart + this.inputQuery.length
+      const itemName = item
+        .split('_')
+        .map((str) => {
+          return str.charAt(0).toUpperCase() + str.slice(1)
+        })
+        .join(' ')
+      const boldStart = itemName.toLowerCase().indexOf(this.formattedInputQuery)
+      const boldEnd = boldStart + this.formattedInputQuery.length
 
       return [
-        { style: 'normal', value: item.substring(0, boldStart) },
-        { style: 'bold', value: item.substring(boldStart, boldEnd) },
-        { style: 'normal', value: item.substring(boldEnd) },
+        { isBold: false, value: itemName.substring(0, boldStart) },
+        { isBold: true, value: itemName.substring(boldStart, boldEnd) },
+        { isBold: false, value: itemName.substring(boldEnd) },
       ]
     },
     scrollToHash () {
@@ -224,12 +289,19 @@ export default {
         return
       }
 
-      const element = this.$el.querySelector(hash)
+      const element = this.$scrollContainer.querySelector(hash)
       if (typeof element === 'undefined' || element === null) {
         return
       }
       const top = element.offsetTop
-      setTimeout(() => (this.$el.scrollTo(0, top)), 0)
+
+      if (this.$scrollContainer.scrollTop === top) {
+        this.navi.selected = this.focusedLetterInView
+        this.navi.fromUserClick = false
+        this.navi.arrivedAtLetter = true
+      } else {
+        setTimeout(() => (this.$scrollContainer.scrollTo(0, top)), 0)
+      }
     },
     onScroll () {
       if (this.navi.fromUserClick && !this.navi.arrivedAtLetter) {
@@ -281,7 +353,8 @@ export default {
 
       this.$router.replace({
         path: this.$route.path,
-        query: { q: this.inputQuery }
+        query: { q: this.inputQuery },
+        hash: this.focusedLetterInView
       })
     },
     submit () {
@@ -296,19 +369,53 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .search {
+  .modal__main {
+    overflow: hidden;
+  }
+
   &__header {
     z-index: 2;
     position: fixed;
     width: 100%;
     top: 0;
     left: 0;
-    background: white;
     text-align: center;
+    padding: 3.0em 0 0 0;
+    background-image: linear-gradient(180deg, #FFFFFF 50%, rgba(255,255,255,0.00) 100%);
+
+    .searchbox {
+      width: 80%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  }
+
+  &__scroll-container {
+    height: calc(100vh - 180px);
+    margin: 80px 0 0 0;
+    overflow: auto;
+  }
+
+  &__content {
+    display: flex;
+    position: relative;
+    flex-flow: column nowrap;
+    align-items: center;
+    width: 100%;
+
+    &__row {
+      width: 80%;
+      max-width: 600px;
+    }
   }
 
   &__action-bar {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
     z-index: 2;
     position: fixed;
     width: 100%;
@@ -316,55 +423,149 @@ export default {
     left: 0;
     background: white;
     text-align: center;
+
+    &__inner {
+      display: flex;
+      width: 80%;
+      max-width: 600px;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: space-between;
+    }
   }
 
   &__alpha {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    // justify-content: space-evenly;
     position: fixed;
-    height: 80%;
-    top: 10%;
+    height: calc(100vh - 180px);
+    top: 80px;
     right: 2%;
     padding-right: 30px;
     overflow: auto;
-    background: white;
-    text-align: center;
+    z-index: 2;
+    font-size: 1.2em;
+    font-weight: 500;
+    line-height: 1.5;
+    text-transform: uppercase;
 
     a {
-      font-weight: bold;
+      color: rgba(12, 136, 68, 1);
+      text-decoration: none;
+    }
+
+    span {
+      color: #DBDCDD;
     }
 
     .is-selected {
-      color: red;
+      color: #D3942E;
+      font-weight: 700;
     }
   }
 
-  &__items {
-    margin: 60px 0;
-    z-index: 1;
-  }
-
-  &__anchor {
-    display: block;
-  }
-
-  .is-bold {
-    font-weight: bold;
-  }
-
-  .scroller {
-    height: 100%;
-  }
-
-  .item-group {
+  &__letter-row {
+    display: flex;
     margin-top: 30px;
-    height: 35px;
-    display: flex;
     align-items: center;
+    font-size: 3.2em;
+    color: #E6CE51;
+    text-transform: uppercase;
+
+    h2 {
+      font-weight: 500;
+    }
+
+    &.is-first {
+      margin-top: 0;
+    }
   }
 
-  .item-row {
-    height: 40px;
+  &__item-row {
     display: flex;
+    margin: 1.0em 0;
     align-items: center;
+
+    &__input {
+      margin-right: 1em;
+    }
+
+    &__details {
+      display: flex;
+      align-items: center;
+    }
+
+    &__icon {
+      margin-right: 0.5em;
+    }
+  }
+
+  .checkbox {
+    display: flex;
+    flex-flow: row nowrap;
+    font-size: 1.6em;
+    align-items: center;
+
+    &--disabled {
+      color: pink;
+    }
+
+    &__checkmark .icon__check__path {
+      stroke: #DBDCDD;
+    }
+
+    &__input {
+      display: none;
+
+      &:focus + .checkbox__checkmark {
+        stroke: darken(rgba(12, 136, 68, 1), 10)
+      }
+
+      &:checked + .checkbox__checkmark {
+        .icon__check__path {
+          stroke: rgba(12, 136, 68, 1);
+        }
+      }
+
+      &:disabled + .checkbox__checkmark {
+        stroke: pink;
+      }
+    }
+  }
+
+  .button {
+    font-size: 1.8em;
+    border-radius: 2.4em;
+    margin: 1.2em 0;
+    padding: 0.8em 1.6em;
+    text-decoration: none;
+    cursor: pointer;
+
+    transition: background 300ms;
+
+    &--primary {
+      color: #fff;
+      background: rgba(12, 136, 68, 1);
+      border: 0;
+
+      &:hover,
+      &:focus {
+        background: darken(rgba(12, 136, 68, 1), 10);
+      }
+    }
+
+    &--secondary {
+      background: #F1F1F1;
+      border: 1px solid #DBDCDD;
+      color: #1D1007;
+
+      &:hover,
+      &:focus {
+        background: darken(#F1F1F1, 10);
+      }
+    }
   }
 }
 </style>

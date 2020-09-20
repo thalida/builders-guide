@@ -160,5 +160,39 @@ $navbar-height: 6.4em;
       justify-content: space-between;
     }
   }
+
+  .searchbox {
+    display: flex;
+    position: relative;
+    flex-flow: row nowrap;
+    align-items: center;
+    height: 4.8em;
+
+    &__icon {
+      position: absolute;
+      left: 1.2em;
+    }
+
+    &__field {
+      border: 0;
+      padding: 0 1.4em 0 32px;
+      margin: 0;
+      background: transparent;
+      height: 100%;
+      width: 100%;
+      border-radius: 2.4em;
+      border: 2px solid #F5E0BE;
+      background: #F5EDE1;
+      color: #1D1007;
+      font-size: 1.4em;
+      transition: all 300ms;
+
+      &:focus {
+        outline: none;
+        border: 2px solid #CEB946;
+        box-shadow: 0 0 10px #F1F1F1;
+      }
+    }
+  }
 }
 </style>

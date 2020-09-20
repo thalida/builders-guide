@@ -186,7 +186,8 @@ export default {
       padding: 0 0.2em;
     }
 
-    &:hover {
+    &:hover,
+    &:focus {
       span {
         text-decoration: underline;
       }
@@ -213,7 +214,8 @@ export default {
       margin-left: 0.8em;
     }
 
-    &:hover {
+    &:hover,
+    &:focus {
       background: darken(rgba(12, 136, 68, 1), 10);
     }
   }

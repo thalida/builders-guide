@@ -184,26 +184,6 @@ export default {
     border-radius: 1.4em;
   }
 
-  .searchbox {
-    display: flex;
-    flex-flow: row nowrap;
-    align-items: center;
-    height: 4.0em;
-    padding: 0 1.0em;
-    border-radius: 2.4em;
-    border: 1px solid #F5E0BE;
-    background: #F5EDE1;
-
-    &__field {
-      border: 0;
-      padding: 0;
-      margin: 0 0 0 0.5em;
-      background: transparent;
-      height: 100%;
-      width: 100%;
-    }
-  }
-
   &__menu {
     display: flex;
     margin-top: 3.0em;
@@ -224,7 +204,7 @@ export default {
 
       &:hover,
       &:focus {
-        background: #fff;
+        background: darken(#F1F1F1, 10);
       }
     }
 
