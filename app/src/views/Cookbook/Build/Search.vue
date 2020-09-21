@@ -386,7 +386,7 @@ export default {
     background-image: linear-gradient(180deg, #FFFFFF 50%, rgba(255,255,255,0.00) 100%);
 
     .searchbox {
-      width: 80%;
+      width: calc(80% - 32px);
       max-width: 600px;
       margin: 0 auto;
     }
@@ -394,7 +394,7 @@ export default {
 
   &__scroll-container {
     height: calc(100vh - 180px);
-    margin: 80px 0 0 0;
+    margin: 100px 0 0 0;
     overflow: auto;
   }
 
@@ -406,8 +406,9 @@ export default {
     width: 100%;
 
     &__row {
-      width: 80%;
+      width: calc(80% - 32px);
       max-width: 600px;
+      margin: 0 auto;
     }
   }
 
@@ -426,7 +427,7 @@ export default {
 
     &__inner {
       display: flex;
-      width: 80%;
+      width: calc(80% - 32px);
       max-width: 600px;
       flex-flow: row nowrap;
       align-items: center;
@@ -438,14 +439,12 @@ export default {
     display: flex;
     flex-flow: column nowrap;
     align-items: center;
-    // justify-content: space-evenly;
     position: fixed;
-    height: calc(100vh - 180px);
-    top: 80px;
-    right: 2%;
-    padding-right: 30px;
+    height: calc(100vh - 3em);
+    top: 3em;
+    right: 10%;
     overflow: auto;
-    z-index: 2;
+    z-index: 3;
     font-size: 1.2em;
     font-weight: 500;
     line-height: 1.5;
@@ -565,6 +564,41 @@ export default {
       &:focus {
         background: darken(#F1F1F1, 10);
       }
+    }
+  }
+
+  @media screen and (max-width: 500px) {
+    .button {
+      font-size: 1em;
+    }
+
+    .checkbox {
+      font-size: 1.4em;
+    }
+
+    .search__content {
+      align-items: start;
+    }
+
+    .search__letter-row {
+      font-size: 2.4em;
+    }
+
+    .searchbox,
+    .search__content__row {
+      margin: 0 10%;
+    }
+  }
+
+  @media screen and (max-height: 600px) and (max-width: 800px) {
+    .search__alpha {
+      line-height: 1.3em;
+    }
+  }
+
+  @media screen and (max-height: 800px) and (max-width: 500px) {
+    .search__alpha {
+      font-size: 1.0em;
     }
   }
 }

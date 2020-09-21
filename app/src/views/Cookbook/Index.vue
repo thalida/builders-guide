@@ -166,7 +166,7 @@ $navbar-height: 6.4em;
     position: relative;
     flex-flow: row nowrap;
     align-items: center;
-    height: 4.8em;
+    height: 48px;
 
     &__icon {
       position: absolute;
