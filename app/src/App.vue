@@ -102,11 +102,4 @@ a.link {
   font-weight: 500;
   text-transform: capitalize;
 }
-
-@media screen and (max-width: 500px) {
-  body {
-    font-size: 80%;
-  }
-}
-
 </style>

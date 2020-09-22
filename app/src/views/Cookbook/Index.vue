@@ -111,7 +111,7 @@ $navbar-height: 6.4em;
 .cookbook {
   display: flex;
   flex-flow: column nowrap;
-  margin-bottom: $navbar-height * 2;
+  margin-bottom: $navbar-height;
   align-items: center;
 
   &__header {
@@ -119,7 +119,7 @@ $navbar-height: 6.4em;
     width: 80%;
     margin: 2.0em auto 0;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 2fr 1fr;
     align-items: center;
 
     &__cell {

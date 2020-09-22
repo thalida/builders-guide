@@ -205,6 +205,7 @@ export default {
       &:hover,
       &:focus {
         background: darken(#F1F1F1, 10);
+        border: 1px solid darken(#DBDCDD, 10);
       }
     }
 
@@ -229,6 +230,7 @@ export default {
     width: 100%;
     max-width: 34.0em;
     overflow: hidden;
+    text-align: center;
 
     font-size: 1.8em;
     line-height: 1.4;
@@ -236,6 +238,8 @@ export default {
     .blob {
       position: absolute;
       z-index: -1;
+      width: 100%;
+      max-width: 340px;
     }
 
     .link {
