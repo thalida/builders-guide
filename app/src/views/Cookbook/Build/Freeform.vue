@@ -14,6 +14,19 @@
           Enter the list below to quickly get started!
         </span>
       </p>
+      <div class="freeform__errors" v-if="hasErrors">
+        <p>{{errorData.numErrors}} error{{errorData.numErrors == 1 ? '' : s}} found parsing the following lines:</p>
+        <div
+          class="freeform__error"
+           v-for="(error, index) in errorData.errors"
+           :key="index">
+          {{error.line}}
+          <!-- <div class="freeform__error__details">
+            <span class="font-weight--medium">count:</span> {{error.amount_required}}
+            <span class="font-weight--medium">item:</span> {{error.name}}
+          </div> -->
+        </div>
+      </div>
       <textarea
         v-model="textareaInput"
         :placeholder="'30 Torches\n5 glass panes'">
@@ -42,12 +55,19 @@ export default {
   },
   data () {
     return {
-      textareaInput: ''
+      textareaInput: '',
+      errorData: [],
+      hasErrors: false,
     }
   },
   methods: {
     submit () {
-      const textareaStrArray = this.textareaInput.split(/\r?\n/)
+      if (this.textareaInput.length === 0) {
+        this.$router.push('/cookbook/build')
+        return
+      }
+
+      const textareaStrArray = this.textareaInput.trim().split(/\r?\n/)
       const selectedVersion = this.$store.state.selectedVersion
       axios
         .post(`http://0.0.0.0:5000/api/${selectedVersion}/parse_items_from_string`, {
@@ -55,17 +75,25 @@ export default {
         })
         .then(response => {
           const res = response.data
-          if (!res.has_errors) {
+          this.hasErrors = res.has_errors
+
+          if (!this.hasErrors) {
             this.$store.dispatch('mergeSelectedItems', res.items)
             this.$router.push('/cookbook/build')
             return
+          }
+
+          this.errorData = {
+            errors: res.errors,
+            numErrors: res.num_errors,
+            numProcessedLines: res.num_processed_lines,
+            successRate: res.success_rate,
           }
 
           console.log(res)
         })
     },
     cancel () {
-      this.tmpSelectedItems = null
       this.$router.push('/cookbook/build')
     },
   }
@@ -121,12 +149,35 @@ export default {
     textarea {
       width: 100%;
       height: calc(100vh - 400px);
-      margin: 3em 0 0 0;
+      margin: 2em 0 0 0;
       padding: 1em;
       font: 1.6em 'Jost', Arial, sans-serif;
       border: 1px solid #DBDCDD;
       border-radius: 0.8em;
       resize: none;
+    }
+  }
+
+  &__errors {
+    margin-top: 3em;
+    background: #D45953;
+    border-radius: 0.8em;
+    padding: 2em;
+
+    p {
+      font-size: 1.6em;
+      color: #fff;
+      font-weight: 500;
+    }
+  }
+
+  &__error {
+    font-size: 1.6em;
+    color: #fff;
+    margin: 0.5em 0;
+
+    &__details {
+      font-size: 0.8em;
     }
   }
 
