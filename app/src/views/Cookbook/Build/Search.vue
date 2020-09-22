@@ -413,45 +413,5 @@ export default {
       }
     }
   }
-
-  .button {
-    font-size: 1.6em;
-    border-radius: 2.4em;
-    margin: 1.2em 0;
-    padding: 0.8em 1em;
-    text-decoration: none;
-    cursor: pointer;
-
-    transition: background 300ms;
-
-    &--primary {
-      color: #fff;
-      background: rgba(12, 136, 68, 1);
-      border: 0;
-
-      &:hover,
-      &:focus {
-        background: darken(rgba(12, 136, 68, 1), 10);
-      }
-    }
-
-    &--secondary {
-      background: #F1F1F1;
-      border: 1px solid #DBDCDD;
-      color: #1D1007;
-
-      &:hover,
-      &:focus {
-        background: darken(#F1F1F1, 10);
-        border: 1px solid darken(#DBDCDD, 10);
-      }
-    }
-  }
-
-  @media screen and (max-width: 400px) {
-    .button {
-      font-size: 1.4em;
-    }
-  }
 }
 </style>

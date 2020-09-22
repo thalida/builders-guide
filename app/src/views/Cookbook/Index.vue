@@ -117,6 +117,7 @@ $navbar-height: 6.4em;
   &__header {
     position: relative;
     width: 80%;
+    max-width: 600px;
     margin: 2.0em auto 0;
     display: grid;
     grid-template-columns: 1fr 2fr 1fr;
@@ -135,8 +136,8 @@ $navbar-height: 6.4em;
     display: flex;
     flex-flow: column nowrap;
     position: relative;
-    width: 100%;
-    max-width: 80%;
+    width: 80%;
+    max-width: 600px;
   }
 
   &__navbar {
@@ -153,7 +154,7 @@ $navbar-height: 6.4em;
     &__inner {
       display: flex;
       width: 80%;
-      max-width: 60.0em;
+      max-width: 600px;
       height: 100%;
       align-items: center;
       // justify-content: space-evenly;

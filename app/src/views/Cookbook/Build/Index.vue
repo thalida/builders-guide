@@ -27,7 +27,7 @@
       </router-link>
     </div>
 
-    <div v-if="hasSelectedItems">
+    <div v-if="hasSelectedItems" class="cookbook-build__content">
       <div
         class="cookbook-build__item-group"
         v-for="(item, i) in selectedItems"
@@ -168,7 +168,7 @@ export default {
   display: flex;
   flex-flow: column nowrap;
   width: 80%;
-  max-width: 60.0em;
+  max-width: 600px;
 
   &--is-empty {
     min-height: calc(100vh - 6.4em - 6.4em);
@@ -215,6 +215,10 @@ export default {
     }
   }
 
+  &__content {
+    padding-bottom: 3.6em;
+  }
+
   &__empty {
     flex: 3 0 auto;
     align-self: center;
@@ -231,9 +235,8 @@ export default {
     max-width: 34.0em;
     overflow: hidden;
     text-align: center;
-
-    font-size: 1.8em;
     line-height: 1.4;
+    font-size: 1.8em;
 
     .blob {
       position: absolute;

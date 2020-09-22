@@ -3,7 +3,7 @@
     <div>
       <div>
         <h3>Step-by-Step Guide</h3>
-        <p>The next set of items you’ll need to have for your build.</p>
+        <p class="font-size--normal">The next set of items you’ll need to have for your build.</p>
         <a @click="toggleNextIngredients">Toggle</a>
       </div>
       <div v-if="showNextIngredients">
@@ -17,7 +17,7 @@
     <div>
       <div>
         <h3>Build Process</h3>
-        <p>Every item you’ll for your build in reverse order.</p>
+        <p class="font-size--normal">Every item you’ll for your build in reverse order.</p>
         <a @click="toggleBuildProcess">Toggle</a>
       </div>
       <div v-if="showBuildProcess">

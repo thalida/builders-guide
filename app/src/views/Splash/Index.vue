@@ -15,7 +15,7 @@
       <section class="splash__content">
         <h1 class="wordmark">builder's guide</h1>
         <h2>A Minecraft Cookbook</h2>
-        <p>
+        <p class="font-size--normal">
           Figure out the recipes and resources you’ll need for your next build!
         </p>
         <router-link
@@ -171,7 +171,6 @@ export default {
 
   p {
     margin-top: 0.4em;
-    font-size: 1.8em;
     line-height: 1.4;
   }
 
