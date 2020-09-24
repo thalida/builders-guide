@@ -17,8 +17,8 @@ html {
 
 html,
 body {
-  height: 100%;
-  width: 100%;
+  min-height: 100%;
+  min-width: 100%;
   padding: 0;
   margin: 0;
 }
@@ -105,6 +105,18 @@ a.link {
   font-size: 1.6em;
   font-weight: 500;
   text-transform: capitalize;
+}
+
+.text {
+  &--primary {
+    font-size: 1.6em;
+    color: #1D1007;
+  }
+
+  &--secondary {
+    font-size: 1.4em;
+    color: #524D47;
+  }
 }
 
 .button {

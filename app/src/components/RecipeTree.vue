@@ -7,27 +7,44 @@
 
     <div
       class="recipe__node"
+      :class="[{
+        'recipe__node--is-selected': node.selected,
+        'recipe__node--is-open': showTree,
+      }]"
       v-if="!hasMultipleOptions">
-      <label @click="toggleSelected">
+      <label
+        class="recipe__node__label"
+        tabindex="0"
+        @click="toggleSelected"
+        @keyup.enter="toggleSelected">
         <input
+          class="recipe__node__checkbox"
           v-show="isMultiSelect"
           type="checkbox"
           :checked="node.selected"
           disabled="true" />
-          {{ node.name }}
+        <img
+          class="recipe__node__icon"
+          :src="getItemImage(node.name)" />
+          {{ getTitle(node.name) }}
       </label>
-      {{ node.type }}
-      <span class="recipe__toggle" @click="toggleTree">
+      <!-- hi? {{ node.type }} -->
+      <div
+        class="recipe__node__toggle"
+        tabindex="0"
+        @click="toggleTree"
+        @keyup.enter="toggleTree"
+        v-if="tree.length > 0">
         <span v-if="node.num_recipes > 1">
           {{ node.num_recipes }} recipes
         </span>
         <span v-else-if="node.num_recipes == 1">
-          {{ node.recipes[0].ingredients.length }} ingredients
+          {{ node.recipes[0].ingredients.length }} ingredient{{node.recipes[0].ingredients.length === 1 ? '' : 's'}}
         </span>
         <span v-else-if="node.ingredients && node.ingredients.length > 0">
-          {{ node.ingredients.length }} ingredients
+          {{ node.ingredients.length }} ingredient{{ node.ingredients.length === 1 ? '' : 's' }}
         </span>
-      </span>
+      </div>
     </div>
 
     <div
@@ -46,6 +63,7 @@
         :key="`${path}${ni}`"
         :path="`${path}${ni}`"
         :level="level + 1"
+        :is-last-node="ni + 1 === tree.length"
         :parent-idx="ni"
         :node="childNode"
         :is-multi-select="isOptionGroup"
@@ -53,6 +71,10 @@
         @update="onTreeUpdate">
       </recipe-tree>
     </div>
+
+    <hr
+      class="recipe__divider"
+      v-if="level==1 && !isLastNode" />
   </div> <!-- End Tree -->
 </template>
 <script>
@@ -63,6 +85,7 @@ export default {
     level: Number,
     node: [Object, Array],
     isMultiSelect: Boolean,
+    isLastNode: Boolean,
   },
   name: 'recipe-tree',
   data () {
@@ -139,6 +162,17 @@ export default {
   },
   mounted () {},
   methods: {
+    getTitle (item) {
+      return item.split('_').join(' ')
+    },
+    getItemImage (item) {
+      const images = require.context('../assets/minecraft/1.15/32x32/', false, /\.png$/)
+      try {
+        return images(`./${item}.png`)
+      } catch (error) {
+        return images('./air.png')
+      }
+    },
     toggleSelected () {
       if (!this.isMultiSelect) {
         return
@@ -195,25 +229,92 @@ export default {
 </script>
 <style lang="scss" scoped>
 .recipe {
+  padding: 0 1.0em;
+
   &--is-multi-select {
     width: auto;
+    margin: 0 auto;
+  }
+
+  &__divider {
+    width: 100vw;
+    margin: 3.0em 0;
+    padding: 0;
+    border: 5px solid #F1F1F1;
   }
 
   &__node {
     display: flex;
     flex: 1 0 auto;
-    justify-content: left;
+    justify-content: center;
+    align-items: center;
     flex-flow: column nowrap;
-    margin: 15px 0;
+    opacity: 0.4;
+    // margin: 15px 0;
+
+    &__checkbox {
+      display: none;
+    }
+
+    &__label {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: center;
+      background: #F1F1F1;
+      border: 1px solid #E9E9E9;
+      border-radius: 0.8em;
+      padding: 0.5em 1em;
+      text-transform: capitalize;
+      font-size: 1.6em;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    &__icon {
+      margin: 0 0.5em 0 0;
+    }
+
+    &__toggle {
+      padding: 0.4em 0.8em;
+      font-size: 1.2em;
+      font-weight: 500;
+      text-align: center;
+      background: #E9E9E9;
+      color: #524D47;
+      cursor: pointer;
+      border-radius: 0 0 0.8em 0.8em;
+    }
+
+    &--is-selected,
+    &--is-open {
+      opacity: 1;
+    }
+
+    &--is-selected {
+      .recipe__node__label {
+        background: #FFF;
+      }
+    }
+
+    &--is-open {
+      .recipe__node__label {
+        border: 1px solid #63D798;
+      }
+      .recipe__node__toggle {
+        background: #E0F4E9;
+      }
+    }
   }
 
   &__tree {
     display: flex;
     flex-flow: column nowrap;
+    align-items: center;
     justify-content: left;
     width: 100vw;
-    overflow: auto;
-    background: rgba(0,0,0,0.1);
+    overflow-x: auto;
+    overflow-y: hidden;
 
     &--is-group {
       flex: 1 0 auto;
@@ -221,7 +322,6 @@ export default {
     }
 
     &--has-multi-options {
-      background: transparent;
     }
   }
 }
