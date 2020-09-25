@@ -52,6 +52,7 @@
       v-if="tree.length > 0"
       class="recipe__tree"
       :class="[
+        `recipe__tree--level-${level}`,
         {
           'recipe__tree--is-group': isOptionGroup,
           'recipe__tree--has-multi-options': hasMultipleOptions
@@ -229,11 +230,11 @@ export default {
 </script>
 <style lang="scss" scoped>
 .recipe {
-  padding: 0 1.0em;
+  // padding: 0 1.0em;
 
   &--is-multi-select {
     width: auto;
-    margin: 0 auto;
+    // margin: 0 0 1.0em 0;
   }
 
   &__divider {
@@ -241,6 +242,8 @@ export default {
     margin: 3.0em 0;
     padding: 0;
     border: 5px solid #F1F1F1;
+
+    display: none;
   }
 
   &__node {
@@ -250,6 +253,8 @@ export default {
     align-items: center;
     flex-flow: column nowrap;
     opacity: 0.4;
+
+    margin: 0 1.0em 2.0em;
     // margin: 15px 0;
 
     &__checkbox {
@@ -269,6 +274,7 @@ export default {
       font-size: 1.6em;
       font-weight: 500;
       white-space: nowrap;
+      cursor: pointer;
     }
 
     &__icon {
@@ -309,19 +315,34 @@ export default {
 
   &__tree {
     display: flex;
-    flex-flow: column nowrap;
-    align-items: center;
+    // justify-content: left;
+    // flex-flow: column nowrap;
+    // align-items: center;
+    // width: 100vw;
+    // overflow-x: auto;
+    // overflow-y: hidden;
+    flex-flow: row nowrap;
+    align-items: start;
+    // justify-content: center;
     justify-content: left;
-    width: 100vw;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: auto;
 
     &--is-group {
       flex: 1 0 auto;
       flex-flow: row nowrap;
+      justify-content: left;
+      // align-items: center;
     }
 
     &--has-multi-options {
+      flex-flow: column nowrap;
+      align-items: center;
+    }
+
+    &--level-0 {
+      align-items: center;
+      // justify-content: center;
+      justify-content: start;
     }
   }
 }

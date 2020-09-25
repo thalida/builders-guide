@@ -106,10 +106,6 @@ export default {
 
   &__tree.recipe {
     padding: 0 0 3.6em 0;
-
-    & > .recipe__tree {
-      overflow: hidden;
-    }
   }
 
   &__actions {
