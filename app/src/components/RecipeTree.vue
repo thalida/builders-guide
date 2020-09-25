@@ -1,171 +1,178 @@
 <template>
-  <div
-    class="recipe"
-    :class="[
-      {'recipe--is-multi-select': isMultiSelect }
-    ]">
-
+  <div class="recipe-tree">
     <div
-      class="recipe__node"
-      :class="[{
-        'recipe__node--is-selected': node.selected,
-        'recipe__node--is-open': showTree,
-      }]"
-      v-if="!hasMultipleOptions">
-      <label
-        class="recipe__node__label"
+      class="recipe-tree__level"
+      v-for="(nodes, level) in treeByLevels"
+      :key="level">
+      <div
+        v-for="(node, index) in nodes"
+        :key="index"
+        class="recipe-tree__node"
+        :class="[{
+          'recipe-tree__node--is-selected': node.selected,
+          'recipe-tree__node--is-selectable': getIsSelectable(level),
+          'recipe-tree__node--is-open': visiblePath[level] === index,
+        }]"
         tabindex="0"
-        @click="toggleSelected"
-        @keyup.enter="toggleSelected">
+        @click="handleNodeClick(level, index, node)"
+        @keyup.enter="handleNodeClick(level, index, node)">
         <input
-          class="recipe__node__checkbox"
-          v-show="isMultiSelect"
+          class="recipe-tree__node__checkbox"
           type="checkbox"
           :checked="node.selected"
           disabled="true" />
-        <img
-          class="recipe__node__icon"
-          :src="getItemImage(node.name)" />
-          {{ getTitle(node.name) }}
-      </label>
-      <!-- hi? {{ node.type }} -->
-      <div
-        class="recipe__node__toggle"
-        tabindex="0"
-        @click="toggleTree"
-        @keyup.enter="toggleTree"
-        v-if="tree.length > 0">
-        <span v-if="node.num_recipes > 1">
-          {{ node.num_recipes }} recipes
-        </span>
-        <span v-else-if="node.num_recipes == 1">
-          {{ node.recipes[0].ingredients.length }} ingredient{{node.recipes[0].ingredients.length === 1 ? '' : 's'}}
-        </span>
-        <span v-else-if="node.ingredients && node.ingredients.length > 0">
-          {{ node.ingredients.length }} ingredient{{ node.ingredients.length === 1 ? '' : 's' }}
-        </span>
+
+        <div v-if="Array.isArray(node)">
+          <b>Array of nodes! fix me</b>
+        </div>
+        <div
+          v-else
+          class="recipe-tree__node__label">
+          <img
+            class="recipe-tree__node__icon"
+            :src="getItemImage(node.name)" />
+            {{ getTitle(node.name) }}
+        </div>
+
+        <div v-if="getNextLevel(node).length > 0">
+          <span v-if="Array.isArray(node)">
+            {{ node.length }} options
+          </span>
+          <span v-else-if="node.num_recipes > 1">
+            {{ node.num_recipes }} recipes
+          </span>
+          <span v-else-if="node.num_recipes == 1">
+            {{ node.recipes[0].ingredients.length }} ingredient{{node.recipes[0].ingredients.length === 1 ? '' : 's'}}
+          </span>
+          <span v-else-if="node.ingredients && node.ingredients.length > 0">
+            {{ node.ingredients.length }} ingredient{{ node.ingredients.length === 1 ? '' : 's' }}
+          </span>
+        </div>
       </div>
     </div>
-
-    <div
-      v-show="showTree || hasMultipleOptions"
-      v-if="tree.length > 0"
-      class="recipe__tree"
-      :class="[
-        `recipe__tree--level-${level}`,
-        {
-          'recipe__tree--is-group': isOptionGroup,
-          'recipe__tree--has-multi-options': hasMultipleOptions
-        }
-      ]">
-      <recipe-tree
-        v-for="(childNode, ni) in tree"
-        ref="children"
-        :key="`${path}${ni}`"
-        :path="`${path}${ni}`"
-        :level="level + 1"
-        :is-last-node="ni + 1 === tree.length"
-        :parent-idx="ni"
-        :node="childNode"
-        :is-multi-select="isOptionGroup"
-        @select="onSelect"
-        @update="onTreeUpdate">
-      </recipe-tree>
-    </div>
-
-    <hr
-      class="recipe__divider"
-      v-if="level==1 && !isLastNode" />
-  </div> <!-- End Tree -->
+  </div>
 </template>
 <script>
 export default {
   props: {
-    parentIdx: Number,
-    path: String,
-    level: Number,
-    node: [Object, Array],
-    isMultiSelect: Boolean,
-    isLastNode: Boolean,
+    tree: Array,
   },
-  name: 'recipe-tree',
   data () {
     return {
-      showTree: false,
+      visiblePath: [],
+      treeByLevels: []
     }
   },
-  computed: {
-    hasParent () {
-      return typeof this.parentIdx !== 'undefined'
-    },
-    hasMultipleOptions () {
-      return Array.isArray(this.node)
-    },
-    hasManyRecipes () {
-      if (this.hasMultipleOptions) {
+  mounted () {
+    this.treeByLevels.push(this.tree)
+  },
+  methods: {
+    getIsSelectable (level) {
+      const parentLevel = level - 1
+
+      if (parentLevel < 0) {
         return false
       }
 
-      return this.node.num_recipes > 1
-    },
-    isOptionGroup () {
-      return this.hasParent && (this.hasMultipleOptions || this.hasManyRecipes)
-    },
-    isSelected () {
-      return this.node.selected
-    },
-    tree: {
-      get () {
-        let tree = []
+      const parentNodeIdx = this.visiblePath[level - 1]
+      const parentNode = this.treeByLevels[parentLevel][parentNodeIdx]
+      const isParentArray = Array.isArray(parentNode)
+      const isParentMultiRecipe = parentNode.num_recipes > 1
 
-        if (Array.isArray(this.node)) {
-          tree = this.node
-        } else if (this.node.num_recipes > 1) {
-          tree = this.node.recipes
-        } else if (this.node.num_recipes === 1) {
-          tree = this.node.recipes[0].ingredients
-        } else if (this.node.ingredients && this.node.ingredients.length > 0) {
-          tree = this.node.ingredients
+      return isParentArray || isParentMultiRecipe
+    },
+    toggleTree (level, index, node) {
+      const isAlreadyVisible = this.visiblePath[level] === index
+
+      this.treeByLevels.splice(level + 1, this.treeByLevels.length - level + 1)
+      this.visiblePath.splice(level, this.visiblePath.length - level)
+
+      if (isAlreadyVisible) {
+        return
+      }
+
+      const nextLevel = this.getNextLevel(node)
+
+      if (nextLevel.length === 0) {
+        return
+      }
+
+      this.treeByLevels.push(nextLevel)
+      this.visiblePath.push(index)
+    },
+
+    handleNodeClick (level, index, node) {
+      this.toggleTree(level, index, node)
+
+      if (!this.getIsSelectable(level)) {
+        return
+      }
+
+      this.$emit('update', this.updateTreeByPath(level, index))
+    },
+
+    updateTreeByPath (level, index, tree, currLevel) {
+      currLevel = currLevel || 0
+
+      if (typeof tree === 'undefined') {
+        tree = this.tree.slice(0)
+      }
+
+      if (currLevel > level) {
+        return tree
+      }
+
+      if (currLevel === level) {
+        for (let i = 0, l = tree.length; i < l; i += 1) {
+          tree[i].selected = i === index
         }
 
         return tree
-      },
-      set (newTree) {
-        let nodeCopy =
-          (Array.isArray(this.node))
-            ? this.node.slice(0)
-            : Object.assign({}, this.node)
-
-        if (this.hasMultipleOptions && !Array.isArray(newTree)) {
-          newTree = [newTree]
-        }
-
-        if (Array.isArray(this.node)) {
-          nodeCopy = newTree
-        } else if (this.node.num_recipes > 1) {
-          nodeCopy.recipes = newTree
-        } else if (this.node.num_recipes === 1) {
-          nodeCopy.recipes[0].ingredients = newTree
-        } else if (this.node.ingredients && this.node.ingredients.length > 0) {
-          nodeCopy.ingredients = newTree
-        }
-
-        this.$emit('update', { tree: nodeCopy, parentIdx: this.parentIdx })
       }
+
+      const currNodeIdx = this.visiblePath[currLevel]
+      let node = tree[currNodeIdx]
+      const nextLevel = this.getNextLevel(node)
+
+      if (nextLevel.length === 0) {
+        return tree
+      }
+
+      const updatedTree = this.updateTreeByPath(level, index, nextLevel, currLevel + 1)
+      if (Array.isArray(node)) {
+        node = updatedTree
+      } else if (node.num_recipes > 1) {
+        node.recipes = updatedTree
+      } else if (node.num_recipes === 1) {
+        node.recipes[0].ingredients = updatedTree
+      } else if (node.ingredients && node.ingredients.length > 0) {
+        node.ingredients = updatedTree
+      }
+
+      tree[currNodeIdx] = node
+
+      return tree
     },
-  },
-  watch: {
-    isSelected (newState) {
-      if (newState === false) {
-        this.collapseTree(true)
+
+    getNextLevel (node) {
+      let level = []
+      if (Array.isArray(node)) {
+        level = node
+      } else if (node.num_recipes > 1) {
+        level = node.recipes
+      } else if (node.num_recipes === 1) {
+        level = node.recipes[0].ingredients
+      } else if (node.ingredients && node.ingredients.length > 0) {
+        level = node.ingredients
       }
-    }
-  },
-  mounted () {},
-  methods: {
+
+      return level
+    },
+
     getTitle (item) {
       return item.split('_').join(' ')
     },
+
     getItemImage (item) {
       const images = require.context('../assets/minecraft/1.15/32x32/', false, /\.png$/)
       try {
@@ -174,175 +181,54 @@ export default {
         return images('./air.png')
       }
     },
-    toggleSelected () {
-      if (!this.isMultiSelect) {
-        return
-      }
-
-      this.$emit('select', {
-        nodeName: this.node.name,
-        state: !this.node.selected,
-      })
-    },
-    onSelect ({ nodeName, state }) {
-      const treeCopy = this.tree.slice(0)
-      for (let i = 0, l = treeCopy.length; i < l; i += 1) {
-        treeCopy[i].selected = (treeCopy[i].name === nodeName)
-      }
-      this.tree = treeCopy
-    },
-    onTreeUpdate ({ tree, parentIdx }) {
-      const treeCopy = this.tree.slice(0)
-      treeCopy[parentIdx] = tree
-      this.tree = treeCopy
-    },
-    toggleTree () {
-      if (this.showTree) {
-        this.collapseTree()
-      } else {
-        this.expandTree()
-      }
-    },
-    collapseTree (cascade) {
-      this.showTree = false
-
-      const children = this.$refs.children
-      if (cascade && typeof children !== 'undefined') {
-        this.$refs.children.forEach((c) => c.collapseTree(cascade))
-      }
-    },
-    expandTree (cascade) {
-      this.showTree = true
-
-      const children = this.$refs.children
-      if (cascade && typeof children !== 'undefined') {
-        this.$refs.children.forEach((c) => c.expandTree(cascade))
-      }
-      if (!cascade && this.isMultiSelect) {
-        this.$emit('select', {
-          nodeName: this.node.name,
-          state: this.showTree,
-        })
-      }
-    }
-  },
+  }
 }
 </script>
 <style lang="scss" scoped>
-.recipe {
-  // padding: 0 1.0em;
+.recipe-tree {
+  display: flex;
+  flex-flow: row nowrap;
+  font-size: 1.6em;
+  width: 100%;
 
-  &--is-multi-select {
-    width: auto;
-    // margin: 0 0 1.0em 0;
-  }
-
-  &__divider {
-    width: 100vw;
-    margin: 3.0em 0;
-    padding: 0;
-    border: 5px solid #F1F1F1;
-
-    display: none;
+  &__level {
+    flex: 0 0 auto;
+    width: 30vw;
+    height: 100%;
+    overflow: auto;
   }
 
   &__node {
-    display: flex;
-    flex: 1 0 auto;
-    justify-content: center;
-    align-items: center;
-    flex-flow: column nowrap;
-    opacity: 0.4;
-
-    margin: 0 1.0em 2.0em;
-    // margin: 15px 0;
+    margin: 0.4em 0;
+    border: 4px solid transparent;
 
     &__checkbox {
       display: none;
-    }
-
-    &__label {
-      display: flex;
-      flex-flow: row nowrap;
-      align-items: center;
-      justify-content: center;
-      background: #F1F1F1;
-      border: 1px solid #E9E9E9;
-      border-radius: 0.8em;
-      padding: 0.5em 1em;
-      text-transform: capitalize;
-      font-size: 1.6em;
-      font-weight: 500;
-      white-space: nowrap;
-      cursor: pointer;
     }
 
     &__icon {
       margin: 0 0.5em 0 0;
     }
 
-    &__toggle {
-      padding: 0.4em 0.8em;
-      font-size: 1.2em;
-      font-weight: 500;
-      text-align: center;
-      background: #E9E9E9;
-      color: #524D47;
-      cursor: pointer;
-      border-radius: 0 0 0.8em 0.8em;
-    }
-
-    &--is-selected,
-    &--is-open {
-      opacity: 1;
-    }
-
-    &--is-selected {
-      .recipe__node__label {
-        background: #FFF;
-      }
-    }
-
-    &--is-open {
-      .recipe__node__label {
-        border: 1px solid #63D798;
-      }
-      .recipe__node__toggle {
-        background: #E0F4E9;
-      }
-    }
-  }
-
-  &__tree {
-    display: flex;
-    // justify-content: left;
-    // flex-flow: column nowrap;
-    // align-items: center;
-    // width: 100vw;
-    // overflow-x: auto;
-    // overflow-y: hidden;
-    flex-flow: row nowrap;
-    align-items: start;
-    // justify-content: center;
-    justify-content: left;
-    overflow: auto;
-
-    &--is-group {
-      flex: 1 0 auto;
+    &__label {
+      display: flex;
       flex-flow: row nowrap;
+      align-items: center;
       justify-content: left;
-      // align-items: center;
+      text-transform: capitalize;
     }
 
-    &--has-multi-options {
-      flex-flow: column nowrap;
-      align-items: center;
+    &--is-selectable {
+      opacity: 0.4;
+
+      &.recipe-tree__node--is-selected {
+        opacity: 1;
+        background: yellow;
+      }
     }
 
-    &--level-0 {
-      align-items: center;
-      // justify-content: center;
-      justify-content: start;
+    &--is-open {
+      border: 4px solid green;
     }
   }
 }

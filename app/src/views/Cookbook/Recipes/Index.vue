@@ -12,28 +12,9 @@
     <recipe-tree
       class="cookbook-recipes__tree"
       ref="tree"
-      :node="recipeTree"
-      :option-group="false"
-      :level="0"
+      :tree="recipeTree"
       @update="handleTreeUpdate">
     </recipe-tree>
-
-    <div class="cookbook-recipes__actions">
-      <a
-        class="link"
-        tabindex="0"
-        @click="collapseAll"
-        @keyup.enter="collapseAll">
-        Collapse All
-      </a>
-      <a
-        class="link"
-        tabindex="0"
-        @click="expandAll"
-        @keyup.enter="expandAll">
-        Expand All
-      </a>
-    </div>
   </div>
 </template>
 
@@ -74,14 +55,8 @@ export default {
     }
   },
   methods: {
-    handleTreeUpdate ({ tree }) {
+    handleTreeUpdate (tree) {
       this.recipeTree = tree
-    },
-    expandAll () {
-      this.$refs.tree.expandTree(true)
-    },
-    collapseAll () {
-      this.$refs.tree.collapseTree(true)
     }
   }
 }
@@ -104,8 +79,9 @@ export default {
     }
   }
 
-  &__tree.recipe {
-    padding: 0 0 3.6em 0;
+  &__tree {
+    height: calc(100vh - 6.4em - 100px);
+    overflow: auto;
   }
 
   &__actions {
