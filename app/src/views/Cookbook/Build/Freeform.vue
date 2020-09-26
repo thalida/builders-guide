@@ -15,7 +15,7 @@
         </span>
       </p>
       <div class="freeform__errors" v-if="hasErrors">
-        <p>{{errorData.numErrors}} error{{errorData.numErrors == 1 ? '' : s}} found parsing the following lines:</p>
+        <p>{{errorData.numErrors}} error{{errorData.numErrors == 1 ? '' : 's'}} found parsing the following lines:</p>
         <div
           class="freeform__error"
            v-for="(error, index) in errorData.errors"

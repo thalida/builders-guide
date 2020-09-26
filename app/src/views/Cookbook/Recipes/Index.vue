@@ -2,19 +2,21 @@
   <div class="cookbook-recipes">
     <div class="cookbook-recipes__description">
       <p class="text text--primary">
-        Select the recipes and ingredients which match your world and inventory.
+        Customise the recipes and ingredients which match your world and inventory.
       </p>
       <p class="text text--secondary">
         (Find your shoping list on the next screen.)
       </p>
     </div>
 
-    <recipe-tree
-      class="cookbook-recipes__tree"
-      ref="tree"
-      :tree="recipeTree"
-      @update="handleTreeUpdate">
-    </recipe-tree>
+    <!-- <div class="cookbook-recipes__content"> -->
+      <recipe-tree
+        class="cookbook-recipes__tree"
+        ref="tree"
+        :tree="recipeTree"
+        @update="handleTreeUpdate">
+      </recipe-tree>
+    <!-- </div> -->
   </div>
 </template>
 
@@ -68,6 +70,7 @@ export default {
   flex-flow: column nowrap;
   width: 100%;
   max-width: 100%;
+  // overflow: hidden;
 
   &__description {
     width: 80%;
@@ -79,10 +82,18 @@ export default {
     }
   }
 
-  &__tree {
-    height: calc(100vh - 6.4em - 100px);
+  &__tree.recipe-tree {
+    width: 100%;
+    height: calc(100vh - 6.4em - 140px);
     overflow: auto;
+    margin: 0 auto;
   }
+
+  // &__content {
+  //   width: 100%;
+  //   height: calc(100vh - 6.4em - 140px);
+  //   overflow: auto;
+  // }
 
   &__actions {
     position: fixed;

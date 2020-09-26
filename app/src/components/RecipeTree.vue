@@ -23,34 +23,39 @@
           disabled="true" />
 
         <div v-if="Array.isArray(node)">
-          <b>Array of nodes! fix me</b>
+          <b>Fix this</b>
         </div>
-        <div
-          v-else
-          class="recipe-tree__node__label">
+        <div v-else class="recipe-tree__node__content">
           <img
             class="recipe-tree__node__icon"
             :src="getItemImage(node.name)" />
-            {{ getTitle(node.name) }}
-        </div>
 
-        <div v-if="getNextLevel(node).length > 0">
-          <span v-if="Array.isArray(node)">
-            {{ node.length }} options
-          </span>
-          <span v-else-if="node.num_recipes > 1">
-            {{ node.num_recipes }} recipes
-          </span>
-          <span v-else-if="node.num_recipes == 1">
-            {{ node.recipes[0].ingredients.length }} ingredient{{node.recipes[0].ingredients.length === 1 ? '' : 's'}}
-          </span>
-          <span v-else-if="node.ingredients && node.ingredients.length > 0">
-            {{ node.ingredients.length }} ingredient{{ node.ingredients.length === 1 ? '' : 's' }}
-          </span>
-        </div>
-      </div>
-    </div>
-  </div>
+          <div class="recipe-tree__node__text">
+            <p class="recipe-tree__node__label">
+              {{ getTitle(node.name) }}
+            </p>
+
+            <div
+              v-if="getNextLevel(node).length > 0"
+              class="recipe-tree__node__requirements">
+              <span v-if="Array.isArray(node)">
+                {{ node.length }} options
+              </span>
+              <span v-else-if="node.num_recipes > 1">
+                {{ node.num_recipes }} recipes
+              </span>
+              <span v-else-if="node.num_recipes == 1">
+                {{ node.recipes[0].ingredients.length }} ingredient{{node.recipes[0].ingredients.length === 1 ? '' : 's'}}
+              </span>
+              <span v-else-if="node.ingredients && node.ingredients.length > 0">
+                {{ node.ingredients.length }} ingredient{{ node.ingredients.length === 1 ? '' : 's' }}
+              </span>
+            </div>
+          </div>
+        </div> <!-- End Node Details -->
+      </div> <!-- End Node -->
+    </div> <!-- End Level -->
+  </div> <!-- End Tree -->
 </template>
 <script>
 export default {
@@ -188,26 +193,62 @@ export default {
 .recipe-tree {
   display: flex;
   flex-flow: row nowrap;
-  font-size: 1.6em;
   width: 100%;
+  height: 100%;
+  overflow: auto;
 
   &__level {
     flex: 0 0 auto;
-    width: 30vw;
+    width: 40vw;
+    max-width: 300px;
     height: 100%;
     overflow: auto;
+    padding: 0 1.0em;
+
+    &:first-child {
+      margin-left: auto;
+    }
+
+    &:last-child {
+      margin-right: auto;
+    }
+
+    &:nth-child(1):nth-last-child(1) {
+      width: 80%;
+      max-width: 600px;
+      padding: 0;
+    }
+
+    &:nth-child(1):nth-last-child(2) {
+      padding-left: 0;
+    }
+
+    &:nth-child(2):nth-last-child(1) {
+      padding-right: 0;
+    }
   }
 
   &__node {
-    margin: 0.4em 0;
-    border: 4px solid transparent;
+    margin: 0 0 2em 0;
+    padding: 1em;
+    border: 1px solid #DBDCDD;
+    border-radius: 0.8em;
+    cursor: pointer;
+
+    &__content {
+      display: flex;
+      flex-flow: row nowrap;
+    }
 
     &__checkbox {
       display: none;
     }
 
     &__icon {
-      margin: 0 0.5em 0 0;
+      flex: 0 1 32px;
+      height: 32px;
+      width: 32px;
+      margin: 0 1em 0 0;
     }
 
     &__label {
@@ -216,19 +257,51 @@ export default {
       align-items: center;
       justify-content: left;
       text-transform: capitalize;
+      font-size: 1.6em;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    &__requirements {
+      font-size: 1.4em;
+      font-weight: 500;
+      color: rgba(12, 136, 68, 1);
     }
 
     &--is-selectable {
-      opacity: 0.4;
+      background: #F1F1F1;
+      border: 1px solid transparent;
+      opacity: 0.5;
 
-      &.recipe-tree__node--is-selected {
-        opacity: 1;
-        background: yellow;
+      .recipe-tree__node__requirements {
+        color: darken(rgba(12, 136, 68, 1), 10);
       }
     }
 
-    &--is-open {
-      border: 4px solid green;
+    &--is-selected.recipe-tree__node--is-selectable {
+      opacity: 1;
+      background: #fff;
+      border: 1px solid #DBDCDD;
+
+      .recipe-tree__node__requirements {
+        color: rgba(12, 136, 68, 1);
+      }
+    }
+
+    &--is-open,
+    &--is-open.recipe-tree__node--is-selected {
+      opacity: 1;
+      background: #E0F4E9;
+      border: 1px solid #4AA674;
+
+      .recipe-tree__node__requirements {
+        color: #524D47;
+      }
+      // border: 1px solid darken(rgba(12, 136, 68, 1), 10);
+    }
+
+    &:focus {
+      outline: none;
     }
   }
 }

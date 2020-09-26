@@ -29,7 +29,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 
   background: #fff;
-  color: rgba(82, 77, 71, 1);
+  color: #1D1007;
 }
 
 .body--with-modal {

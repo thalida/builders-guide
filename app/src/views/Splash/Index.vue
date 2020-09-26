@@ -142,8 +142,8 @@ export default {
   flex-flow: column nowrap;
   justify-content: space-between;
   align-items: center;
-  min-width: 100%;
-  min-height: 100%;
+  min-width: 100vw;
+  min-height: 100vh;
   overflow: hidden;
 
   &__container {
