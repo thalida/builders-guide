@@ -45,7 +45,7 @@
 <script>
 import axios from 'axios'
 import Modal from '@/components/Modal.vue'
-import plaintextInputIcon from '../../../components/icons/plaintext-input.vue'
+import plaintextInputIcon from '@/components/icons/plaintext-input.vue'
 
 export default {
   name: 'CookbookBuildFreeform',

@@ -10,10 +10,12 @@
         class="recipe-tree__node"
         :class="[{
           'recipe-tree__node--is-selected': node.selected,
-          'recipe-tree__node--is-selectable': getIsSelectable(level),
+          'recipe-tree__node--is-plaintext': !getIsOptional(level) && getNextLevel(node).length === 0,
+          'recipe-tree__node--is-optional': getIsOptional(level),
+          'recipe-tree__node--has-nested': getNextLevel(node).length > 0,
           'recipe-tree__node--is-open': visiblePath[level] === index,
         }]"
-        tabindex="0"
+        :tabindex="(getIsOptional(level) || getNextLevel(node).length > 0) ? 0 : -1"
         @click="handleNodeClick(level, index, node)"
         @keyup.enter="handleNodeClick(level, index, node)">
         <input
@@ -22,10 +24,29 @@
           :checked="node.selected"
           disabled="true" />
 
-        <div v-if="Array.isArray(node)">
-          <b>Fix this</b>
+        <div
+          class="recipe-tree__node__content"
+          v-if="Array.isArray(node)">
+          <content-looper class="recipe-tree__node__icon-set">
+            <img
+              v-for="(nestedNode, nni) in node"
+              :key="nni"
+              class="recipe-tree__node__icon"
+              :src="getItemImage(nestedNode.name)" />
+          </content-looper>
+
+          <div class="recipe-tree__node__text">
+            <p class="recipe-tree__node__label">
+              {{ getGroupTitle(node) }}
+            </p>
+            <div class="recipe-tree__node__requirements">
+              {{ node.length }} options
+            </div>
+          </div>
         </div>
-        <div v-else class="recipe-tree__node__content">
+        <div
+          class="recipe-tree__node__content"
+          v-else>
           <img
             class="recipe-tree__node__icon"
             :src="getItemImage(node.name)" />
@@ -38,10 +59,7 @@
             <div
               v-if="getNextLevel(node).length > 0"
               class="recipe-tree__node__requirements">
-              <span v-if="Array.isArray(node)">
-                {{ node.length }} options
-              </span>
-              <span v-else-if="node.num_recipes > 1">
+              <span v-if="node.num_recipes > 1">
                 {{ node.num_recipes }} recipes
               </span>
               <span v-else-if="node.num_recipes == 1">
@@ -58,9 +76,14 @@
   </div> <!-- End Tree -->
 </template>
 <script>
+import ContentLooper from '@/components/ContentLooper.vue'
+
 export default {
   props: {
     tree: Array,
+  },
+  components: {
+    ContentLooper,
   },
   data () {
     return {
@@ -72,7 +95,7 @@ export default {
     this.treeByLevels.push(this.tree)
   },
   methods: {
-    getIsSelectable (level) {
+    getIsOptional (level) {
       const parentLevel = level - 1
 
       if (parentLevel < 0) {
@@ -87,6 +110,10 @@ export default {
       return isParentArray || isParentMultiRecipe
     },
     toggleTree (level, index, node) {
+      if (this.getNextLevel(node).length === 0) {
+        return
+      }
+
       const isAlreadyVisible = this.visiblePath[level] === index
 
       this.treeByLevels.splice(level + 1, this.treeByLevels.length - level + 1)
@@ -109,7 +136,7 @@ export default {
     handleNodeClick (level, index, node) {
       this.toggleTree(level, index, node)
 
-      if (!this.getIsSelectable(level)) {
+      if (!this.getIsOptional(level)) {
         return
       }
 
@@ -178,6 +205,50 @@ export default {
       return item.split('_').join(' ')
     },
 
+    getGroupTitle (nodes) {
+      let matchingParts = []
+      const allNames = []
+      let isFirstSet = true
+
+      for (let i = 0; i < nodes.length; i += 1) {
+        const node = nodes[i]
+
+        if (
+          typeof node !== 'object' ||
+          node === null ||
+          typeof node.name === 'undefined'
+        ) {
+          continue
+        }
+
+        allNames.push(this.getTitle(node.name))
+
+        const nameParts = node.name.split('_')
+
+        if (isFirstSet) {
+          matchingParts = nameParts.slice(0)
+          isFirstSet = false
+          continue
+        }
+
+        for (let mi = matchingParts.length - 1; mi >= 0; mi -= 1) {
+          const part = matchingParts[mi]
+
+          if (nameParts.includes(part)) {
+            continue
+          }
+
+          matchingParts.splice(mi, 1)
+        }
+      }
+
+      if (matchingParts.length > 0) {
+        return matchingParts.join(' ')
+      }
+
+      return allNames.join(' / ')
+    },
+
     getItemImage (item) {
       const images = require.context('../assets/minecraft/1.15/32x32/', false, /\.png$/)
       try {
@@ -231,17 +302,33 @@ export default {
   &__node {
     margin: 0 0 2em 0;
     padding: 1em;
-    border: 1px solid #DBDCDD;
+    border: 1px solid transparent;
     border-radius: 0.8em;
-    cursor: pointer;
 
     &__content {
       display: flex;
       flex-flow: row nowrap;
+      align-items: center;
     }
 
     &__checkbox {
       display: none;
+    }
+
+    &__icon-set {
+      position: relative;
+      width: 32px;
+      height: 32px;
+      margin: 0 1em 0 0;
+      overflow: hidden;
+
+      .recipe-tree__node__icon {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        margin: 0;
+      }
     }
 
     &__icon {
@@ -268,17 +355,31 @@ export default {
       color: rgba(12, 136, 68, 1);
     }
 
-    &--is-selectable {
+    &--has-nested {
+      border: 1px solid #DBDCDD;
+      cursor: pointer;
+
+      .recipe-tree__node__content {
+        align-items: start;
+      }
+    }
+
+    &--is-optional {
       background: #F1F1F1;
       border: 1px solid transparent;
       opacity: 0.5;
+      cursor: pointer;
+
+      .recipe-tree__node__content {
+        align-items: start;
+      }
 
       .recipe-tree__node__requirements {
         color: darken(rgba(12, 136, 68, 1), 10);
       }
     }
 
-    &--is-selected.recipe-tree__node--is-selectable {
+    &--is-selected.recipe-tree__node--is-optional {
       opacity: 1;
       background: #fff;
       border: 1px solid #DBDCDD;
@@ -297,11 +398,12 @@ export default {
       .recipe-tree__node__requirements {
         color: #524D47;
       }
-      // border: 1px solid darken(rgba(12, 136, 68, 1), 10);
     }
 
     &:focus {
-      outline: none;
+      &.recipe-tree__node--is-plaintext {
+        outline: none;
+      }
     }
   }
 }
