@@ -9,14 +9,12 @@
       </p>
     </div>
 
-    <!-- <div class="cookbook-recipes__content"> -->
-      <recipe-tree
-        class="cookbook-recipes__tree"
-        ref="tree"
-        :tree="recipeTree"
-        @update="handleTreeUpdate">
-      </recipe-tree>
-    <!-- </div> -->
+    <recipe-tree
+      class="cookbook-recipes__tree"
+      ref="tree"
+      :tree="recipeTree"
+      @update="handleTreeUpdate">
+    </recipe-tree>
   </div>
 </template>
 
@@ -70,7 +68,6 @@ export default {
   flex-flow: column nowrap;
   width: 100%;
   max-width: 100%;
-  // overflow: hidden;
 
   &__description {
     width: 80%;
@@ -88,12 +85,6 @@ export default {
     overflow: auto;
     margin: 0 auto;
   }
-
-  // &__content {
-  //   width: 100%;
-  //   height: calc(100vh - 6.4em - 140px);
-  //   overflow: auto;
-  // }
 
   &__actions {
     position: fixed;

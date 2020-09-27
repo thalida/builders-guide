@@ -4,76 +4,56 @@
       class="recipe-tree__level"
       v-for="(nodes, level) in treeByLevels"
       :key="level">
+
+      <!-- Level Empty State -->
       <div
         v-if="nodes.length === 0"
         class="recipe-tree__node recipe-tree__node--is-empty">
         <chat-alert-icon />
         <p class="recipe-tree__node__alert">This item has no ingredients.</p>
       </div>
+
+      <!-- Loop over all nodes in the level -->
       <div
-        v-for="(node, index) in nodes"
-        :key="index"
+        v-for="(formattedNode, index) in formatNodes(level, nodes)"
+        :key="formattedNode.key"
         class="recipe-tree__node"
         :class="[{
-          'recipe-tree__node--is-selected': node.selected,
-          'recipe-tree__node--is-plaintext': !getIsOptional(level) && getNextLevel(node).length === 0,
-          'recipe-tree__node--is-optional': getIsOptional(level),
-          'recipe-tree__node--has-nested': getNextLevel(node).length > 0,
-          'recipe-tree__node--is-open': visiblePath[level] === index,
+          'recipe-tree__node--is-selected': formattedNode.node.selected,
+          'recipe-tree__node--is-open': formattedNode.isOpen,
+          'recipe-tree__node--is-plaintext': formattedNode.isStatic,
+          'recipe-tree__node--is-optional': formattedNode.isOptional,
+          'recipe-tree__node--has-nested': formattedNode.numNestedNodes > 0,
         }]"
-        :tabindex="(getIsOptional(level) || getNextLevel(node).length > 0) ? 0 : -1"
-        @click="handleNodeClick(level, index, node)"
-        @keyup.enter="handleNodeClick(level, index, node)">
-        <input
-          class="recipe-tree__node__checkbox"
-          type="checkbox"
-          :checked="node.selected"
-          disabled="true" />
+        :tabindex="(formattedNode.isStatic) ? -1 : 0"
+        @click="handleNodeSelected(level, index, formattedNode.node)"
+        @keyup.enter="handleNodeSelected(level, index, formattedNode.node)">
 
-        <div
-          class="recipe-tree__node__content"
-          v-if="Array.isArray(node)">
-          <content-looper class="recipe-tree__node__icon-set">
+        <div class="recipe-tree__node__content">
+          <!-- If this node is an option group loop through all the images -->
+          <content-looper
+           v-if="formattedNode.isOptionGroup"
+           class="recipe-tree__node__icon-set">
             <img
-              v-for="(nestedNode, nni) in node"
+              v-for="(nestedNode, nni) in formattedNode.node"
               :key="nni"
               class="recipe-tree__node__icon"
               :src="getItemImage(nestedNode)" />
           </content-looper>
 
+          <!-- Otherwise render the node image -->
+          <img
+            v-else
+            class="recipe-tree__node__icon"
+            :src="getItemImage(formattedNode.node)" />
+
+          <!-- Node text -->
           <div class="recipe-tree__node__text">
             <p class="recipe-tree__node__label">
-              {{ getGroupTitle(node) }}
+              {{ formattedNode.label }}
             </p>
             <div class="recipe-tree__node__requirements">
-              {{ node.length }} options
-            </div>
-          </div>
-        </div>
-        <div
-          class="recipe-tree__node__content"
-          v-else>
-          <img
-            class="recipe-tree__node__icon"
-            :src="getItemImage(node)" />
-
-          <div class="recipe-tree__node__text">
-            <p class="recipe-tree__node__label">
-              {{ getTitle(node.name) }}
-            </p>
-
-            <div
-              v-if="getNextLevel(node).length > 0"
-              class="recipe-tree__node__requirements">
-              <span v-if="node.num_recipes > 1">
-                {{ node.num_recipes }} recipes
-              </span>
-              <span v-else-if="node.num_recipes == 1">
-                {{ node.recipes[0].ingredients.length }} ingredient{{node.recipes[0].ingredients.length === 1 ? '' : 's'}}
-              </span>
-              <span v-else-if="node.ingredients && node.ingredients.length > 0">
-                {{ node.ingredients.length }} ingredient{{ node.ingredients.length === 1 ? '' : 's' }}
-              </span>
+              {{ formattedNode.requirementsLabel }}
             </div>
           </div>
         </div> <!-- End Node Details -->
@@ -103,6 +83,51 @@ export default {
     this.treeByLevels.push(this.tree)
   },
   methods: {
+    formatNodes (level, nodes) {
+      const formattedNodes = []
+      const isOptional = this.getIsOptional(level)
+
+      for (let i = 0; i < nodes.length; i += 1) {
+        const node = nodes[i]
+        const isOptionGroup = Array.isArray(node)
+        const numNestedNodes = this.getNextLevel(node).length
+        const label = this.getLabel(node)
+        let requirementsLabel = null
+
+        if (numNestedNodes > 0) {
+          let numIngredients = null
+
+          if (isOptionGroup) {
+            requirementsLabel = `${numNestedNodes} options`
+          } else if (node.num_recipes > 1) {
+            requirementsLabel = `${node.num_recipes} recipes`
+          } else if (node.num_recipes === 1) {
+            numIngredients = node.recipes[0].ingredients.length
+          } else if (node.ingredients && node.ingredients.length > 0) {
+            numIngredients = node.ingredients.length
+          }
+
+          if (numIngredients !== null) {
+            const pluralize = (numIngredients === 1) ? '' : 's'
+            requirementsLabel = `${numIngredients} ingredient${pluralize}`
+          }
+        }
+
+        formattedNodes.push({
+          key: `${level}-${i}-${label}`,
+          isStatic: !isOptional && numNestedNodes === 0,
+          isOpen: this.visiblePath[level] === i,
+          isOptionGroup,
+          isOptional,
+          numNestedNodes,
+          label,
+          requirementsLabel,
+          node,
+        })
+      }
+
+      return formattedNodes
+    },
     getIsOptional (level) {
       const parentLevel = level - 1
 
@@ -137,7 +162,7 @@ export default {
       }, 0)
     },
 
-    handleNodeClick (level, index, node) {
+    handleNodeSelected (level, index, node) {
       const isOptional = this.getIsOptional(level)
       if (!isOptional && this.getNextLevel(node).length === 0) {
         return
@@ -203,12 +228,6 @@ export default {
         level = node.recipes
       } else if (node.num_recipes === 1) {
         level = node.recipes[0].ingredients
-
-        if (fullSetup) {
-          for (let i = 0; i < level.length; i += 1) {
-            level[i].type = node.recipes[0].type
-          }
-        }
       } else if (node.ingredients && node.ingredients.length > 0) {
         level = node.ingredients
       }
@@ -216,13 +235,18 @@ export default {
       return level
     },
 
-    getTitle (item) {
-      return item.split('_').join(' ')
-    },
+    getLabel (nodes) {
+      if (!Array.isArray(nodes)) {
+        if (typeof nodes === 'object' && nodes !== null) {
+          return nodes.name.split('_').join(' ')
+        } else {
+          return null
+        }
+      }
 
-    getGroupTitle (nodes) {
       const numNodes = nodes.length
-      const phraseCounts = {}
+      const phraseIdxMap = {}
+      const phraseCounts = []
 
       for (let i = 0; i < numNodes; i += 1) {
         const node = nodes[i]
@@ -235,55 +259,43 @@ export default {
           continue
         }
 
-        const permutations = []
         const nameParts = node.name.split('_')
-        for (let j = 0; j < nameParts.length; j += 1) {
-          permutations.push(
-            nameParts.slice(j, nameParts.length).join('_')
-          )
+        for (let startIdx = 0; startIdx < nameParts.length; startIdx += 1) {
+          for (let endIdx = startIdx + 1; endIdx <= nameParts.length; endIdx += 1) {
+            const phrase = nameParts.slice(startIdx, endIdx).join('_')
+            const phraseIdx = phraseIdxMap[phrase]
 
-          for (let k = j + 1; k < nameParts.length; k += 1) {
-            permutations.push(nameParts.slice(j, k).join('_'))
-          }
-        }
+            if (typeof phraseIdx === 'undefined') {
+              phraseIdxMap[phrase] = phraseCounts.length
+              phraseCounts.push({ phrase, count: 1 })
+              continue
+            }
 
-        for (let pi = 0; pi < permutations.length; pi += 1) {
-          const phrase = permutations[pi]
-          if (typeof phraseCounts[phrase] === 'undefined') {
-            phraseCounts[phrase] = 1
-          } else {
-            phraseCounts[phrase] += 1
+            phraseCounts[phraseIdx].count += 1
           }
         }
       }
 
-      const sortedPhraseCounts = []
-      for (const phrase in phraseCounts) {
-        sortedPhraseCounts.push([phrase, phraseCounts[phrase]])
-      }
+      phraseCounts.sort((a, b) => {
+        if (a.count > b.count) return -1
+        if (a.count < b.count) return 1
 
-      sortedPhraseCounts.sort((a, b) => {
-        if (a[1] > b[1]) return -1
-        if (a[1] < b[1]) return 1
+        if (a.phrase.length > b.phrase.length) return -1
+        if (a.phrase.length < b.phrase.length) return 1
 
-        if (a[0].length > b[0].length) return -1
-        if (a[0].length < b[0].length) return 1
-
-        if (a[0] > b[0]) return 1
-        if (a[0] < b[0]) return -1
+        if (a.phrase > b.phrase) return 1
+        if (a.phrase < b.phrase) return -1
       })
 
-      let capturedNodes = 0
+      let describedNodes = 0
       const foundNames = []
-      for (let si = 0; si < sortedPhraseCounts.length; si += 1) {
-        const phraseCount = sortedPhraseCounts[si]
-        const name = phraseCount[0]
-        const frequency = phraseCount[1]
+      for (let si = 0; si < phraseCounts.length; si += 1) {
+        const phraseCount = phraseCounts[si]
 
-        foundNames.push(name.split('_').join(' '))
-        capturedNodes += frequency
+        foundNames.push(phraseCount.phrase.split('_').join(' '))
+        describedNodes += phraseCount.count
 
-        if (capturedNodes >= numNodes) {
+        if (describedNodes >= numNodes) {
           break
         }
       }
@@ -311,23 +323,6 @@ export default {
         return images('./air.png')
       }
     },
-
-    getTypeImage (nodeType) {
-      const images = require.context('../assets/minecraft/1.15/32x32/', false, /\.png$/)
-      let image = null
-
-      if (nodeType === 'minecraft:blasting') {
-        image = 'blast_furnace'
-      } else if (nodeType === 'minecraft:smelting') {
-        image = 'furnace'
-      }
-
-      try {
-        return images(`./${image}.png`)
-      } catch (error) {
-        return images('./air.png')
-      }
-    }
   }
 }
 </script>
@@ -386,19 +381,6 @@ export default {
 
     &__checkbox {
       display: none;
-    }
-
-    &__type {
-      width: 24px;
-      height: 24px;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      top: -12px;
-
-      &__icon {
-        width: 100%;
-      }
     }
 
     &__icon-set {
