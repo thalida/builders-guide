@@ -50,10 +50,13 @@
           type="number"
           min="0"
           v-model.number="selectedItems[i].amount_required" />
-        <img class="cookbook-build__item-group__icon" :src="getItemImage(item.key)" />
+        <img
+          v-once
+          class="cookbook-build__item-group__icon"
+          :src="getItemImage(item.key)" />
         <div class="cookbook-build__item-group__text">
-          <span class="item-title">{{getTitle(item.key)}}</span>
-          <a class="link" :href="`https://minecraft.gamepedia.com/${item.name}`" target="_blank">Minecraft Wiki</a>
+          <span v-once class="item-title">{{getTitle(item.key)}}</span>
+          <a v-once class="link" :href="`https://minecraft.gamepedia.com/${item.name}`" target="_blank">Minecraft Wiki</a>
         </div>
         <button
           class="cookbook-build__item-group__remove-btn"

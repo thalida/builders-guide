@@ -41,21 +41,17 @@
                     name="checkbox"
                     :value="item.name"
                     v-model="tmpSelectedItems">
-                  <check-icon class="checkbox__checkmark" />
+                  <check-icon v-once class="checkbox__checkmark" />
                 </span>
                 <span class="search__item-row__details">
                   <img
+                    v-once
                     class="search__item-row__icon"
                     :src="getItemImage(item.name)" />
-                  <span class="search__item-row__name">
-                    <span
-                      v-for="(stringPart, spi) in getItemNameParts(item.name)"
-                      :key="spi"
-                      :class="[{
-                        'font-weight--bold': stringPart.isBold
-                      }]">{{stringPart.value}}</span>
-                    </span>
+                  <span v-once class="search__item-row__name">
+                    {{ getTitle(item.name) }}
                   </span>
+                </span>
               </label>
             </div>
           </li>
@@ -117,7 +113,7 @@ export default {
       return this.$store.state.selectedVersion
     },
     formattedInputQuery () {
-      return this.inputQuery.toLowerCase()
+      return this.inputQuery.toLowerCase().trim()
     },
     items () {
       if (
@@ -141,7 +137,7 @@ export default {
       return (Array.isArray(this.tmpSelectedItems)) ? this.tmpSelectedItems.length : 0
     },
     renderData () {
-      return this.getRenderDataByQuery(this.inputQuery)
+      return this.getRenderDataByQuery(this.formattedInputQuery)
     },
   },
   mounted () {
@@ -162,8 +158,17 @@ export default {
       for (let i = 0, l = this.items.length; i < l; i += 1) {
         const name = this.items[i]
         const letter = name[0]
+        const queryParts = query.split(/\s/)
+        let matching = true
 
-        if (!name.includes(query)) {
+        for (let j = 0; j < queryParts.length; j += 1) {
+          if (!name.includes(queryParts[j])) {
+            matching = false
+            break
+          }
+        }
+
+        if (!matching) {
           continue
         }
 
@@ -197,21 +202,8 @@ export default {
         return images('./air.png')
       }
     },
-    getItemNameParts (item) {
-      const itemName = item
-        .split('_')
-        .map((str) => {
-          return str.charAt(0).toUpperCase() + str.slice(1)
-        })
-        .join(' ')
-      const boldStart = itemName.toLowerCase().indexOf(this.formattedInputQuery)
-      const boldEnd = boldStart + this.formattedInputQuery.length
-
-      return [
-        { isBold: false, value: itemName.substring(0, boldStart) },
-        { isBold: true, value: itemName.substring(boldStart, boldEnd) },
-        { isBold: false, value: itemName.substring(boldEnd) },
-      ]
+    getTitle (item) {
+      return item.split('_').join(' ')
     },
     onScroll () {
       if (this.navi.fromUserClick && !this.navi.arrivedAtLetter) {
@@ -374,6 +366,10 @@ export default {
 
     &__icon {
       margin-right: 0.5em;
+    }
+
+    &__name {
+      text-transform: capitalize;
     }
   }
 

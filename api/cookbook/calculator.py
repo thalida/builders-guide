@@ -277,8 +277,6 @@ def create_recipe_tree(
     tree = []
     is_first_item = True
     for (item_index, item) in enumerate(items):
-        item_is_option_group = isinstance(item, list)
-
         if isinstance(item, dict):
             amount_required = item.get("amount_required", 1)
         else:
@@ -290,7 +288,7 @@ def create_recipe_tree(
                 item,
                 all_tags,
                 force_amount_required=amount_required,
-                is_group=item_is_option_group
+                is_group=isinstance(item, list)
             )
 
             if len(item) == 1:
@@ -298,7 +296,7 @@ def create_recipe_tree(
 
         # A list of items is an option group, it means all of these items can
         # be used interchangeably.
-        if item_is_option_group:
+        if isinstance(item, list):
             # We need to ge the recipe tree for all of these item(s)
             response = create_recipe_tree(
                 item,
@@ -493,6 +491,10 @@ def create_shopping_list(
         node_used_leftovers = parent_used_leftovers
         node_name = node["name"]
         amount_required = node["amount_required"]
+
+        if not isinstance(amount_required, int):
+            amount_required = 0
+
         amount_required = amount_required * recipe_multiplier
 
         # We've found a node we haven't seen before! Let's get it's dict setup
