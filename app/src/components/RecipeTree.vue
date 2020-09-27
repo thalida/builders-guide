@@ -267,8 +267,17 @@ export default {
 
             if (typeof phraseIdx === 'undefined') {
               phraseIdxMap[phrase] = phraseCounts.length
-              phraseCounts.push({ phrase, count: 1 })
+              phraseCounts.push({
+                phrase,
+                count: 1,
+                foundAt: node.name.indexOf(phrase)
+              })
               continue
+            }
+
+            const newFoundAt = node.name.indexOf(phrase)
+            if (newFoundAt < phraseCounts[phraseIdx].foundAt) {
+              phraseCounts[phraseIdx].foundAt = newFoundAt
             }
 
             phraseCounts[phraseIdx].count += 1
@@ -279,6 +288,9 @@ export default {
       phraseCounts.sort((a, b) => {
         if (a.count > b.count) return -1
         if (a.count < b.count) return 1
+
+        if (a.foundAt > b.foundAt) return -1
+        if (a.foundAt < b.foundAt) return 1
 
         if (a.phrase.length > b.phrase.length) return -1
         if (a.phrase.length < b.phrase.length) return 1
