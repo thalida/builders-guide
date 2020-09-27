@@ -101,7 +101,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .freeform {
   display: flex;
   flex-flow: column nowrap;
@@ -153,7 +153,7 @@ export default {
 
     textarea {
       width: 100%;
-      height: 80%;
+      height: 75%;
       margin: 2em 0 0 0;
       padding: 1em;
       font: 1.6em 'Jost', Arial, sans-serif;
