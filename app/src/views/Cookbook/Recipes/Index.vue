@@ -9,12 +9,14 @@
       </p>
     </div>
 
-    <recipe-tree
-      class="cookbook-recipes__tree"
-      ref="tree"
-      :tree="recipeTree"
-      @update="handleTreeUpdate">
-    </recipe-tree>
+    <div class="cookbook-recipes__content">
+      <recipe-tree
+        class="cookbook-recipes__tree"
+        ref="tree"
+        :tree="recipeTree"
+        @update="handleTreeUpdate">
+      </recipe-tree>
+    </div>
   </div>
 </template>
 
@@ -79,28 +81,10 @@ export default {
     }
   }
 
-  &__tree.recipe-tree {
+  &__content {
+    flex: 1;
     width: 100%;
-    height: calc(100vh - 6.4em - 140px);
     overflow: auto;
-    margin: 0 auto;
-  }
-
-  &__actions {
-    position: fixed;
-    display: flex;
-    width: 100%;
-    height: 3.4em;
-    left: 0;
-    bottom: 6.4em;
-    justify-content: center;
-    align-items: center;
-
-    background: #F1F1F1;
-
-    .link {
-      margin: 0 1em;
-    }
   }
 }
 </style>

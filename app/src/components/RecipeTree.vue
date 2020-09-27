@@ -348,11 +348,11 @@ export default {
 
   &__level {
     flex: 0 0 auto;
+    padding: 12px 1.0em 0;
     width: 40vw;
     max-width: 300px;
     height: 100%;
     overflow: auto;
-    padding: 12px 1.0em 0;
 
     &:first-child {
       margin-left: auto;

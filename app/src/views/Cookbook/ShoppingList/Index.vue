@@ -194,6 +194,8 @@ export default {
   max-width: none;
 
   &__description {
+    width: 80%;
+    max-width: 600px;
     margin: 3.0em auto 2.0em;
 
     .text {
