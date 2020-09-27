@@ -1,6 +1,6 @@
 {
   "type": "cookbook:naturally_occurring",
-  "name": "diamond",
+  "name": "diamond_from_mining",
   "ingredient": {
     "item": "minecraft:diamond_ore"
   },

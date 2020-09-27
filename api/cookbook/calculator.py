@@ -24,14 +24,20 @@ def get_ingredients(recipe, all_tags):
         return []
 
     ingredients = []
+    single_ingredient_recipes = [
+        "minecraft:smelting",
+        "minecraft:stonecutting",
+        "minecraft:smoking",
+        "minecraft:blasting"
+    ]
 
     # Crafting recipes are a bit more complicated
-    if recipe["type"] == "minecraft:crafting_shaped":
+    if recipe["type"] in 'minecraft:crafting_shaped':
         ingredients = get_shaped_recipe_ingredients(recipe, all_tags)
     else:
         raw_ingredients = recipe.get("ingredients", recipe.get("ingredient", []))
 
-        if len(raw_ingredients) > 1:
+        if recipe["type"] in single_ingredient_recipes and len(raw_ingredients) > 1:
             raw_ingredients = [raw_ingredients]
 
         ingredients = format_recipe_ingredients(raw_ingredients, all_tags)
@@ -123,7 +129,7 @@ def get_tag_values(tag, all_tags, amount_required=None):
 
 
 def format_recipe_ingredients(
-    ingredients, all_tags, is_group=False, force_amount_required=None, level=0
+    ingredients, all_tags, is_group=False, force_amount_required=None, level=0, group_at_level=0
 ):
     """Given a list of raw ingredients format them to be used by the calculator
 
@@ -147,7 +153,7 @@ def format_recipe_ingredients(
     if not isinstance(ingredients, list):
         ingredients = [ingredients]
 
-    for ingredient in ingredients:
+    for (index, ingredient) in enumerate(ingredients):
         group = None
 
         # If we're working with a list of ingredients or a tag (which in the end
@@ -157,7 +163,7 @@ def format_recipe_ingredients(
         ):
             # if we're here we're workign with a group of ingredients, which means
             # they can be used interchangeably
-            is_group = True
+            group_at_level = level + 1
 
             # If it's a dictionary, get all the tag values so we interate over
             # a list of items
@@ -173,8 +179,9 @@ def format_recipe_ingredients(
                 next_ingredients,
                 all_tags,
                 force_amount_required=force_amount_required,
-                is_group=is_group,
+                is_group=True,
                 level=level + 1,
+                group_at_level=group_at_level,
             )
 
             # Move on to the next, nothing else to see here
@@ -216,7 +223,7 @@ def format_recipe_ingredients(
 
     # If we're at the top level and we're working with a group, make sure it's
     # combined together in a single list
-    if level == 0 and is_group:
+    if is_group and level == group_at_level:
         formatted_ingredients = [formatted_ingredients]
 
     # :D
@@ -270,6 +277,8 @@ def create_recipe_tree(
     tree = []
     is_first_item = True
     for (item_index, item) in enumerate(items):
+        item_is_option_group = isinstance(item, list)
+
         if isinstance(item, dict):
             amount_required = item.get("amount_required", 1)
         else:
@@ -278,7 +287,10 @@ def create_recipe_tree(
         # correctly format the item
         if has_no_ancestors:
             item = format_recipe_ingredients(
-                item, all_tags, force_amount_required=amount_required,
+                item,
+                all_tags,
+                force_amount_required=amount_required,
+                is_group=item_is_option_group
             )
 
             if len(item) == 1:
@@ -286,7 +298,7 @@ def create_recipe_tree(
 
         # A list of items is an option group, it means all of these items can
         # be used interchangeably.
-        if isinstance(item, list):
+        if item_is_option_group:
             # We need to ge the recipe tree for all of these item(s)
             response = create_recipe_tree(
                 item,

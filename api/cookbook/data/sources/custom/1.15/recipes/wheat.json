@@ -1,10 +1,10 @@
 {
   "type": "cookbook:naturally_occurring",
-  "name": "white_wool_from_sheep",
+  "name": "wheat_from_farming",
   "ingredient": {
     "item": "cookbook:self"
   },
   "result": {
-    "item": "minecraft:white_wool"
+    "item": "minecraft:wheat"
   }
 }

@@ -1,6 +1,6 @@
 {
   "type": "cookbook:naturally_occurring",
-  "name": "redstone",
+  "name": "redstone_from_mining",
   "ingredient": {
     "item": "minecraft:redstone_ore"
   },

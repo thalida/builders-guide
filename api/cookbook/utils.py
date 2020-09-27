@@ -59,10 +59,7 @@ def is_custom_recipe(recipe):
     Returns:
         bool -- True if the recipe type is within the supported custom_types
     """
-    recipe_type = recipe["type"]
-    custom_types = ["cookbook:naturally_occurring"]
-
-    return recipe_type in custom_types
+    return recipe["type"].find("cookbook:") == 0
 
 
 def is_supported_recipe(recipe):

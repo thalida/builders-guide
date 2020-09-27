@@ -1,0 +1,20 @@
+{
+  "type": "cookbook:game_mechanic",
+  "name": "milk_bucket",
+  "ingredients": [
+    {
+      "item": "minecraft:bucket"
+    },
+    [
+      {
+        "item": "cookbook:cow"
+      },
+      {
+        "item": "cookbook:mooshrooms"
+      }
+    ]
+  ],
+  "result": {
+    "item": "minecraft:milk_bucket"
+  }
+}

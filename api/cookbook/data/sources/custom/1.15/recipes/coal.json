@@ -1,6 +1,6 @@
 {
   "type": "cookbook:naturally_occurring",
-  "name": "coal",
+  "name": "coal_from_mining",
   "ingredient": {
     "item": "minecraft:coal_ore"
   },
