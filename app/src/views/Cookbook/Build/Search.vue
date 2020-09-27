@@ -349,13 +349,9 @@ export default {
     display: flex;
     margin-top: 30px;
     align-items: center;
-    font-size: 3.2em;
+    font-size: 2.0em;
     color: #E6CE51;
     text-transform: uppercase;
-
-    h2 {
-      font-weight: 500;
-    }
 
     &.is-first {
       margin-top: 0;
@@ -401,12 +397,12 @@ export default {
       display: none;
 
       &:focus + .checkbox__checkmark {
-        stroke: darken(rgba(12, 136, 68, 1), 10)
+        stroke: darken(#005226, 10)
       }
 
       &:checked + .checkbox__checkmark {
         .icon__check__path {
-          stroke: rgba(12, 136, 68, 1);
+          stroke: #005226;
         }
       }
 

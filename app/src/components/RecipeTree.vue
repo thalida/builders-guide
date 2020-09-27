@@ -421,7 +421,7 @@ export default {
     &__requirements {
       font-size: 1.4em;
       font-weight: 500;
-      color: rgba(12, 136, 68, 1);
+      color: #005226;
     }
 
     &--is-empty {
@@ -451,7 +451,7 @@ export default {
       cursor: pointer;
 
       .recipe-tree__node__requirements {
-        color: darken(rgba(12, 136, 68, 1), 10);
+        color: darken(#005226, 10);
       }
 
       &.recipe-tree__node--is-selected:not(.recipe-tree__node--is-open) {
@@ -459,7 +459,7 @@ export default {
         border: 1px solid #DBDCDD;
 
         .recipe-tree__node__requirements {
-          color: rgba(12, 136, 68, 1);
+          color: #005226;
         }
       }
     }

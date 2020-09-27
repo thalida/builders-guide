@@ -64,7 +64,7 @@ p {
 
     &:hover,
     &:focus {
-      color: rgba(12, 136, 68, 1);
+      color: #005226;
     }
   }
 }
@@ -73,6 +73,17 @@ h1 {
   font-size: 1.6em;
   font-weight: 500;
   text-align: center;
+}
+
+h2 {
+  font-size: 2.2em;
+  font-weight: 500;
+}
+
+h3 {
+  font-size: 1.6em;
+  font-weight: 500;
+  color: #524D47;
 }
 
 .font-weight--medium {
@@ -91,7 +102,7 @@ a.link {
   cursor: pointer;
   position: relative;
   font-size: 1.4em;
-  color: rgba(12, 136, 68, 1);
+  color: #005226;
   text-decoration: none;
   font-weight: 500;
 
@@ -131,12 +142,12 @@ a.link {
 
   &--primary {
     color: #fff;
-    background: rgba(12, 136, 68, 1);
+    background: #005226;
     border: 0;
 
     &:hover,
     &:focus {
-      background: darken(rgba(12, 136, 68, 1), 10);
+      background: darken(#005226, 10);
     }
   }
 

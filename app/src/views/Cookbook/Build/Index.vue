@@ -16,8 +16,8 @@
           type="text"
           v-model="searchTerm"
           placeholder="What do you need?"
-          v-on:click="goToSearch"
-          v-on:keyup.enter="goToSearch" />
+          @click="goToSearch"
+          @keyup.enter="goToSearch" />
       </div>
 
       <router-link
@@ -44,7 +44,7 @@
         </div>
         <button
           class="cookbook-build__item-group__remove-btn"
-          v-on:click="removeSelectedItem(i)">
+          @click="removeSelectedItem(i)">
           <cross-icon />
         </button>
       </div>
@@ -53,8 +53,8 @@
         <a
           class="link"
           tabindex="0"
-          v-on:click="removeAllItems()"
-          v-on:keyup.enter="removeAllItems()">
+          @click="removeAllItems()"
+          @keyup.enter="removeAllItems()">
           Clear All
         </a>
       </div>
@@ -67,8 +67,8 @@
       <a
         class="link"
         tabindex="0"
-        v-on:click="selectRandomItem()"
-        v-on:keyup.enter="selectRandomItem()">
+        @click="selectRandomItem()"
+        @keyup.enter="selectRandomItem()">
         Randomly Pick an Item
       </a>
     </div>

@@ -164,11 +164,6 @@ export default {
     text-align: center;
   }
 
-  h2 {
-    font-size: 2.2em;
-    font-weight: 500;
-  }
-
   p {
     margin-top: 0.4em;
     line-height: 1.4;
@@ -201,7 +196,7 @@ export default {
 
     font-size: 1.8em;
     color: #fff;
-    background: rgba(12, 136, 68, 1);
+    background: #005226;
     border-radius: 2.4em;
     margin: 1.2em 0;
     padding: 0.8em 1.6em;
@@ -215,7 +210,7 @@ export default {
 
     &:hover,
     &:focus {
-      background: darken(rgba(12, 136, 68, 1), 10);
+      background: darken(#005226, 10);
     }
   }
 

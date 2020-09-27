@@ -13,6 +13,7 @@
     &__path {
         transition: all 300ms;
         stroke: #1D1007;
+        stroke-width: 2px;
     }
 }
 </style>

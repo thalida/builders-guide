@@ -1,47 +1,80 @@
 <template>
-  <div id="cookbook__shopping_list">
-    <div>
-      <div>
-        <h3>Step-by-Step Guide</h3>
-        <p class="font-size--normal">The next set of items you’ll need to have for your build.</p>
-        <a @click="toggleNextIngredients">Toggle</a>
-      </div>
-      <div v-if="showNextIngredients">
-        <shopping-list-item
-          v-for="item in nextIngredients"
-          :key="item"
-          :item-name="item">
-        </shopping-list-item>
-      </div>
+  <div class="cookbook-shopping">
+    <div class="cookbook-shopping__description">
+      <p class="text text--primary">
+        The ingredients you’ll use for your build.
+      </p>
+      <p class="text text--secondary">
+        (Don’t like an ingredient? Customize the chosen recipes and ingredients on the pervious screen.)
+      </p>
     </div>
-    <div>
-      <div>
-        <h3>Build Process</h3>
-        <p class="font-size--normal">Every item you’ll for your build in reverse order.</p>
-        <a @click="toggleBuildProcess">Toggle</a>
-      </div>
-      <div v-if="showBuildProcess">
+
+    <div class="cookbook-shopping__content">
+      <div class="cookbook-shopping__accordion">
+        <a
+          class="cookbook-shopping__accordion__toggle"
+          tabindex="0"
+          @click="toggleNextIngredients"
+          @keyup.enter="toggleNextIngredients">
+          <h3>Step-by-Step Guide</h3>
+          <chevron-right-icon />
+        </a>
         <div
-          v-for="level in buildLevels"
-          :key="level">
+          v-if="showNextIngredients"
+          class="cookbook-shopping__accordion__content">
+          <p class="cookbook-shopping__accordion__description text--secondary">
+            The next set of items you’ll need to have for your build.
+          </p>
           <shopping-list-item
-            v-for="item in buildProcess[level]"
+            v-for="item in nextIngredients"
             :key="item"
-            :item-name="item"
-            :is-anchor="true">
+            :item-name="item">
           </shopping-list-item>
         </div>
       </div>
-    </div>
-  </div>
+
+      <hr class="cookbook-shopping__divider" />
+
+      <div class="cookbook-shopping__accordion">
+        <a
+          class="cookbook-shopping__accordion__toggle"
+          tabindex="0"
+          @click="toggleBuildProcess"
+          @keyup.enter="toggleBuildProcess">
+          <h3>Build Process</h3>
+          <chevron-right-icon />
+        </a>
+        <div
+          v-if="showBuildProcess"
+          class="cookbook-shopping__accordion__content">
+          <p class="cookbook-shopping__accordion__description text--secondary">
+            Every item you’ll for your build in reverse order.
+          </p>
+          <div
+            v-for="level in buildLevels"
+            :key="level">
+            <shopping-list-item
+              v-for="item in buildProcess[level]"
+              :key="item"
+              :item-name="item"
+              :is-anchor="true">
+            </shopping-list-item>
+          </div>
+        </div>
+      </div>
+
+    </div> <!-- End Shopping List Content-->
+  </div> <!-- End Shopping List View-->
 </template>
 
 <script>
+import chevronRightIcon from '@/components/icons/chevron-right.vue'
 import ShoppingListItem from '@/components/ShoppingListItem.vue'
 
 export default {
   name: 'CookbookShoppingList',
   components: {
+    chevronRightIcon,
     ShoppingListItem,
   },
   beforeRouteEnter (to, from, next) {
@@ -149,3 +182,55 @@ export default {
   },
 }
 </script>
+
+<style lang="scss">
+.cookbook-shopping {
+  display: flex;
+  flex-flow: column nowrap;
+  width: 100%;
+  max-width: none;
+
+  &__description {
+    margin: 3.0em auto 2.0em;
+
+    .text {
+      text-align: center;
+    }
+  }
+
+  &__divider {
+    margin: 0;
+    border: 0;
+    height: 0.5em;
+    background: #F1F1F1;
+  }
+
+  &__accordion {
+    width: 80%;
+    max-width: 600px;
+    margin: 4.0em auto;
+
+    &__toggle {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    &__description {
+      margin: 1em 0;
+    }
+
+    &__content {
+
+    }
+  }
+
+  .icon__chevron-right {
+    &__path {
+      fill: #1D1007;
+    }
+  }
+}
+</style>
