@@ -10,7 +10,11 @@
     </div>
 
     <div class="cookbook-shopping__content">
-      <div class="cookbook-shopping__accordion">
+      <div
+        class="cookbook-shopping__accordion"
+        :class="[{
+          'cookbook-shopping__accordion--is-open': showNextIngredients
+        }]">
         <a
           class="cookbook-shopping__accordion__toggle"
           tabindex="0"
@@ -19,9 +23,7 @@
           <h3>Step-by-Step Guide</h3>
           <chevron-right-icon />
         </a>
-        <div
-          v-if="showNextIngredients"
-          class="cookbook-shopping__accordion__content">
+        <div class="cookbook-shopping__accordion__content">
           <p class="cookbook-shopping__accordion__description text--secondary">
             The next set of items you’ll need to have for your build.
           </p>
@@ -35,7 +37,10 @@
 
       <hr class="cookbook-shopping__divider" />
 
-      <div class="cookbook-shopping__accordion">
+      <div class="cookbook-shopping__accordion"
+        :class="[{
+          'cookbook-shopping__accordion--is-open': showBuildProcess
+        }]">
         <a
           class="cookbook-shopping__accordion__toggle"
           tabindex="0"
@@ -44,9 +49,7 @@
           <h3>Build Process</h3>
           <chevron-right-icon />
         </a>
-        <div
-          v-if="showBuildProcess"
-          class="cookbook-shopping__accordion__content">
+        <div class="cookbook-shopping__accordion__content">
           <p class="cookbook-shopping__accordion__description text--secondary">
             Every item you’ll for your build in reverse order.
           </p>
@@ -206,9 +209,14 @@ export default {
   }
 
   &__accordion {
+    margin: 4.0em auto;
     width: 80%;
     max-width: 600px;
-    margin: 4.0em auto;
+
+    .icon__chevron-right {
+      transform: rotate(90deg);
+      transition: all 500ms;
+    }
 
     &__toggle {
       display: flex;
@@ -216,6 +224,7 @@ export default {
       align-items: center;
       justify-content: space-between;
       cursor: pointer;
+      padding-right: 0.5em;
     }
 
     &__description {
@@ -223,7 +232,21 @@ export default {
     }
 
     &__content {
+      max-height: 0;
+      transition: all 500ms cubic-bezier(0, 1, 0, 1);
+      overflow: hidden;
+    }
 
+    &--is-open {
+      .cookbook-shopping__accordion__content {
+        transition: all 1s ease-in-out;
+        max-height: 9999px;
+        overflow: auto;
+      }
+
+      .icon__chevron-right {
+        transform: rotate(-90deg);
+      }
     }
   }
 
