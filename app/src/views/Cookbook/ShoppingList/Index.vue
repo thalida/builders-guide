@@ -203,6 +203,11 @@ export default {
     }
   }
 
+  &__content {
+    flex: 1;
+    overflow: auto;
+  }
+
   &__divider {
     margin: 0;
     border: 0;
