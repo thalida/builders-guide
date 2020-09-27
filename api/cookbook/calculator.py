@@ -30,6 +30,10 @@ def get_ingredients(recipe, all_tags):
         ingredients = get_shaped_recipe_ingredients(recipe, all_tags)
     else:
         raw_ingredients = recipe.get("ingredients", recipe.get("ingredient", []))
+
+        if len(raw_ingredients) > 1:
+            raw_ingredients = [raw_ingredients]
+
         ingredients = format_recipe_ingredients(raw_ingredients, all_tags)
 
     return ingredients
@@ -238,6 +242,7 @@ def create_recipe_tree(
     supported_recipes,
     ancestors=None,
     is_group=False,
+    exclude_same_ingredients=True,
 ):
     """Using the list of `items` provided, generate it's recipe tree. A recipe tree
     is an item with a list of the recipes that craft it, each recipe has a set
@@ -350,7 +355,6 @@ def create_recipe_tree(
             is_first_item = False
             continue
 
-        # node_has_circular_ref = False
         recipe_tree = []
 
         custom_recipes = []
@@ -376,7 +380,10 @@ def create_recipe_tree(
             if not cookbook.utils.is_supported_recipe(recipe):
                 continue
 
-            # How much does this recipe create?
+            # What does this recipe create?
+            result_name = cookbook.utils.parse_item_name(recipe["result"].get("item"))
+
+            # And how much of it does this recipe make?
             amount_created = recipe["result"].get("count", 1)
 
             # Get a list of all the ingredients
@@ -413,8 +420,9 @@ def create_recipe_tree(
             # a given item!
             recipe_node = {
                 "id": f'recipe-{recipe_name}-{time.time()}',
-                "name": recipe_name,
+                "name": recipe.get("name", recipe_name),
                 "type": recipe["type"],
+                "result_name": result_name,
                 "amount_required": amount_required,
                 "amount_created": amount_created,
                 "ingredients": response,

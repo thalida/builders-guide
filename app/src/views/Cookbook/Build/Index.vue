@@ -79,10 +79,10 @@
 </template>
 
 <script>
-import blob from '../../../components/blob.vue'
-import searchIcon from '../../../components/icons/search.vue'
-import plaintextInputIcon from '../../../components/icons/plaintext-input.vue'
-import crossIcon from '../../../components/icons/cross.vue'
+import blob from '@/components/blob.vue'
+import searchIcon from '@/components/icons/search.vue'
+import plaintextInputIcon from '@/components/icons/plaintext-input.vue'
+import crossIcon from '@/components/icons/cross.vue'
 
 export default {
   name: 'CookbookBuild',
@@ -259,7 +259,6 @@ export default {
     justify-content: space-between;
 
     &__input {
-      flex: 0 1 32px;
       width: 32px;
       height: 32px;
       padding: 0;

@@ -1,5 +1,6 @@
 {
   "type": "cookbook:naturally_occurring",
+  "name": "lapis_lazuli",
   "ingredient": {
     "item": "minecraft:lapis_ore"
   },

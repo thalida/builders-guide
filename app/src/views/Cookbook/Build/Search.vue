@@ -90,8 +90,8 @@
 
 <script>
 import Modal from '@/components/Modal.vue'
-import searchIcon from '../../../components/icons/search.vue'
-import checkIcon from '../../../components/icons/check.vue'
+import searchIcon from '@/components/icons/search.vue'
+import checkIcon from '@/components/icons/check.vue'
 
 export default {
   name: 'CookbookBuildSearch',
@@ -386,6 +386,8 @@ export default {
     flex-flow: row nowrap;
     font-size: 1.6em;
     align-items: center;
+    width: 100%;
+    cursor: pointer;
 
     &--disabled {
       color: pink;

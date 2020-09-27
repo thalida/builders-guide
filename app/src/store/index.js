@@ -99,6 +99,7 @@ export default new Vuex.Store({
   },
   actions: {
     setupItems ({ state, commit }) {
+      const hostname = window.location.hostname
       return new Promise((resolve, reject) => {
         if (
           typeof state.gameData[state.selectedVersion] === 'undefined' ||
@@ -106,7 +107,7 @@ export default new Vuex.Store({
           typeof state.gameData[state.selectedVersion].items[0] === 'undefined'
         ) {
           axios
-            .get(`http://0.0.0.0:5000/api/${state.selectedVersion}/items`)
+            .get(`http://${hostname}:5000/api/${state.selectedVersion}/items`)
             .then(response => {
               commit('setItems', response.data)
               resolve()
@@ -192,8 +193,9 @@ export default new Vuex.Store({
         return
       }
 
+      const hostname = window.location.hostname
       axios
-        .post(`http://0.0.0.0:5000/api/${state.selectedVersion}/recipe_tree`, { items: state.selectedItems })
+        .post(`http://${hostname}:5000/api/${state.selectedVersion}/recipe_tree`, { items: state.selectedItems })
         .then(response => {
           commit('setRecipeTree', response.data)
           dispatch('setupShoppingList')
@@ -221,8 +223,9 @@ export default new Vuex.Store({
         }
       }
 
+      const hostname = window.location.hostname
       axios
-        .post(`http://0.0.0.0:5000/api/${state.selectedVersion}/shopping_list`, {
+        .post(`http://${hostname}:5000/api/${state.selectedVersion}/shopping_list`, {
           recipe_path: recipePath,
           have_already: haveAlready,
         })

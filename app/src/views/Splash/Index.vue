@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import chevronRightIcon from '../../components/icons/chevron-right.vue'
+import chevronRightIcon from '@/components/icons/chevron-right.vue'
 
 // @ is an alias to /src
 export default {

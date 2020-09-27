@@ -69,10 +69,10 @@
 </template>
 
 <script>
-import arrowRightIcon from '../../components/icons/arrow-right.vue'
-import buildIcon from '../../components/icons/build.vue'
-import recipesIcon from '../../components/icons/recipes.vue'
-import shoppingListIcon from '../../components/icons/shopping-list.vue'
+import arrowRightIcon from '@/components/icons/arrow-right.vue'
+import buildIcon from '@/components/icons/build.vue'
+import recipesIcon from '@/components/icons/recipes.vue'
+import shoppingListIcon from '@/components/icons/shopping-list.vue'
 
 export default {
   name: 'Cookbook',

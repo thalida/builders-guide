@@ -36,7 +36,10 @@ export default {
     startInterval () {
       const self = this
       this.intervalID = window.setInterval(() => {
-        if (self.prevChildIdx !== null) {
+        if (
+          self.prevChildIdx !== null &&
+          typeof self.children[self.prevChildIdx] !== 'undefined'
+        ) {
           self.children[self.prevChildIdx].style.display = 'none'
         }
 

@@ -69,8 +69,9 @@ export default {
 
       const textareaStrArray = this.textareaInput.trim().split(/\r?\n/)
       const selectedVersion = this.$store.state.selectedVersion
+      const hostname = window.location.hostname
       axios
-        .post(`http://0.0.0.0:5000/api/${selectedVersion}/parse_items_from_string`, {
+        .post(`http://${hostname}:5000/api/${selectedVersion}/parse_items_from_string`, {
           parse_strings: textareaStrArray
         })
         .then(response => {
