@@ -49,18 +49,27 @@
     <div
       class="shopping-item__required-for"
       v-if="usedForItems.length > 0">
-      <span class="shopping-item__required-for__label">Used for:</span>
+      <span
+        class="shopping-item__required-for__label"
+        v-if="item.amount_used_for.self > 0">
+        Also used in:
+      </span>
+      <span
+        class="shopping-item__required-for__label"
+        v-else>
+        Required for:
+      </span>
       <a
-      class="shopping-item__required-for__tag"
-      v-for="(usedForItem, index) in usedForItems"
-      :key="index"
-      :href="`#${usedForItem}`">
-        <img
-          class="shopping-item__required-for__tag__icon"
-          :src="getItemImage(usedForItem)" />
-        <span class="shopping-item__required-for__tag__label">
-          {{ getTitle(usedForItem) }}
-        </span>
+        class="shopping-item__required-for__tag"
+        v-for="(usedForItem, index) in usedForItems"
+        :key="index"
+        :href="`#${usedForItem}`">
+          <img
+            class="shopping-item__required-for__tag__icon"
+            :src="getItemImage(usedForItem)" />
+          <span class="shopping-item__required-for__tag__label">
+            {{ getTitle(usedForItem) }}
+          </span>
       </a>
     </div>
   </div>
