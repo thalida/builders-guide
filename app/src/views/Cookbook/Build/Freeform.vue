@@ -103,6 +103,14 @@ export default {
 
 <style lang="scss" scoped>
 .freeform {
+  display: flex;
+  flex-flow: column nowrap;
+
+  .modal__main {
+    display: flex;
+    flex-flow: column nowrap;
+    height: 100%;
+  }
 
   &__content,
   &__header__inner,
@@ -113,11 +121,7 @@ export default {
   }
 
   &__header {
-    z-index: 2;
-    position: fixed;
     width: 100%;
-    top: 0;
-    left: 0;
     padding: 3.0em 0 0 0;
     background-image: linear-gradient(180deg, #FFFFFF 0%, rgba(255,255,255,0.00) 100%);
 
@@ -139,9 +143,9 @@ export default {
   }
 
   &__content {
-    margin: 70px auto 100px;
+    flex: 1;
+    overflow: auto;
     padding: 3em 0;
-    z-index: 1;
 
     p {
       font-size: 1.6em;
@@ -149,7 +153,7 @@ export default {
 
     textarea {
       width: 100%;
-      height: calc(100vh - 400px);
+      height: 80%;
       margin: 2em 0 0 0;
       padding: 1em;
       font: 1.6em 'Jost', Arial, sans-serif;
@@ -187,11 +191,7 @@ export default {
     flex-flow: row nowrap;
     align-items: center;
     justify-content: center;
-    z-index: 2;
-    position: fixed;
     width: 100%;
-    bottom: 0;
-    left: 0;
     text-align: center;
     background-image: linear-gradient(180deg, rgba(255,255,255,0.00) 0%, #FFFFFF 99%);
 

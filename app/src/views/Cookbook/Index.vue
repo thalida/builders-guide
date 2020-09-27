@@ -1,7 +1,6 @@
 <template>
   <div class="cookbook">
     <header class="cookbook__header">
-      <!-- <div class="cookbook__header__inner"> -->
         <div class="cookbook__header__cell">
           <router-link class="wordmark wordmark--minimal" to="/cookbook">bg</router-link>
         </div>
@@ -15,7 +14,6 @@
         <div class="cookbook__header__cell">
           <router-link class="link" to="/about">About</router-link>
         </div>
-      <!-- </div> -->
     </header>
 
     <router-view class="cookbook__content" v-if="show"></router-view>
@@ -107,12 +105,11 @@ export default {
 </script>
 
 <style lang="scss">
-$navbar-height: 6.4em;
 .cookbook {
   display: flex;
   flex-flow: column nowrap;
-  margin-bottom: $navbar-height;
   align-items: center;
+  height: 100%;
 
   &__header {
     position: relative;
@@ -136,17 +133,15 @@ $navbar-height: 6.4em;
     display: flex;
     flex-flow: column nowrap;
     position: relative;
-    width: 80%;
-    max-width: 600px;
+    width: 100%;
+    flex: 1;
+    overflow: auto;
   }
 
   &__navbar {
     display: flex;
-    position: fixed;
-    bottom: 0;
-    left: 0;
     width: 100%;
-    height: $navbar-height;
+    height: 6.4em;
     align-items: center;
     justify-content: center;
     background: #FAFAFA;
@@ -157,7 +152,6 @@ $navbar-height: 6.4em;
       max-width: 600px;
       height: 100%;
       align-items: center;
-      // justify-content: space-evenly;
       justify-content: space-between;
     }
   }

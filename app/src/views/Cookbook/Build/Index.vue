@@ -27,6 +27,19 @@
       </router-link>
     </div>
 
+    <div v-if="!hasSelectedItems" class="cookbook-build__empty">
+      <blob />
+      <p class="font-weight--medium">Search for something to create</p>
+      <p>or</p>
+      <a
+        class="link"
+        tabindex="0"
+        @click="selectRandomItem()"
+        @keyup.enter="selectRandomItem()">
+        Randomly Pick an Item
+      </a>
+    </div>
+
     <div v-if="hasSelectedItems" class="cookbook-build__content">
       <div
         class="cookbook-build__item-group"
@@ -48,28 +61,15 @@
           <cross-icon />
         </button>
       </div>
-
-      <div class="cookbook-build__content-actions">
-        <a
-          class="link"
-          tabindex="0"
-          @click="removeAllItems()"
-          @keyup.enter="removeAllItems()">
-          Clear All
-        </a>
-      </div>
     </div>
 
-    <div v-else class="cookbook-build__empty">
-      <blob />
-      <p class="font-weight--medium">Search for something to create</p>
-      <p>or</p>
+    <div v-if="hasSelectedItems" class="cookbook-build__actions">
       <a
         class="link"
         tabindex="0"
-        @click="selectRandomItem()"
-        @keyup.enter="selectRandomItem()">
-        Randomly Pick an Item
+        @click="removeAllItems()"
+        @keyup.enter="removeAllItems()">
+        Clear All
       </a>
     </div>
 
@@ -174,8 +174,6 @@ export default {
 .cookbook-build {
   display: flex;
   flex-flow: column nowrap;
-  width: 80%;
-  max-width: 600px;
 
   &--is-empty {
     min-height: calc(100vh - 6.4em - 6.4em);
@@ -193,9 +191,11 @@ export default {
 
   &__menu {
     display: flex;
-    margin-top: 3.0em;
     flex-flow: row nowrap;
     align-items: center;
+    margin: 3.0em auto 0;
+    width: 80%;
+    max-width: 600px;
 
     &__btn {
       flex: 0 0 4.0em;
@@ -223,11 +223,13 @@ export default {
   }
 
   &__content {
-    padding-bottom: 3.6em;
+    margin: 0 auto;
+    width: 100%;
+    flex: 1;
+    overflow: auto;
   }
 
   &__empty {
-    flex: 3 0 auto;
     align-self: center;
     justify-self: center;
 
@@ -236,9 +238,9 @@ export default {
     flex-flow: column nowrap;
     align-items: center;
     justify-content: center;
-    margin-top: 2.0em;
     height: 100%;
     width: 100%;
+    min-height: 400px;
     max-width: 34.0em;
     overflow: hidden;
     text-align: center;
@@ -260,8 +262,9 @@ export default {
   &__item-group {
     display: flex;
     position: relative;
-    width: 100%;
-    margin: 2.0em 0;
+    width: 80%;
+    max-width: 600px;
+    margin: 2.0em auto;
     flex-flow: row nowrap;
     justify-content: space-between;
 
@@ -318,16 +321,12 @@ export default {
     }
   }
 
-  &__content-actions {
-    position: fixed;
+  &__actions {
     display: flex;
     width: 100%;
     height: 3.4em;
-    left: 0;
-    bottom: 6.4em;
     justify-content: center;
     align-items: center;
-
     background: #F1F1F1;
   }
 }
