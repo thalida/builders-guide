@@ -79,6 +79,7 @@
 </template>
 
 <script>
+import debounce from 'lodash.debounce'
 import blob from '@/components/blob.vue'
 import searchIcon from '@/components/icons/search.vue'
 import plaintextInputIcon from '@/components/icons/plaintext-input.vue'
@@ -119,12 +120,18 @@ export default {
     selectedItems: {
       deep: true,
       handler (newVal) {
-        this.$store.commit('setSelectedItems', newVal)
-        this.$store.dispatch('setupRecipeTree')
+        this.debouncedUpdateSelected(newVal)
       }
     }
   },
+  created () {
+    this.debouncedUpdateSelected = debounce(this.updateSelectedItems, 300)
+  },
   methods: {
+    updateSelectedItems (items) {
+      this.$store.commit('setSelectedItems', items)
+      this.$store.dispatch('setupRecipeTree')
+    },
     getTitle (item) {
       return item.split('_').join(' ')
     },
