@@ -222,7 +222,7 @@ export default {
 
     .icon__chevron-right {
       transform: rotate(90deg);
-      transition: all 500ms;
+      transition: all 600ms;
     }
 
     &__toggle {
@@ -239,15 +239,14 @@ export default {
     }
 
     &__content {
+      transition: all 600ms cubic-bezier(0, 1, 0, 1);
       max-height: 0;
-      transition: all 500ms cubic-bezier(0, 1, 0, 1);
       overflow: hidden;
     }
 
     &--is-open {
       .cookbook-shopping__accordion__content {
-        transition: all 1s ease-in-out;
-        max-height: 9999px;
+        max-height: 99999px;
         overflow: auto;
       }
 

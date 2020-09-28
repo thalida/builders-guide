@@ -34,9 +34,9 @@
       <a
         class="link"
         tabindex="0"
-        @click="selectRandomItem()"
-        @keyup.enter="selectRandomItem()">
-        Randomly Pick an Item
+        @click="selectRandomItems()"
+        @keyup.enter="selectRandomItems()">
+        Randomly Select Items
       </a>
     </div>
 
@@ -152,11 +152,26 @@ export default {
     removeSelectedItem (i) {
       this.selectedItems.splice(i, 1)
     },
-    selectRandomItem () {
-      const len = this.items.length
+    selectRandomItems () {
+      const numItems = 1 + Math.floor(Math.random() * 5)
+      const items = this.items.splice(0)
+      const tmpSelectedItems = []
+
+      for (let i = 0; i < numItems; i += 1) {
+        const randItem = this.selectRandomItem(items)
+        tmpSelectedItems.push(randItem.item)
+        items.splice(randItem.index, 1)
+      }
+
+      this.$store.dispatch('setSelectedFromTmp', tmpSelectedItems)
+      // this.$store.dispatch('setSelectedFromTmp', this.items.splice(0))
+    },
+    selectRandomItem (items) {
+      const len = items.length
       const randIdx = Math.floor(Math.random() * Math.floor(len))
-      const item = this.items[randIdx]
-      this.$store.dispatch('setSelectedFromTmp', [item])
+      const item = items[randIdx]
+
+      return { index: randIdx, item }
     },
     goToSearch () {
       const q = this.searchTerm
