@@ -22,10 +22,10 @@
 -[x] Pufferfish Bucket
 -[x] Salmon Bucket
 -[x] Tropical Fish Bucket
--[] Wet Sponge (sponge)
--[] Enchanted Book
--[] Written Book
--[] Carved Pumpkin
+-[-] Wet Sponge (sponge)
+-[x] Enchanted Book
+-[x] Written Book
+-[x] Carved Pumpkin
 
 ## What to do?
 -[] Dead Bubble Coral Block

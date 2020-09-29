@@ -1,0 +1,10 @@
+{
+  "type": "cookbook:game_mechanic",
+  "name": "carved_pumpkin",
+  "ingredients": [
+    "minecraft:pumpkin"
+  ],
+  "result": {
+    "item": "minecraft:carved_pumpkin"
+  }
+}
