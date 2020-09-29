@@ -264,20 +264,20 @@ export default {
           for (let endIdx = startIdx + 1; endIdx <= nameParts.length; endIdx += 1) {
             const phrase = nameParts.slice(startIdx, endIdx).join('_')
             const phraseIdx = phraseIdxMap[phrase]
+            const distFromEnd = node.name.length - (node.name.indexOf(phrase) + phrase.length)
 
             if (typeof phraseIdx === 'undefined') {
               phraseIdxMap[phrase] = phraseCounts.length
               phraseCounts.push({
                 phrase,
+                distFromEnd,
                 count: 1,
-                foundAt: node.name.indexOf(phrase)
               })
               continue
             }
 
-            const newFoundAt = node.name.indexOf(phrase)
-            if (newFoundAt < phraseCounts[phraseIdx].foundAt) {
-              phraseCounts[phraseIdx].foundAt = newFoundAt
+            if (distFromEnd < phraseCounts[phraseIdx].distFromEnd) {
+              phraseCounts[phraseIdx].distFromEnd = distFromEnd
             }
 
             phraseCounts[phraseIdx].count += 1
@@ -289,8 +289,8 @@ export default {
         if (a.count > b.count) return -1
         if (a.count < b.count) return 1
 
-        if (a.foundAt > b.foundAt) return -1
-        if (a.foundAt < b.foundAt) return 1
+        if (a.distFromEnd < b.distFromEnd) return -1
+        if (a.distFromEnd > b.distFromEnd) return 1
 
         if (a.phrase.length > b.phrase.length) return -1
         if (a.phrase.length < b.phrase.length) return 1
