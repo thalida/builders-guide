@@ -7,25 +7,25 @@
 ## Missing recipes
 -[x] concrete (all)
 -[x] shulker (all)
--[] water bucket
--[] Enchanted Book
--[] Suspicious Stew
+-[x] water bucket
+-[x] Suspicious Stew
 -[] andesite (natural)
 -[] diorite (natural)
--[] terracotta
+-[] terracotta (natural)
 -[] leather (natural)
--[] Carved Pumpkin
--[] Cod Bucket
 -[] granite (natural)
--[] Lava Bucket
--[] Slime Ball (natural)
--[] Pufferfish Bucket
--[] Salmon Bucket
 -[] Sandstone (natural)
 -[] sponge (natural)
--[] Tropical Fish Bucket
+-[] Slime Ball (natural)
+-[x] Cod Bucket
+-[x] Lava Bucket
+-[x] Pufferfish Bucket
+-[x] Salmon Bucket
+-[x] Tropical Fish Bucket
 -[] Wet Sponge (sponge)
--[] Written Book ()
+-[] Enchanted Book
+-[] Written Book
+-[] Carved Pumpkin
 
 ## What to do?
 -[] Dead Bubble Coral Block
