@@ -1,0 +1,11 @@
+{
+  "type": "cookbook:game_mechanic",
+  "name": "orange_concrete",
+  "ingredients": [
+    "minecraft:orange_concrete_powder",
+    "minecraft:water"
+  ],
+  "result": {
+    "item": "minecraft:orange_concrete"
+  }
+}

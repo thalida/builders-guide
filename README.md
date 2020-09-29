@@ -1,11 +1,11 @@
 # builder's guide
 
 # Todo
--[] autogenerate recipe files
+-[x] autogenerate recipe files
 -[] auto choose recipe by shortest steps
 
 ## Missing recipes
--[] concrete (all)
+-[x] concrete (all)
 -[] shulker (all)
 -[] water bucket
 -[] Enchanted Book
@@ -75,3 +75,13 @@ Dirt: 1
 Flower Pot: 1
 Spruce Sapling: 1
 White Wool: 1
+
+
+10 wool
+10 concrete
+10 concrete powder
+10 stained glass
+10 glass
+10 terracotta
+10 shulker boxes
+10 beds

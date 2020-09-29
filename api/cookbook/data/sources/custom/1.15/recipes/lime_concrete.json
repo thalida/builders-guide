@@ -1,0 +1,11 @@
+{
+  "type": "cookbook:game_mechanic",
+  "name": "lime_concrete",
+  "ingredients": [
+    "minecraft:lime_concrete_powder",
+    "minecraft:water"
+  ],
+  "result": {
+    "item": "minecraft:lime_concrete"
+  }
+}
