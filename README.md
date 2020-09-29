@@ -9,14 +9,14 @@
 -[x] shulker (all)
 -[x] water bucket
 -[x] Suspicious Stew
--[] andesite (natural)
--[] diorite (natural)
--[] terracotta (natural)
--[] leather (natural)
--[] granite (natural)
--[] Sandstone (natural)
--[] sponge (natural)
--[] Slime Ball (natural)
+-[x] andesite (natural)
+-[x] diorite (natural)
+-[x] terracotta (natural)
+-[x] leather (natural)
+-[x] granite (natural)
+-[x] Sandstone (natural)
+-[-] sponge (natural)
+-[x] Slime Ball (natural)
 -[x] Cod Bucket
 -[x] Lava Bucket
 -[x] Pufferfish Bucket

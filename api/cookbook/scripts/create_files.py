@@ -164,13 +164,62 @@ def create_bucket_recipes():
             json.dump(item_json, write_file, indent=2)
 
 
+{
+  "type": "cookbook:naturally_occurring",
+  "name": "white_wool_from_sheep",
+  "ingredient": {
+    "item": "cookbook:self"
+  },
+  "result": {
+    "item": "minecraft:white_wool"
+  }
+}
+
+
+
+def create_natural_recipes():
+    tpl_json = None
+    with open(ITEM_FILE_PATH, 'r') as file:
+        tpl_contents = file.read()
+        tpl_json = json.loads(tpl_contents)
+
+    naturally_occurring = [
+        ['andesite', 'mining'],
+        ['diorite', 'mining'],
+        ['terracotta', 'mining'],
+        ['leather', 'animals'],
+        ['granite', 'mining'],
+        ['sandstone', 'mining'],
+        ['sponge', 'mining'],
+        ['slime_ball', 'slime'],
+    ]
+
+    for item_set in naturally_occurring:
+        item = f'{item_set[0]}'
+        source = f'{item_set[1]}'
+
+        item_json = tpl_json.copy()
+        item_json['type'] = 'cookbook:naturally_occurring'
+        item_json['name'] = f'{item}_from_{source}'
+        item_json['ingredients'] = [
+            'minecraft:self'
+        ]
+        item_json['result']['item'] = f'minecraft:{item}'
+
+        output_file = f'./outputs/recipes/{item}.json'
+        output_path = os.path.join(CURR_DIR, output_file)
+        with open(output_path, "w") as write_file:
+            json.dump(item_json, write_file, indent=2)
+
+
 def main():
     # create_concrete_recipes()
     # create_concrete_tag()
     # create_concrete_powder_tag()
     # create_terracotta_tag()
     # create_dyed_shulker_recipes()
-    create_bucket_recipes()
+    # create_bucket_recipes()
+    create_natural_recipes()
 
 if __name__ == '__main__':
     main()

@@ -1,0 +1,10 @@
+{
+  "type": "cookbook:naturally_occurring",
+  "name": "granite_from_mining",
+  "ingredients": [
+    "minecraft:self"
+  ],
+  "result": {
+    "item": "minecraft:granite"
+  }
+}
