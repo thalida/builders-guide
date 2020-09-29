@@ -1,5 +1,5 @@
 {
-  "type": "cookbook:recipe",
+  "type": "cookbook:game_mechanic",
   "name": "tropical_fish_bucket",
   "ingredients": [
     "minecraft:tropical_fish",

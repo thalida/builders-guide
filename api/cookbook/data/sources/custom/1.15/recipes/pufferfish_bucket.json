@@ -1,5 +1,5 @@
 {
-  "type": "cookbook:recipe",
+  "type": "cookbook:game_mechanic",
   "name": "pufferfish_bucket",
   "ingredients": [
     "minecraft:pufferfish",

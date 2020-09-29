@@ -150,7 +150,7 @@ def create_bucket_recipes():
         item = f'{item_name}_bucket'
 
         item_json = tpl_json.copy()
-        item_json['type'] = 'cookbook:recipe'
+        item_json['type'] = 'cookbook:game_mechanic'
         item_json['name'] = item
         item_json['ingredients'] = [
             f'minecraft:{item_name}',
