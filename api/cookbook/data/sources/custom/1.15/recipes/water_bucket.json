@@ -1,0 +1,11 @@
+{
+  "type": "cookbook:recipe",
+  "name": "water_bucket",
+  "ingredients": [
+    "minecraft:water",
+    "minecraft:bucket"
+  ],
+  "result": {
+    "item": "minecraft:water_bucket"
+  }
+}

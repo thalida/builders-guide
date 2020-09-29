@@ -131,13 +131,46 @@ def create_dyed_shulker_recipes():
         with open(output_path, "w") as write_file:
             json.dump(item_json, write_file, indent=2)
 
+def create_bucket_recipes():
+    tpl_json = None
+    with open(ITEM_FILE_PATH, 'r') as file:
+        tpl_contents = file.read()
+        tpl_json = json.loads(tpl_contents)
+
+    can_bucket = [
+        'cod',
+        'lava',
+        'pufferfish',
+        'salmon',
+        'tropical_fish',
+        'water'
+    ]
+
+    for item_name in can_bucket:
+        item = f'{item_name}_bucket'
+
+        item_json = tpl_json.copy()
+        item_json['type'] = 'cookbook:recipe'
+        item_json['name'] = item
+        item_json['ingredients'] = [
+            f'minecraft:{item_name}',
+            'minecraft:bucket'
+        ]
+        item_json['result']['item'] = f'minecraft:{item}'
+
+        output_file = f'./outputs/recipes/{item}.json'
+        output_path = os.path.join(CURR_DIR, output_file)
+        with open(output_path, "w") as write_file:
+            json.dump(item_json, write_file, indent=2)
+
 
 def main():
     # create_concrete_recipes()
     # create_concrete_tag()
     # create_concrete_powder_tag()
     # create_terracotta_tag()
-    create_dyed_shulker_recipes()
+    # create_dyed_shulker_recipes()
+    create_bucket_recipes()
 
 if __name__ == '__main__':
     main()
