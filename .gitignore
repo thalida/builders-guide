@@ -1,6 +1,8 @@
 .DS_Store
 node_modules
 /dist
+/elk
+__pycache__
 
 # local env files
 .env.local

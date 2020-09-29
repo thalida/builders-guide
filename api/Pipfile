@@ -10,6 +10,8 @@ pytest = "*"
 flask = "*"
 inflect = "*"
 flask-cors = "*"
+python-logstash = "*"
+python-logstash-async = "*"
 
 [requires]
 python_version = "3.7"

@@ -1,6 +1,7 @@
 """UTILS
 Generic-ish utils used across multiple parts of the cookbook app
 """
+import log
 import os
 import logging
 

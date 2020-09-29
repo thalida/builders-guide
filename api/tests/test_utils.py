@@ -1,3 +1,4 @@
+import log
 import os
 import pytest
 

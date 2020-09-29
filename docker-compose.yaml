@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+  app:
+    build: ./app
+    image: app
+    ports:
+      - 8080:80
+
+  api:
+    build: ./api
+    image: api
+    ports:
+      - 5000:5000
+    environment:
+      - BG_HOST
+    volumes:
+      - /Users/thalida/Repos/builders-guide/api:/api
+
+  elk:
+    image: sebp/elk:latest
+    restart: always
+    ports:
+      - 5959:5959
+      - 5601:5601
+      - 9200:9200
+      - 5044:5044
+    volumes:
+      - /Users/thalida/Repos/builders-guide/elk/elasticsearch:/var/lib/elasticsearch
+      - /Users/thalida/Repos/builders-guide/elk/archive:/archive
+      - /Users/thalida/Repos/builders-guide/elk/logstash:/etc/logstash/conf.d
