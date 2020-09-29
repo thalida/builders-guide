@@ -108,12 +108,36 @@ def create_terracotta_tag():
     with open(output_path, "w") as write_file:
         json.dump(tag_json, write_file, indent=2)
 
+def create_dyed_shulker_recipes():
+    tpl_json = None
+    with open(ITEM_FILE_PATH, 'r') as file:
+        tpl_contents = file.read()
+        tpl_json = json.loads(tpl_contents)
+
+    for color in COLORS:
+        item = f'{color}_shulker_box'
+
+        item_json = tpl_json.copy()
+        item_json['type'] = 'cookbook:recipe'
+        item_json['name'] = item
+        item_json['ingredients'] = [
+            'minecraft:shulker_box',
+            f'minecraft:{color}_dye'
+        ]
+        item_json['result']['item'] = f'minecraft:{item}'
+
+        output_file = f'./outputs/recipes/{item}.json'
+        output_path = os.path.join(CURR_DIR, output_file)
+        with open(output_path, "w") as write_file:
+            json.dump(item_json, write_file, indent=2)
+
 
 def main():
     # create_concrete_recipes()
     # create_concrete_tag()
     # create_concrete_powder_tag()
-    create_terracotta_tag()
+    # create_terracotta_tag()
+    create_dyed_shulker_recipes()
 
 if __name__ == '__main__':
     main()

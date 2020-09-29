@@ -1,0 +1,11 @@
+{
+  "type": "cookbook:recipe",
+  "name": "magenta_shulker_box",
+  "ingredients": [
+    "minecraft:shulker_box",
+    "minecraft:magenta_dye"
+  ],
+  "result": {
+    "item": "minecraft:magenta_shulker_box"
+  }
+}

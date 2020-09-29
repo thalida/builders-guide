@@ -6,7 +6,7 @@
 
 ## Missing recipes
 -[x] concrete (all)
--[] shulker (all)
+-[x] shulker (all)
 -[] water bucket
 -[] Enchanted Book
 -[] Suspicious Stew
