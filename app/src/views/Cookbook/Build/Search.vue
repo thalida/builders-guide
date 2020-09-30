@@ -15,52 +15,59 @@
     </header>
 
     <div class="search__scroll-container">
-      <div v-if="showItems">
-        <ol class="search__content" v-if="renderData.length > 0">
-          <li
-            class="search__content__row"
-            v-for="(item, index) in renderData"
-            :key="item.name">
-
-            <a
-              v-if="item.type === 'header'"
-              class="search__letter-row"
-              :class="[{ 'is-first': index===0 }]"
-              :id="item.letter">
-              <h2>{{ item.letter }}</h2>
-            </a>
-
-            <div
-              v-if="item.type === 'item'"
-              class="search__item-row">
+      <div
+        class="search__results"
+        v-if="showItems && visibleAlpha.length > 0">
+        <section
+          class="search__results__section"
+          v-for="letter in visibleAlpha"
+          :key="letter">
+          <a class="search__results__header" :id="letter">
+            <h2>{{ letter }}</h2>
+          </a>
+          <ol
+            class="search__results__items"
+            v-for="itemKey in renderData[letter].order"
+            :key="itemKey">
+            <li class="search__results__row">
               <label class="checkbox" tabindex="0">
-                <span class="search__item-row__input">
+                <span class="search__results__input">
                   <input
                     class="checkbox__input"
                     type="checkbox"
                     name="checkbox"
-                    :value="item.name"
+                    :value="renderData[letter].items[itemKey].name"
                     v-model="tmpSelectedItems">
                   <check-icon v-once class="checkbox__checkmark" />
                 </span>
-                <span class="search__item-row__details">
+                <span class="search__results__details">
                   <img
                     v-once
-                    class="search__item-row__icon"
-                    :src="getItemImage(item.name)" />
-                  <span v-once class="search__item-row__name">
-                    {{ getTitle(item.name) }}
+                    class="search__results__icon"
+                    :src="getItemImage(renderData[letter].items[itemKey].name)" />
+
+                  <span v-once class="search__results__name">
+                    {{ getItemLabel(renderData[letter].items[itemKey].renderKey) }}
+                    <span v-once v-if="renderData[letter].items[itemKey].alias">
+                      ({{ getItemLabel(renderData[letter].items[itemKey].name, false) }})
+                    </span>
                   </span>
                 </span>
               </label>
-            </div>
-          </li>
-        </ol>
-        <div class="search__content search__content--status" v-else>
-          No items found matching <span class="font-weight--medium">{{inputQuery}}</span>
-        </div>
+            </li>
+          </ol>
+        </section>
       </div>
-      <div class="search__content search__content--status" v-else>
+
+      <div
+        class="search__content search__content--status"
+        v-else-if="showItems && visibleAlpha.length === 0">
+        No items found matching <span class="font-weight--medium">{{inputQuery}}</span>
+      </div>
+
+      <div
+        class="search__content search__content--status"
+        v-else>
         Loading Minecraft {{this.version}} Items...
       </div>
     </div>
@@ -85,6 +92,7 @@
 </template>
 
 <script>
+import { ITEM_ALIASES, getItemImage, getItemLabel } from '@/helpers.js'
 import Modal from '@/components/Modal.vue'
 import searchIcon from '@/components/icons/search.vue'
 import checkIcon from '@/components/icons/check.vue'
@@ -102,6 +110,7 @@ export default {
   data () {
     const inputQuery = (typeof this.query === 'string' && this.query.length > 0) ? this.query : ''
     return {
+      alpha: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'],
       modalAriaLabel: 'Search Modal',
       inputQuery,
       renderDataByQuery: {},
@@ -139,6 +148,11 @@ export default {
     renderData () {
       return this.getRenderDataByQuery(this.formattedInputQuery)
     },
+    visibleAlpha () {
+      const alpha = Object.keys(this.renderData)
+      alpha.sort()
+      return alpha
+    },
   },
   mounted () {
     this.$store.dispatch('setupSearchStore')
@@ -147,22 +161,28 @@ export default {
     }, 0)
   },
   methods: {
+    getItemImage,
+    getItemLabel,
     getRenderDataByQuery (query) {
       // if (typeof this.renderDataByQuery[query] !== 'undefined') {
       //   return this.renderDataByQuery[query]
       // }
 
-      const renderData = []
-      const foundLetters = {}
+      const renderData = {}
 
       for (let i = 0, l = this.items.length; i < l; i += 1) {
         const name = this.items[i]
-        const letter = name[0]
+        const alias = ITEM_ALIASES[name]
+        const renderKey = alias || name
+        const letter = renderKey[0]
         const queryParts = query.split(/\s/)
-        let matching = true
 
+        let matching = true
         for (let j = 0; j < queryParts.length; j += 1) {
-          if (!name.includes(queryParts[j])) {
+          const nameMatches = name.includes(queryParts[j])
+          const aliasMatches = (alias) ? alias.includes(queryParts[j]) : false
+          const hasMatch = nameMatches || aliasMatches
+          if (!hasMatch) {
             matching = false
             break
           }
@@ -172,81 +192,26 @@ export default {
           continue
         }
 
-        if (typeof foundLetters[letter] === 'undefined') {
-          renderData.push({
-            id: letter,
-            letter,
-            type: 'header',
-            size: 35,
-          })
-          foundLetters[letter] = true
+        if (typeof renderData[letter] === 'undefined') {
+          renderData[letter] = {
+            order: [],
+            items: {},
+          }
         }
 
-        renderData.push({
-          id: name,
+        renderData[letter].order.push(renderKey)
+        renderData[letter].items[renderKey] = {
+          renderKey,
           name,
-          letter,
-          type: 'item',
-          size: 40,
-        })
+          alias,
+          letter
+        }
+
+        renderData[letter].order.sort()
       }
 
       // this.renderDataByQuery[query] = renderData
       return renderData
-    },
-    getItemImage (item) {
-      const images = require.context('../../../assets/minecraft/1.15/32x32/', false, /\.png$/)
-      try {
-        return images(`./${item}.png`)
-      } catch (error) {
-        return images('./air.png')
-      }
-    },
-    getTitle (item) {
-      return item.split('_').join(' ')
-    },
-    onScroll () {
-      if (this.navi.fromUserClick && !this.navi.arrivedAtLetter) {
-        return
-      }
-      this.navi.fromUserClick = false
-      this.navi.arrivedAtLetter = false
-    },
-    onLetterClick (letter) {
-      this.navi.selected = letter
-      this.navi.fromUserClick = true
-      this.navi.arrivedAtLetter = this.focusedLetterInView === letter
-    },
-    onVisibilityChanged (isVisible, e) {
-      const elem = e.target
-      const letter = elem.dataset.letter
-
-      if (isVisible || letter in this.navi.inViewport) {
-        let count = this.navi.inViewport[letter] || 0
-
-        if (isVisible) {
-          count += 1
-        } else {
-          count -= 1
-        }
-
-        if (count > 0) {
-          this.$set(this.navi.inViewport, letter, count)
-        } else {
-          this.$delete(this.navi.inViewport, letter)
-        }
-      }
-
-      if (this.navi.fromUserClick) {
-        this.navi.arrivedAtLetter = (
-          letter === this.navi.selected || letter in this.navi.inViewport
-        )
-        return
-      }
-
-      this.navi.selected = this.focusedLetterInView
-      this.navi.fromUserClick = false
-      this.navi.arrivedAtLetter = true
     },
     onInputChange () {
       if (this.inputQuery === this.query) {
@@ -277,7 +242,7 @@ export default {
   }
 
   .searchbox,
-  &__content__row,
+  &__results__section,
   &__action-bar__inner,
   &__content--status {
     width: 80%;
@@ -337,23 +302,27 @@ export default {
     }
   }
 
-  &__letter-row {
-    display: flex;
-    margin-top: 30px;
-    align-items: center;
-    font-size: 2.0em;
-    color: #E6CE51;
-    text-transform: uppercase;
+  &__results {
+    &__section {}
 
-    &.is-first {
-      margin-top: 0;
+    &__header {
+      display: flex;
+      margin-top: 30px;
+      align-items: center;
+      font-size: 2.0em;
+      color: #E6CE51;
+      text-transform: uppercase;
+
+      &.is-first {
+        margin-top: 0;
+      }
     }
-  }
 
-  &__item-row {
-    display: flex;
-    margin: 1.0em 0;
-    align-items: center;
+    &__row {
+      display: flex;
+      margin: 1.0em 0;
+      align-items: center;
+    }
 
     &__input {
       margin-right: 1em;

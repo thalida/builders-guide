@@ -55,8 +55,18 @@
           class="cookbook-build__item-group__icon"
           :src="getItemImage(item.key)" />
         <div class="cookbook-build__item-group__text">
-          <span v-once class="item-title">{{getTitle(item.key)}}</span>
-          <a v-once class="link" :href="`https://minecraft.gamepedia.com/${item.name}`" target="_blank">Minecraft Wiki</a>
+          <span
+            v-once
+            class="item-title">
+            {{ getItemLabel(item) }}
+          </span>
+          <a
+            v-once
+            class="link"
+            :href="`https://minecraft.gamepedia.com/${item.name}`"
+            target="_blank">
+            Minecraft Wiki
+          </a>
         </div>
         <button
           class="cookbook-build__item-group__remove-btn"
@@ -83,6 +93,7 @@
 
 <script>
 import debounce from 'lodash.debounce'
+import { getItemImage, getItemLabel } from '@/helpers.js'
 import blob from '@/components/blob.vue'
 import searchIcon from '@/components/icons/search.vue'
 import plaintextInputIcon from '@/components/icons/plaintext-input.vue'
@@ -131,20 +142,11 @@ export default {
     this.debouncedUpdateSelected = debounce(this.updateSelectedItems, 300)
   },
   methods: {
+    getItemImage,
+    getItemLabel,
     updateSelectedItems (items) {
       this.$store.commit('setSelectedItems', items)
       this.$store.dispatch('setupRecipeTree')
-    },
-    getTitle (item) {
-      return item.split('_').join(' ')
-    },
-    getItemImage (item) {
-      const images = require.context('../../../assets/minecraft/1.15/32x32/', false, /\.png$/)
-      try {
-        return images(`./${item}.png`)
-      } catch (error) {
-        return images('./air.png')
-      }
     },
     removeAllItems () {
       this.selectedItems.splice(0, this.selectedItems.length)

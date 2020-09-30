@@ -16,7 +16,7 @@
       <!-- Loop over all nodes in the level -->
       <div
         v-for="(formattedNode, index) in formatNodes(level, nodes)"
-        :key="formattedNode.key"
+        :key="formattedNode.renderKey"
         class="recipe-tree__node"
         :class="[{
           'recipe-tree__node--is-selected': formattedNode.node.selected,
@@ -62,6 +62,7 @@
   </div> <!-- End Tree -->
 </template>
 <script>
+import { getItemImage, getItemLabel } from '@/helpers.js'
 import chatAlertIcon from '@/components/icons/chat-alert.vue'
 import ContentLooper from '@/components/ContentLooper.vue'
 
@@ -83,6 +84,8 @@ export default {
     this.treeByLevels.push(this.tree)
   },
   methods: {
+    getItemImage,
+    getItemLabel,
     formatNodes (level, nodes) {
       const formattedNodes = []
       const isOptional = this.getIsOptional(level)
@@ -91,7 +94,7 @@ export default {
         const node = nodes[i]
         const isOptionGroup = Array.isArray(node)
         const numNestedNodes = this.getNextLevel(node).length
-        const label = this.getLabel(node)
+        const label = this.getItemLabel(node)
         let requirementsLabel = null
 
         if (numNestedNodes > 0) {
@@ -114,7 +117,7 @@ export default {
         }
 
         formattedNodes.push({
-          key: `${level}-${i}-${label}`,
+          renderKey: `${level}-${i}-${label}`,
           isStatic: !isOptional && numNestedNodes === 0,
           isOpen: this.visiblePath[level] === i,
           isOptionGroup,
@@ -233,107 +236,6 @@ export default {
       }
 
       return level
-    },
-
-    getLabel (nodes) {
-      if (!Array.isArray(nodes)) {
-        if (typeof nodes === 'object' && nodes !== null) {
-          return nodes.name.split('_').join(' ')
-        } else {
-          return null
-        }
-      }
-
-      const numNodes = nodes.length
-      const phraseIdxMap = {}
-      const phraseCounts = []
-
-      for (let i = 0; i < numNodes; i += 1) {
-        const node = nodes[i]
-
-        if (
-          typeof node !== 'object' ||
-          node === null ||
-          typeof node.name === 'undefined'
-        ) {
-          continue
-        }
-
-        const nameParts = node.name.split('_')
-        for (let startIdx = 0; startIdx < nameParts.length; startIdx += 1) {
-          for (let endIdx = startIdx + 1; endIdx <= nameParts.length; endIdx += 1) {
-            const phrase = nameParts.slice(startIdx, endIdx).join('_')
-            const phraseIdx = phraseIdxMap[phrase]
-            const distFromEnd = node.name.length - (node.name.indexOf(phrase) + phrase.length)
-
-            if (typeof phraseIdx === 'undefined') {
-              phraseIdxMap[phrase] = phraseCounts.length
-              phraseCounts.push({
-                phrase,
-                distFromEnd,
-                count: 1,
-              })
-              continue
-            }
-
-            if (distFromEnd < phraseCounts[phraseIdx].distFromEnd) {
-              phraseCounts[phraseIdx].distFromEnd = distFromEnd
-            }
-
-            phraseCounts[phraseIdx].count += 1
-          }
-        }
-      }
-
-      phraseCounts.sort((a, b) => {
-        if (a.count > b.count) return -1
-        if (a.count < b.count) return 1
-
-        if (a.distFromEnd < b.distFromEnd) return -1
-        if (a.distFromEnd > b.distFromEnd) return 1
-
-        if (a.phrase.length > b.phrase.length) return -1
-        if (a.phrase.length < b.phrase.length) return 1
-
-        if (a.phrase > b.phrase) return 1
-        if (a.phrase < b.phrase) return -1
-      })
-
-      let describedNodes = 0
-      const foundNames = []
-      for (let si = 0; si < phraseCounts.length; si += 1) {
-        const phraseCount = phraseCounts[si]
-
-        foundNames.push(phraseCount.phrase.split('_').join(' '))
-        describedNodes += phraseCount.count
-
-        if (describedNodes >= numNodes) {
-          break
-        }
-      }
-
-      return foundNames.join(' / ')
-    },
-
-    getItemImage (node, attempt) {
-      attempt = attempt || 1
-      const maxAttempts = 2
-      const images = require.context('../assets/minecraft/1.15/32x32/', false, /\.png$/)
-      try {
-        let image = null
-        if (attempt === 1) {
-          image = node.name
-        } else {
-          image = node.result_name
-        }
-        return images(`./${image}.png`)
-      } catch (error) {
-        if (attempt < maxAttempts) {
-          return this.getItemImage(node, attempt + 1)
-        }
-
-        return images('./air.png')
-      }
     },
   }
 }

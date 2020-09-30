@@ -31,14 +31,14 @@
 -[] Dead Bubble Coral Block
 
 ## Alias
--[] Iron pressure plate (Heavy weighted pressure plate)
--[] gold pressure plate (Light weighted pressure plate)
--[] book & quill (writeable blook)
+-[x] Iron pressure plate (Heavy weighted pressure plate)
+-[x] gold pressure plate (Light weighted pressure plate)
+-[x] book & quill (writeable blook)
 
 ## Hide
--[] Chipped Anvil
--[] Filled Map
--[] Petrified Oak Slab
+-[x] Chipped Anvil
+-[x] Filled Map
+-[x] Petrified Oak Slab
 
 # Don't Look
 https://www.youtube.com/watch?v=2sCEsghQI6w

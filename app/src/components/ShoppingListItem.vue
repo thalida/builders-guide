@@ -19,7 +19,9 @@
           :src="getItemImage(itemName)" />
 
         <div class="shopping-item__row__text">
-          <span class="shopping-item__row__label">{{getTitle(itemName)}}</span>
+          <span class="shopping-item__row__label">
+            {{ getItemLabel(itemName) }}
+          </span>
           <a
             class="link"
             :href="`https://minecraft.gamepedia.com/${itemName}`"
@@ -68,7 +70,7 @@
             class="shopping-item__required-for__tag__icon"
             :src="getItemImage(usedForItem)" />
           <span class="shopping-item__required-for__tag__label">
-            {{ getTitle(usedForItem) }}
+            {{ getItemLabel(usedForItem) }}
           </span>
       </a>
     </div>
@@ -77,6 +79,7 @@
 
 <script>
 import debounce from 'lodash.debounce'
+import { getItemImage, getItemLabel } from '@/helpers.js'
 import checkIcon from '@/components/icons/check.vue'
 
 export default {
@@ -177,22 +180,13 @@ export default {
     this.debouncedUpdateList = debounce(this.updateShoppingList, 300)
   },
   methods: {
+    getItemImage,
+    getItemLabel,
     updateSelectedItems (items) {
       this.$store.dispatch('updateSelectedItems', items)
     },
     updateShoppingList (items) {
       this.$store.dispatch('updateShoppingList', items)
-    },
-    getTitle (item) {
-      return item.split('_').join(' ')
-    },
-    getItemImage (item) {
-      const images = require.context('../assets/minecraft/1.15/32x32/', false, /\.png$/)
-      try {
-        return images(`./${item}.png`)
-      } catch (error) {
-        return images('./air.png')
-      }
     },
     onCheckboxChange (e) {
       const isChecked = e.target.checked

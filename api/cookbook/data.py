@@ -119,7 +119,10 @@ def genertate_all_items(version):
                 "handheld",
                 "handheld_rod",
                 "end_portal_frame",
-                "broken_elytra"
+                "broken_elytra",
+                "chipped_anvil",
+                "filled_map",
+                "petrified_oak_slab"
             ]:
                 continue
 

@@ -41,6 +41,7 @@
 
 <script>
 import chevronRightIcon from '@/components/icons/chevron-right.vue'
+import { getItemImage } from '@/helpers.js'
 
 // @ is an alias to /src
 export default {
@@ -82,6 +83,7 @@ export default {
       .then(this.setupRenderItems)
   },
   methods: {
+    getItemImage,
     selectRandomItem (arr) {
       const len = arr.length
       const randIdx = Math.floor(Math.random() * Math.floor(len))
@@ -97,14 +99,6 @@ export default {
         const randItem = this.selectRandomItem(itemsCopy)
         this.renderItems.push(randItem.item)
         itemsCopy.splice(randItem.index, 1)
-      }
-    },
-    getItemImage (item) {
-      const images = require.context('../../assets/minecraft/1.15/128x128/', false, /\.png$/)
-      try {
-        return images(`./${item}.png`)
-      } catch (error) {
-        return images('./air.png')
       }
     },
   }
