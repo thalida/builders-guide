@@ -28,7 +28,7 @@
 -[x] Carved Pumpkin
 
 ## What to do?
--[] Dead Bubble Coral Block
+-[-] Dead Bubble Coral Block
 
 ## Alias
 -[x] Iron pressure plate (Heavy weighted pressure plate)
