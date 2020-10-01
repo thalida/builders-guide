@@ -195,7 +195,7 @@ def api_recipe_tree(version):
             version, force_create=app.debug
         )
 
-        recipe_tree = cookbook.calculator.create_recipe_tree(
+        recipe_tree, _ = cookbook.calculator.create_recipe_tree(
             requested_items,
             all_recipes=all_crafting_data["recipes"],
             all_tags=all_crafting_data["tags"],

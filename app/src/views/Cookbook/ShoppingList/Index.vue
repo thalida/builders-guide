@@ -136,7 +136,9 @@ export default {
         next.push(itemName)
       }
 
-      next.sort()
+      next.sort((a, b) => {
+        return this.shoppingList[b].amount_required - this.shoppingList[a].amount_required
+      })
 
       return next
     },

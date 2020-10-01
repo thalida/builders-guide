@@ -156,7 +156,7 @@ export default {
     },
     selectRandomItems () {
       const numItems = 1 + Math.floor(Math.random() * 5)
-      const items = this.items.splice(0)
+      const items = this.items.slice(0)
       const tmpSelectedItems = []
 
       for (let i = 0; i < numItems; i += 1) {
@@ -165,8 +165,8 @@ export default {
         items.splice(randItem.index, 1)
       }
 
-      this.$store.dispatch('setSelectedFromTmp', tmpSelectedItems)
-      // this.$store.dispatch('setSelectedFromTmp', this.items.splice(0))
+      // this.$store.dispatch('setSelectedFromTmp', tmpSelectedItems)
+      this.$store.dispatch('setSelectedFromTmp', this.items.slice(0))
     },
     selectRandomItem (items) {
       const len = items.length

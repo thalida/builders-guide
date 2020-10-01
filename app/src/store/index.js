@@ -1,14 +1,14 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import VuexPersistence from 'vuex-persist'
+// import VuexPersistence from 'vuex-persist'
 import axios from 'axios'
 
 Vue.use(Vuex)
 
-const vuexLocal = new VuexPersistence({
-  key: 'bg-vuex',
-  storage: window.localStorage
-})
+// const vuexLocal = new VuexPersistence({
+//   key: 'bg-vuex',
+//   storage: window.localStorage
+// })
 
 const supportedVersions = [
   '1.15'
@@ -49,7 +49,7 @@ const buildRecipePath = (recipeTree, isGroup) => {
 }
 
 export default new Vuex.Store({
-  plugins: [vuexLocal.plugin],
+  // plugins: [vuexLocal.plugin],
   state: {
     gameData: {},
     selectedVersion: supportedVersions[0],
