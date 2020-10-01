@@ -277,10 +277,6 @@ def create_recipe_tree(
 
     tree = []
     stats = {
-        'min_ingredients': None,
-        'max_ingredients': None,
-        'found_ingredients': 0,
-
         'most_efficient': None,
         'min_items_required': 0,
     }
@@ -307,7 +303,6 @@ def create_recipe_tree(
         # A list of items is an option group, it means all of these items can
         # be used interchangeably.
         if isinstance(item, list):
-            stats["found_ingredients"] += 1
 
             # We need to ge the recipe tree for all of these item(s)
             response, res_stats = create_recipe_tree(
@@ -326,19 +321,6 @@ def create_recipe_tree(
 
             stats["min_items_required"] += amount_required
 
-            if (
-                stats["min_ingredients"] is None or
-                res_stats["min_ingredients"] < stats["min_ingredients"]
-            ):
-                stats["min_ingredients"] = res_stats["min_ingredients"]
-                selected_node_idx = len(tree)
-
-            if (
-                stats["max_ingredients"] is None or
-                res_stats["max_ingredients"] > stats["max_ingredients"]
-            ):
-                stats["max_ingredients"] = res_stats["max_ingredients"]
-
             # Add this response to our top_level tree
             tree.append(response)
 
@@ -350,9 +332,6 @@ def create_recipe_tree(
         # Skip any ingredients which are self placeholders
         if (item_name == 'self'):
             continue
-
-        if not is_group:
-            stats["found_ingredients"] += 1
 
         # Wicked, let's setup our tree node structure.
         node = {
@@ -366,13 +345,11 @@ def create_recipe_tree(
             "stats": {
                 "max_efficiency": None,
                 "min_items_required": None,
-
-                "min_ingredients": None,
-                "max_ingredients": None,
             }
         }
 
-        stats["min_items_required"] += amount_required
+        if not is_group:
+            stats["min_items_required"] += amount_required
 
         # If we're here we've found a circular reference. That means the current
         # item has already been found earlier in the recipe tree. We should
@@ -381,9 +358,6 @@ def create_recipe_tree(
         if item_name in ancestors:
             node["stats"]["max_efficiency"] = 0
             node["stats"]["min_items_required"] = 0
-
-            node["stats"]["min_ingredients"] = 0
-            node["stats"]["max_ingredients"] = 0
 
             if (
                 stats["most_efficient"] is None or
@@ -413,19 +387,12 @@ def create_recipe_tree(
             node["stats"]["max_efficiency"] = 0
             node["stats"]["min_items_required"] = 0
 
-            node["stats"]["min_ingredients"] = 0
-            node["stats"]["max_ingredients"] = 0
-
             if (
                 stats["most_efficient"] is None or
                 stats["most_efficient"] < 0
             ):
                 stats["most_efficient"] = 0
                 selected_node_idx = len(tree)
-
-            # if stats["min_ingredients"] is None:
-            #     stats["min_ingredients"] = node["stats"]["min_ingredients"]
-            #     selected_node_idx = len(tree)
 
             tree.append(node)
             continue
@@ -505,18 +472,6 @@ def create_recipe_tree(
                 node["stats"]["min_items_required"] = res_stats["min_items_required"]
                 selected_recipe_idx = len(recipe_tree)
 
-            if (
-                node["stats"]["min_ingredients"] is None or
-                res_stats["min_ingredients"] < node["stats"]["min_ingredients"]
-            ):
-                node["stats"]["min_ingredients"] = res_stats["min_ingredients"]
-
-            if (
-                node["stats"]["max_ingredients"] is None or
-                res_stats["max_ingredients"] > node["stats"]["max_ingredients"]
-            ):
-                node["stats"]["max_ingredients"] = res_stats["max_ingredients"]
-
             recipe_tree.append(recipe_node)
 
         if selected_recipe_idx is not None:
@@ -524,12 +479,6 @@ def create_recipe_tree(
 
         if node["stats"]["max_efficiency"] is None:
             node["stats"]["max_efficiency"] = 0
-
-        if node["stats"]["min_ingredients"] is None:
-            node["stats"]["min_ingredients"] = 0
-
-        if node["stats"]["max_ingredients"] is None:
-            node["stats"]["max_ingredients"] = 0
 
         if not is_group:
             stats["min_items_required"] += node["stats"]["min_items_required"]
@@ -544,18 +493,6 @@ def create_recipe_tree(
             if is_group:
                 stats["min_items_required"] = node["stats"]["min_items_required"]
 
-        if (
-            stats["min_ingredients"] is None or
-            node["stats"]["min_ingredients"] < stats["min_ingredients"]
-        ):
-            stats["min_ingredients"] = node["stats"]["min_ingredients"]
-
-        if (
-            stats["max_ingredients"] is None or
-            stats["max_ingredients"] > node["stats"]["max_ingredients"]
-        ):
-            stats["max_ingredients"] = node["stats"]["max_ingredients"]
-
         node["num_recipes"] = len(recipe_tree)
         node["recipes"] = recipe_tree
         tree.append(node)
@@ -565,15 +502,6 @@ def create_recipe_tree(
 
     if stats["most_efficient"] is None:
         stats["most_efficient"] = 0
-
-    if stats["min_ingredients"] is None:
-        stats["min_ingredients"] = 0
-
-    if stats["max_ingredients"] is None:
-        stats["max_ingredients"] = 0
-
-    stats["min_ingredients"] += stats["found_ingredients"]
-    stats["max_ingredients"] += stats["found_ingredients"]
 
     # Wow, we got a tree -- perfect!
     return tree, stats
