@@ -5,6 +5,7 @@
     "item": "minecraft:lapis_ore"
   },
   "result": {
-    "item": "minecraft:lapis_lazuli"
+    "item": "minecraft:lapis_lazuli",
+    "count": 4
   }
 }

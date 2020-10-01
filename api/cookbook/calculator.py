@@ -230,19 +230,6 @@ def format_recipe_ingredients(
     # :D
     return formatted_ingredients
 
-
-def is_recipe_error(result):
-    """
-
-    Arguments:
-        result {dict} -- create_recipe_tree response
-
-    Returns:
-        bool -- Is the recipe tree result an error response?\
-    """
-    return isinstance(result, dict) and result.get("error")
-
-
 def create_recipe_tree(
     items,
     all_recipes,
@@ -277,7 +264,8 @@ def create_recipe_tree(
 
     tree = []
     stats = {
-        'most_efficient': None,
+        'node_is_circular': False,
+        'most_efficient_node': None,
         'min_items_required': 0,
     }
     selected_node_idx = None
@@ -286,6 +274,11 @@ def create_recipe_tree(
         if isinstance(item, dict):
             amount_required = item.get("amount_required", 1)
         else:
+            amount_required = 1
+
+        try:
+            amount_required = int(amount_required)
+        except:
             amount_required = 1
 
         # correctly format the item
@@ -303,7 +296,6 @@ def create_recipe_tree(
         # A list of items is an option group, it means all of these items can
         # be used interchangeably.
         if isinstance(item, list):
-
             # We need to ge the recipe tree for all of these item(s)
             response, res_stats = create_recipe_tree(
                 item,
@@ -313,11 +305,6 @@ def create_recipe_tree(
                 ancestors=ancestors,
                 is_group=True,
             )
-
-            # Oh, dear -- did we get an error? I only throw errors if there's
-            # a circular ref so let's pass it back up the tree!
-            if is_recipe_error(response):
-                return response, res_stats
 
             stats["min_items_required"] += amount_required
 
@@ -330,7 +317,7 @@ def create_recipe_tree(
         item_name = item["name"]
 
         # Skip any ingredients which are self placeholders
-        if (item_name == 'self'):
+        if item_name == 'self':
             continue
 
         # Wicked, let's setup our tree node structure.
@@ -343,61 +330,40 @@ def create_recipe_tree(
             "recipes": [],
             "selected": not is_group,
             "stats": {
-                "max_efficiency": None,
-                "min_items_required": None,
+                "max_recipe_efficiency": None,
+                "min_recipe_ingredients": None,
             }
         }
 
         if not is_group:
             stats["min_items_required"] += amount_required
 
-        # If we're here we've found a circular reference. That means the current
-        # item has already been found earlier in the recipe tree. We should
-        # quit because, that means our ancestor requires itself in order to
-        # be crafted. Which is just a very awk state to be in.
-        if item_name in ancestors:
-            node["stats"]["max_efficiency"] = 0
-            node["stats"]["min_items_required"] = 0
-
-            if (
-                stats["most_efficient"] is None or
-                stats["most_efficient"] < 0
-            ):
-                stats["most_efficient"] = 0
-                selected_node_idx = len(tree)
-
-            tree.append(node)
-            continue
-            # return {
-            #     "error": True,
-            #     "data": item_name
-            # }, stats
-
-        # Create a new copy of the ancestors for this branch of the tree
-        new_ancestors = ancestors.copy()
-
-        # Add our item to the branch, we'll use this later!
-        new_ancestors.append(item_name)
-
         # Get all of the recipes that create this item
         found_recipes = supported_recipes.get(item_name)
 
-        # Oh! This item does not need to be crafted, let's continue
-        if found_recipes is None:
-            node["stats"]["max_efficiency"] = 0
-            node["stats"]["min_items_required"] = 0
+        # If TRUE we've found a circular reference. That means the current
+        # item has already been found earlier in the recipe tree.
+        is_circular_ref = item_name in ancestors
+
+        # If FALSE this item does not need to be crafted
+        has_recipes = found_recipes is not None
+
+        if is_circular_ref or not has_recipes:
+            node["stats"]["max_recipe_efficiency"] = 0
+            node["stats"]["min_recipe_ingredients"] = 0
 
             if (
-                stats["most_efficient"] is None or
-                stats["most_efficient"] < 0
+                stats["most_efficient_node"] is None or
+                stats["most_efficient_node"] < 0
             ):
-                stats["most_efficient"] = 0
+                stats["most_efficient_node"] = 0
                 selected_node_idx = len(tree)
+
+            if is_circular_ref:
+                stats["node_is_circular"] = True
 
             tree.append(node)
             continue
-
-        recipe_tree = []
 
         custom_recipes = []
         game_recipes = []
@@ -411,10 +377,18 @@ def create_recipe_tree(
         game_recipes.sort()
         sorted_recipes = custom_recipes + game_recipes
 
+        # Create a new copy of the ancestors for this branch of the tree
+        new_ancestors = ancestors.copy()
+        # Add our item to the branch, we'll use this later!
+        new_ancestors.append(item_name)
+
+        recipe_tree = []
+        selected_recipe_idx = None
+        found_circular_node = False
+
         # For every recipe we want to get it's ingredients, then generate another
         # branch of the recipe tree for how to craft those items -- sounds like
         # a lot and it is! Let's get started...
-        selected_recipe_idx = None
         for (recipe_index, recipe_name) in enumerate(sorted_recipes):
             recipe = all_recipes[recipe_name]
 
@@ -434,7 +408,7 @@ def create_recipe_tree(
             # Create our recipe tree for each ingredient -- this logic has
             # it's own function instead of calling recipe_tree again because
             # ingredients can be a list of arrays of any depth. Yep.
-            response, res_stats = create_recipe_tree(
+            response, recipe_stats = create_recipe_tree(
                 ingredients,
                 all_recipes=all_recipes,
                 all_tags=all_tags,
@@ -442,12 +416,13 @@ def create_recipe_tree(
                 ancestors=new_ancestors,
             )
 
-            # Oh, dear -- did we get an error? I only throw errors if there's
-            # a circular ref so let's handle that!
-            if is_recipe_error(response):
-                continue
+            if recipe_stats["node_is_circular"]:
+                stats["node_is_circular"] = True
 
-            recipe_efficiency = amount_created - res_stats["min_items_required"] + res_stats['most_efficient']
+            recipe_efficiency = amount_created - recipe_stats["min_items_required"] + recipe_stats['most_efficient_node']
+
+            if recipe_stats["node_is_circular"]:
+                recipe_efficiency = -2 * abs(recipe_efficiency)
 
             # Wow wow, we've finally made it! We have a final recipe node for
             # a given item!
@@ -461,15 +436,15 @@ def create_recipe_tree(
                 "ingredients": response,
                 "efficiency": recipe_efficiency,
                 "selected": False,
-                "recipe_stats": res_stats,
+                "recipe_stats": recipe_stats,
             }
 
             if (
-                node["stats"]["max_efficiency"] is None or
-                recipe_efficiency > node["stats"]["max_efficiency"]
+                node["stats"]["max_recipe_efficiency"] is None or
+                recipe_efficiency > node["stats"]["max_recipe_efficiency"]
             ):
-                node["stats"]["max_efficiency"] = recipe_efficiency
-                node["stats"]["min_items_required"] = res_stats["min_items_required"]
+                node["stats"]["max_recipe_efficiency"] = recipe_efficiency
+                node["stats"]["min_recipe_ingredients"] = recipe_stats["min_items_required"]
                 selected_recipe_idx = len(recipe_tree)
 
             recipe_tree.append(recipe_node)
@@ -477,21 +452,24 @@ def create_recipe_tree(
         if selected_recipe_idx is not None:
             recipe_tree[selected_recipe_idx]["selected"] = True
 
-        if node["stats"]["max_efficiency"] is None:
-            node["stats"]["max_efficiency"] = 0
+        if node["stats"]["max_recipe_efficiency"] is None:
+            node["stats"]["max_recipe_efficiency"] = 0
+
+        if node["stats"]["min_recipe_ingredients"] is None:
+            node["stats"]["min_recipe_ingredients"] = 0
 
         if not is_group:
-            stats["min_items_required"] += node["stats"]["min_items_required"]
+            stats["min_items_required"] += node["stats"]["min_recipe_ingredients"]
 
         if (
-            stats["most_efficient"] is None or
-            node["stats"]["max_efficiency"] > stats["most_efficient"]
+            stats["most_efficient_node"] is None or
+            node["stats"]["max_recipe_efficiency"] > stats["most_efficient_node"]
         ):
-            stats["most_efficient"] = node["stats"]["max_efficiency"]
+            stats["most_efficient_node"] = node["stats"]["max_recipe_efficiency"]
             selected_node_idx = len(tree)
 
             if is_group:
-                stats["min_items_required"] = node["stats"]["min_items_required"]
+                stats["min_items_required"] = node["stats"]["min_recipe_ingredients"]
 
         node["num_recipes"] = len(recipe_tree)
         node["recipes"] = recipe_tree
@@ -500,8 +478,8 @@ def create_recipe_tree(
     if is_group:
         tree[selected_node_idx]["selected"] = True
 
-    if stats["most_efficient"] is None:
-        stats["most_efficient"] = 0
+    if stats["most_efficient_node"] is None:
+        stats["most_efficient_node"] = 0
 
     # Wow, we got a tree -- perfect!
     return tree, stats

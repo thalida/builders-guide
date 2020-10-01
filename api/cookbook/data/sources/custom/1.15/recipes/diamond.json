@@ -5,6 +5,7 @@
     "item": "minecraft:diamond_ore"
   },
   "result": {
-    "item": "minecraft:diamond"
+    "item": "minecraft:diamond",
+    "count": 1
   }
 }

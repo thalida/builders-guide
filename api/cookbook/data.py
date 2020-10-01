@@ -121,6 +121,7 @@ def genertate_all_items(version):
                 "end_portal_frame",
                 "broken_elytra",
                 "chipped_anvil",
+                "damaged_anvil",
                 "filled_map",
                 "petrified_oak_slab"
             ]:
