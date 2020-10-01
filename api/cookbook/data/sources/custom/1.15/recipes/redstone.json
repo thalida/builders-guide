@@ -5,6 +5,7 @@
     "item": "minecraft:redstone_ore"
   },
   "result": {
-    "item": "minecraft:redstone"
+    "item": "minecraft:redstone",
+    "count": 4
   }
 }
