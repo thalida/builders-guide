@@ -94,6 +94,9 @@ export default {
     selectedItems () {
       return this.$store.state.selectedItems
     },
+    hasShoppingList () {
+      return Object.keys(this.$store.state.shoppingList).length > 0
+    },
     hasSelectedItems () {
       return this.selectedItems.length > 0
     },
@@ -101,7 +104,14 @@ export default {
       return this.$store.state.requests.fetchRecipeTree.isLoading
     },
     isShoppingListLoading () {
-      return this.$store.state.requests.fetchShoppingList.isLoading
+      return (
+        (
+          this.$store.state.requests.fetchRecipeTree.isLoading &&
+          this.$store.state.requests.fetchShoppingList.isLoading
+        ) || (
+          this.hasSelectedItems && !this.hasShoppingList
+        )
+      )
     }
   }
 }
@@ -148,6 +158,8 @@ export default {
     align-items: center;
     justify-content: center;
     background: #FAFAFA;
+    box-shadow: 1.0em 0 1.0em #DBDCDD;
+    z-index: 1;
 
     &__inner {
       display: flex;

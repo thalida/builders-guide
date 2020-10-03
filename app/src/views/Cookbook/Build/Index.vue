@@ -91,7 +91,7 @@
         tabindex="0"
         @click="removeAllItems()"
         @keyup.enter="removeAllItems()">
-        Clear All
+        Remove all items
       </a>
     </div>
 
