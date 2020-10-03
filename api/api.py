@@ -15,6 +15,8 @@ import cookbook.calculator
 
 os.environ["TZ"] = "UTC"
 app = Flask(__name__)
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
+
 Compress(app)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
@@ -247,4 +249,4 @@ def api_shopping_list(version):
 
 
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port="5000")
+    app.run(debug=True, host="0.0.0.0", port="5000")

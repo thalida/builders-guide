@@ -306,6 +306,9 @@ def create_recipe_tree(
                 is_group=True,
             )
 
+            if res_stats["node_is_circular"]:
+                stats["node_is_circular"] = True
+
             stats["min_items_required"] += amount_required
 
             # Add this response to our top_level tree
@@ -416,12 +419,10 @@ def create_recipe_tree(
                 ancestors=new_ancestors,
             )
 
-            if recipe_stats["node_is_circular"]:
-                stats["node_is_circular"] = True
-
             recipe_efficiency = amount_created - recipe_stats["min_items_required"] + recipe_stats['most_efficient_node']
 
             if recipe_stats["node_is_circular"]:
+                stats["node_is_circular"] = True
                 recipe_efficiency = -2 * abs(recipe_efficiency)
 
             # Wow wow, we've finally made it! We have a final recipe node for

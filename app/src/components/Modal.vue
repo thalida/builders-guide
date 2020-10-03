@@ -63,7 +63,7 @@ export default {
   .body--with-modal & {
     display: flex;
     overflow: auto;
-    z-index: 1;
+    z-index: 9;
   }
 }
 </style>
