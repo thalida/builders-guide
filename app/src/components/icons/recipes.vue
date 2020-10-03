@@ -58,6 +58,7 @@
         animation-timing-function: ease;
         animation-iteration-count: infinite;
         animation-direction: alternate;
+        animation-delay: 300ms;
     }
 }
 </style>
