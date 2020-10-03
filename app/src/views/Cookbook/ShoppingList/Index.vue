@@ -37,7 +37,7 @@
         </a>
         <div class="cookbook-shopping__accordion__content">
           <p class="cookbook-shopping__accordion__description text--secondary">
-            The next set of items you’ll need to have for your build.
+            The next {{ nextIngredients.length }} items you’ll need to have for your build.
           </p>
           <shopping-list-item
             v-for="item in nextIngredients"
@@ -109,7 +109,15 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.state.requests.fetchShoppingList.isLoading
+      return (
+        (
+          this.$store.state.requests.fetchRecipeTree.isLoading &&
+          this.$store.state.requests.fetchShoppingList.isLoading
+        ) || (
+          this.numSelectedItems > 0 &&
+          Object.keys(this.shoppingList).length === 0
+        )
+      )
     },
     selectedItems () {
       return this.$store.state.selectedItems
@@ -128,7 +136,12 @@ export default {
     nextIngredients () {
       const next = []
       const list = Object.keys(this.shoppingList)
-      for (let i = 0, l = list.length; i < l; i += 1) {
+      const listLength = list.length
+      const targetLimit = 20
+      const minPages = 2
+      const limit = (Math.floor(listLength / targetLimit) >= minPages) ? targetLimit : listLength
+
+      for (let i = 0; i < listLength; i += 1) {
         const itemName = list[i]
         const item = this.shoppingList[itemName]
         if (this.meetsRequirements(item)) {
@@ -156,6 +169,8 @@ export default {
       next.sort((a, b) => {
         return this.shoppingList[b].amount_required - this.shoppingList[a].amount_required
       })
+
+      next.splice(limit, next.length)
 
       return next
     },

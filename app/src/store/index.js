@@ -19,7 +19,7 @@ const vuexLocal = new VuexPersistence({
       tmpSelectedItems: state.tmpSelectedItems,
       selectedBuildPaths: state.selectedBuildPaths,
       visibleBuildPath: state.visibleBuildPath,
-      shoppingList: state.shoppingList,
+      haveAlready: state.haveAlready,
     }
   }
 })
@@ -41,6 +41,7 @@ export default new Vuex.Store({
     selectedBuildPaths: [],
     visibleBuildPath: [],
     shoppingList: {},
+    haveAlready: {},
     requests: {
       fetchItems: {
         cancelToken: null,
@@ -99,6 +100,21 @@ export default new Vuex.Store({
     },
     setShoppingList (state, shoppingList) {
       state.shoppingList = shoppingList
+    },
+    setHaveAlready (state) {
+      const haveAlready = {}
+      const shoppingListItems = Object.keys(state.shoppingList)
+      const numItems = shoppingListItems.length
+
+      if (numItems > 0) {
+        for (let i = 0; i < numItems; i += 1) {
+          const itemName = shoppingListItems[i]
+          const item = state.shoppingList[itemName]
+          haveAlready[itemName] = item.have
+        }
+      }
+
+      state.haveAlready = haveAlready
     },
     setRequest (state, { requestName, cancelToken }) {
       const isLoading = cancelToken !== null
@@ -211,20 +227,10 @@ export default new Vuex.Store({
       return new Promise((resolve, reject) => {
         if (state.recipeTree.length === 0) {
           commit('setShoppingList', [])
+          commit('setHaveAlready')
           commit('setRequest', { requestName, cancelToken: null })
           resolve()
           return
-        }
-
-        const haveAlready = {}
-        const shoppingListItems = Object.keys(state.shoppingList)
-        const numItems = shoppingListItems.length
-        if (numItems > 0) {
-          for (let i = 0; i < numItems; i += 1) {
-            const itemName = shoppingListItems[i]
-            const item = state.shoppingList[itemName]
-            haveAlready[itemName] = item.have
-          }
         }
 
         const hostname = window.location.hostname
@@ -233,12 +239,13 @@ export default new Vuex.Store({
             `http://${hostname}:5000/api/${state.selectedVersion}/shopping_list`,
             {
               recipe_path: state.selectedBuildPaths,
-              have_already: haveAlready,
+              have_already: state.haveAlready,
             },
             { cancelToken: cancelToken.token }
           )
           .then(response => {
             commit('setShoppingList', response.data)
+            commit('setHaveAlready')
             commit('setRequest', { requestName, cancelToken: null })
             resolve()
           })
@@ -331,6 +338,7 @@ export default new Vuex.Store({
           }
         }
       }
+
       commit('setSelectedItems', newItems)
 
       if (fetchTree) {
@@ -347,6 +355,8 @@ export default new Vuex.Store({
     },
     updateShoppingList ({ commit, dispatch }, newList) {
       commit('setShoppingList', newList)
+      commit('setSelectedBuildPaths')
+      commit('setHaveAlready')
       return dispatch('fetchShoppingList')
     },
     updateVisibleBuildPath ({ commit }, newPath) {

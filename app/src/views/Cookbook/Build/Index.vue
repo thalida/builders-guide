@@ -38,6 +38,14 @@
         @keyup.enter="selectRandomItems()">
         Randomly Select Items
       </a>
+      <p>or</p>
+      <a
+        class="link"
+        tabindex="0"
+        @click="selectAllItems()"
+        @keyup.enter="selectAllItems()">
+        Break the site
+      </a>
     </div>
 
     <div v-if="hasSelectedItems" class="cookbook-build__content">
@@ -147,6 +155,9 @@ export default {
       const itemsCopy = this.selectedItems.slice(0)
       this.debouncedUpdateSelected(itemsCopy)
     },
+    selectAllItems () {
+      this.$store.dispatch('setSelectedFromTmp', this.items.slice(0))
+    },
     selectRandomItems () {
       const minItems = 3
       const maxItems = 7
@@ -161,7 +172,6 @@ export default {
       }
 
       this.$store.dispatch('setSelectedFromTmp', tmpSelectedItems)
-      // this.$store.dispatch('setSelectedFromTmp', this.items.slice(0))
     },
     selectRandomItem (items) {
       const len = items.length

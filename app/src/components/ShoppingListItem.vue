@@ -54,16 +54,18 @@
       <span
         class="shopping-item__required-for__label"
         v-if="item.amount_used_for.self > 0">
-        Also used in:
+        Some required for:
+       <!-- {{ item.amount_used_for.recipes }} / {{ item.amount_required }} required for: -->
       </span>
       <span
         class="shopping-item__required-for__label"
         v-else>
-        Required for:
+        All required for:
       </span>
       <a
         class="shopping-item__required-for__tag"
         v-for="(usedForItem, index) in usedForItems"
+        v-show="item.amount_used_for[usedForItem] > 0"
         :key="index"
         :href="`#${usedForItem}`">
           <img
