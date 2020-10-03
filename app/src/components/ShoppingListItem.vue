@@ -176,15 +176,11 @@ export default {
   },
   watch: {},
   created () {
-    this.debouncedUpdateItems = debounce(this.updateSelectedItems, 300)
     this.debouncedUpdateList = debounce(this.updateShoppingList, 300)
   },
   methods: {
     getItemImage,
     getItemLabel,
-    updateSelectedItems (items) {
-      this.$store.dispatch('updateSelectedItems', items)
-    },
     updateShoppingList (items) {
       this.$store.dispatch('updateShoppingList', items)
     },

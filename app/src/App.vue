@@ -1,6 +1,23 @@
 <template>
-  <router-view/>
+  <router-view v-if="show" />
 </template>
+
+<script>
+export default {
+  name: 'App',
+  data () {
+    return {
+      show: false
+    }
+  },
+  created () {
+    this.$store.dispatch('init')
+      .then(() => {
+        this.show = true
+      })
+  },
+}
+</script>
 
 <style lang="scss">
 // @import './assets/css/_variables';

@@ -2,14 +2,26 @@
   <div class="cookbook-shopping">
     <div class="cookbook-shopping__description">
       <p class="text text--primary">
-        The ingredients you’ll use for your build.
+        All ingredients required for your build.
       </p>
       <p class="text text--secondary">
-        (Don’t like an ingredient? Customize the chosen recipes and ingredients on the pervious screen.)
+        (Don’t like an ingredient?
+        <router-link to="/cookbook/recipes" class="link">
+        Customize the chosen recipes and ingredients
+        </router-link>
+        in the pervious step.)
       </p>
     </div>
 
-    <div class="cookbook-shopping__content">
+    <div v-if="isLoading"
+      class="cookbook-shopping__loading">
+      <shopping-list-icon class="loading" />
+      <p class="cookbook-shopping__loading__text">
+        Creating shopping list for {{ numSelectedItems }} items based on selected recipes and ingredients&hellip;
+      </p>
+    </div>
+
+    <div v-if="!isLoading" class="cookbook-shopping__content">
       <div
         class="cookbook-shopping__accordion"
         :class="[{
@@ -71,18 +83,20 @@
 </template>
 
 <script>
+import shoppingListIcon from '@/components/icons/shopping-list.vue'
 import chevronRightIcon from '@/components/icons/chevron-right.vue'
 import ShoppingListItem from '@/components/ShoppingListItem.vue'
 
 export default {
   name: 'CookbookShoppingList',
   components: {
+    shoppingListIcon,
     chevronRightIcon,
     ShoppingListItem,
   },
   beforeRouteEnter (to, from, next) {
     next(vm => {
-      if (!vm.hasSelectedItems) {
+      if (!vm.numSelectedItems > 0) {
         vm.$router.replace({ name: 'build' })
       }
     })
@@ -94,11 +108,14 @@ export default {
     }
   },
   computed: {
+    isLoading () {
+      return this.$store.state.requests.fetchShoppingList.isLoading
+    },
     selectedItems () {
       return this.$store.state.selectedItems
     },
-    hasSelectedItems () {
-      return this.selectedItems.length > 0
+    numSelectedItems () {
+      return this.selectedItems.length
     },
     shoppingList: {
       get () {
@@ -169,11 +186,7 @@ export default {
       return Object.keys(this.buildProcess)
     }
   },
-  mounted () {
-    if (Object.keys(this.shoppingList).length === 0) {
-      this.$store.dispatch('setupShoppingList')
-    }
-  },
+  mounted () {},
   methods: {
     meetsRequirements (item) {
       return item.have + item.implied_have >= item.amount_required
@@ -195,6 +208,30 @@ export default {
   width: 100%;
   max-width: none;
 
+  &__loading {
+    flex: 1;
+    width: 80%;
+    max-width: 600px;
+    margin: 0 auto;
+    overflow: auto;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+
+    .icon {
+      width: 6.4em;
+      height: 6.4em;
+      margin-bottom: 2em;
+    }
+
+    &__text {
+      font-size: 1.6em;
+      font-weight: 500;
+      color: #1D1007;
+    }
+  }
+
   &__description {
     width: 80%;
     max-width: 600px;
@@ -202,6 +239,10 @@ export default {
 
     .text {
       text-align: center;
+    }
+
+    .link {
+     font-size: 1em;
     }
   }
 

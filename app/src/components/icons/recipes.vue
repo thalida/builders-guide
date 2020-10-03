@@ -12,6 +12,15 @@
 </template>
 
 <style lang="scss">
+@keyframes animation--recipes--loading {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 .icon__recipes {
     &__inside,
     &__border {
@@ -27,7 +36,7 @@
     }
 
     &.outlined .icon__recipes__border {
-        fill: #918C88;
+        fill: #1D1007;
     }
 
     &.faded .icon__recipes__border {
@@ -36,11 +45,19 @@
 
     &.filled {
         .icon__recipes__inside {
-            fill: #C1D1B7;
+            fill: #63D798;
         }
         .icon__recipes__border {
             fill: #1D1007;
         }
+    }
+
+    &.loading {
+        animation-name: animation--recipes--loading;
+        animation-duration: 3s;
+        animation-timing-function: ease;
+        animation-iteration-count: infinite;
+        animation-direction: alternate;
     }
 }
 </style>

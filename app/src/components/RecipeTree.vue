@@ -1,76 +1,87 @@
 <template>
   <div class="recipe-tree">
+    <div v-if="isLoading"
+      class="recipe-tree__loading">
+      <recipes-icon class="loading" />
+      <p class="recipe-tree__loading__text">
+        Gathering all possible recipes and ingredients for {{ numSelectedItems }} items&hellip;
+      </p>
+    </div>
+
     <div
-      class="recipe-tree__level"
-      v-for="(nodes, level) in treeByLevels"
-      :key="level">
-
-      <!-- Level Empty State -->
+      v-if="!isLoading"
+      class="recipe-tree__levels">
       <div
-        v-if="nodes.length === 0"
-        class="recipe-tree__node recipe-tree__node--is-empty">
-        <chat-alert-icon />
-        <p class="recipe-tree__node__alert">This item has no ingredients.</p>
-      </div>
+        class="recipe-tree__level"
+        v-for="(nodes, level) in treeByLevels"
+        :key="level">
 
-      <!-- Loop over all nodes in the level -->
-      <div
-        v-for="(formattedNode, index) in formatNodes(level, nodes)"
-        :key="formattedNode.renderKey"
-        class="recipe-tree__node"
-        :class="[{
-          'recipe-tree__node--is-selected': formattedNode.node.selected,
-          'recipe-tree__node--is-open': formattedNode.isOpen,
-          'recipe-tree__node--is-plaintext': formattedNode.isStatic,
-          'recipe-tree__node--is-optional': formattedNode.isOptional,
-          'recipe-tree__node--has-nested': formattedNode.numNestedNodes > 0,
-        }]"
-        :tabindex="(formattedNode.isStatic) ? -1 : 0"
-        @click="handleNodeSelected(level, index, formattedNode.node)"
-        @keyup.enter="handleNodeSelected(level, index, formattedNode.node)">
+        <!-- Level Empty State -->
+        <div
+          v-if="nodes.length === 0"
+          class="recipe-tree__node recipe-tree__node--is-empty">
+          <chat-alert-icon />
+          <p class="recipe-tree__node__alert">This item has no ingredients.</p>
+        </div>
 
-        <div class="recipe-tree__node__content">
-          <!-- If this node is an option group loop through all the images -->
-          <content-looper
-           v-if="formattedNode.isOptionGroup"
-           class="recipe-tree__node__icon-set">
+        <!-- Loop over all nodes in the level -->
+        <div
+          v-for="(formattedNode, index) in formatNodes(level, nodes)"
+          :key="formattedNode.renderKey"
+          class="recipe-tree__node"
+          :class="[{
+            'recipe-tree__node--is-selected': formattedNode.node.selected,
+            'recipe-tree__node--is-open': formattedNode.isOpen,
+            'recipe-tree__node--is-plaintext': formattedNode.isStatic,
+            'recipe-tree__node--is-optional': formattedNode.isOptional,
+            'recipe-tree__node--has-nested': formattedNode.numNestedNodes > 0,
+          }]"
+          :tabindex="(formattedNode.isStatic) ? -1 : 0"
+          @click="handleNodeSelected(level, index, formattedNode.node)"
+          @keyup.enter="handleNodeSelected(level, index, formattedNode.node)">
+
+          <div class="recipe-tree__node__content">
+            <!-- If this node is an option group loop through all the images -->
+            <content-looper
+            v-if="formattedNode.isOptionGroup"
+            class="recipe-tree__node__icon-set">
+              <img
+                v-for="(nestedNode, nni) in formattedNode.node"
+                :key="nni"
+                class="recipe-tree__node__icon"
+                :src="getItemImage(nestedNode)" />
+            </content-looper>
+
+            <!-- Otherwise render the node image -->
             <img
-              v-for="(nestedNode, nni) in formattedNode.node"
-              :key="nni"
+              v-else
               class="recipe-tree__node__icon"
-              :src="getItemImage(nestedNode)" />
-          </content-looper>
+              :src="getItemImage(formattedNode.node)" />
 
-          <!-- Otherwise render the node image -->
-          <img
-            v-else
-            class="recipe-tree__node__icon"
-            :src="getItemImage(formattedNode.node)" />
-
-          <!-- Node text -->
-          <div class="recipe-tree__node__text">
-            <p class="recipe-tree__node__label">
-              {{ formattedNode.label }}
-            </p>
-            <div class="recipe-tree__node__requirements">
-              {{ formattedNode.requirementsLabel }}
+            <!-- Node text -->
+            <div class="recipe-tree__node__text">
+              <p class="recipe-tree__node__label">
+                {{ formattedNode.label }}
+              </p>
+              <div class="recipe-tree__node__requirements">
+                {{ formattedNode.requirementsLabel }}
+              </div>
             </div>
-          </div>
-        </div> <!-- End Node Details -->
-      </div> <!-- End Node -->
-    </div> <!-- End Level -->
+          </div> <!-- End Node Details -->
+        </div> <!-- End Node -->
+      </div> <!-- End Level -->
+    </div>
   </div> <!-- End Tree -->
 </template>
 <script>
 import { getItemImage, getItemLabel } from '@/helpers.js'
+import recipesIcon from '@/components/icons/recipes.vue'
 import chatAlertIcon from '@/components/icons/chat-alert.vue'
 import ContentLooper from '@/components/ContentLooper.vue'
 
 export default {
-  props: {
-    tree: Array,
-  },
   components: {
+    recipesIcon,
     chatAlertIcon,
     ContentLooper,
   },
@@ -80,12 +91,38 @@ export default {
       treeByLevels: []
     }
   },
+  computed: {
+    recipeTree: {
+      get () {
+        return this.$store.state.recipeTree
+      },
+      set (newTree) {
+        this.$store.dispatch('updateRecipeTree', newTree)
+      }
+    },
+    isLoading () {
+      return this.$store.state.requests.fetchRecipeTree.isLoading
+    },
+    numSelectedItems () {
+      return this.$store.state.selectedItems.length
+    },
+  },
+  watch: {
+    isLoading (newState, oldState) {
+      if (oldState === true && newState === false) {
+        this.initTreeLevels(this.recipeTree)
+      }
+    }
+  },
   mounted () {
-    this.treeByLevels.push(this.tree)
+    this.initTreeLevels(this.recipeTree)
   },
   methods: {
     getItemImage,
     getItemLabel,
+    initTreeLevels (tree) {
+      this.treeByLevels = [tree]
+    },
     formatNodes (level, nodes) {
       const formattedNodes = []
       const isOptional = this.getIsOptional(level)
@@ -177,7 +214,8 @@ export default {
         return
       }
 
-      this.$emit('update', this.updateTreeByPath(level, index))
+      const newTree = this.updateTreeByPath(level, index)
+      this.recipeTree = newTree
     },
 
     updateTreeByPath (level, index, tree, currLevel) {
@@ -247,6 +285,36 @@ export default {
   width: 100%;
   height: 100%;
   overflow: auto;
+
+  &__loading {
+    flex: 1;
+    width: 80%;
+    max-width: 600px;
+    margin: 0 auto;
+    overflow: auto;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+
+    .icon {
+      width: 6.4em;
+      height: 6.4em;
+      margin-bottom: 2em;
+    }
+
+    &__text {
+      font-size: 1.6em;
+      font-weight: 500;
+    }
+  }
+
+  &__levels {
+    display: flex;
+    flex-flow: row nowrap;
+    width: 100%;
+    height: 100%;
+  }
 
   &__level {
     flex: 0 0 auto;

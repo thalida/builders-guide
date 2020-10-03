@@ -41,9 +41,10 @@
           <recipes-icon
             :class="[
             {
-              'faded': currRoute!=='recipes' && !hasSelectedItems,
-              'outlined': currRoute!=='recipes' && hasSelectedItems,
-              'filled': currRoute==='recipes',
+              'loading': isRecipesLoading,
+              'faded': !isRecipesLoading && currRoute!=='recipes' && !hasSelectedItems,
+              'outlined': !isRecipesLoading && currRoute!=='recipes' && hasSelectedItems,
+              'filled': !isRecipesLoading && currRoute==='recipes',
             }]" />
         </component>
 
@@ -56,9 +57,10 @@
           <shopping-list-icon
             :class="[
             {
-              'faded': currRoute!=='shoppingList' && !hasSelectedItems,
-              'outlined': currRoute!=='shoppingList' && hasSelectedItems,
-              'filled': currRoute==='shoppingList',
+              'loading': isShoppingListLoading,
+              'faded': !isShoppingListLoading && currRoute!=='shoppingList' && !hasSelectedItems,
+              'outlined': !isShoppingListLoading && currRoute!=='shoppingList' && hasSelectedItems,
+              'filled': !isShoppingListLoading && currRoute==='shoppingList',
             }]" />
         </component>
       </div>
@@ -82,7 +84,7 @@ export default {
   },
   data () {
     return {
-      show: false,
+      show: true,
     }
   },
   computed: {
@@ -95,11 +97,12 @@ export default {
     hasSelectedItems () {
       return this.selectedItems.length > 0
     },
-  },
-  mounted () {
-    this.$store
-      .dispatch('setupItems')
-      .then(() => { this.show = true })
+    isRecipesLoading () {
+      return this.$store.state.requests.fetchRecipeTree.isLoading
+    },
+    isShoppingListLoading () {
+      return this.$store.state.requests.fetchShoppingList.isLoading
+    }
   }
 }
 </script>

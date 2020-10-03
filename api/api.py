@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 
 from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
+from flask_compress import Compress
 
 import cookbook.utils
 import cookbook.data
@@ -14,6 +15,7 @@ import cookbook.calculator
 
 os.environ["TZ"] = "UTC"
 app = Flask(__name__)
+Compress(app)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 BAD_REQUEST = 400
@@ -245,4 +247,4 @@ def api_shopping_list(version):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port="5000")
+    app.run(debug=False, host="0.0.0.0", port="5000")

@@ -5,17 +5,15 @@
         Customise the recipes and ingredients which match your world and inventory.
       </p>
       <p class="text text--secondary">
-        (Find your shoping list on the next screen.)
+        (Find your
+          <router-link to="/cookbook/shopping-list" class="link">
+          shopping list
+          </router-link>
+          on the next step.)
       </p>
     </div>
-
     <div class="cookbook-recipes__content">
-      <recipe-tree
-        class="cookbook-recipes__tree"
-        ref="tree"
-        :tree="recipeTree"
-        @update="handleTreeUpdate">
-      </recipe-tree>
+      <recipe-tree></recipe-tree>
     </div>
   </div>
 </template>
@@ -36,14 +34,6 @@ export default {
     })
   },
   computed: {
-    recipeTree: {
-      get () {
-        return this.$store.state.recipeTree
-      },
-      set (newTree) {
-        this.$store.dispatch('updateRecipeTree', newTree)
-      }
-    },
     selectedItems () {
       return this.$store.state.selectedItems
     },
@@ -51,16 +41,7 @@ export default {
       return this.selectedItems.length > 0
     },
   },
-  mounted () {
-    if (this.recipeTree.length === 0) {
-      this.$store.dispatch('setupRecipeTree')
-    }
-  },
-  methods: {
-    handleTreeUpdate (tree) {
-      this.recipeTree = tree
-    }
-  }
+  mounted () {}
 }
 </script>
 
@@ -78,6 +59,10 @@ export default {
 
     .text {
       text-align: center;
+    }
+
+    .link {
+      font-size: 1em;
     }
   }
 

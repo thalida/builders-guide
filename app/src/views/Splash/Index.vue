@@ -59,13 +59,6 @@ export default {
   },
   computed: {
     items () {
-      if (
-        typeof this.$store.state.gameData[this.$store.state.selectedVersion] === 'undefined' ||
-        typeof this.$store.state.gameData[this.$store.state.selectedVersion].items === 'undefined'
-      ) {
-        return []
-      }
-
       return this.$store.state.gameData[this.$store.state.selectedVersion].items
     },
     skipSplash: {
@@ -78,9 +71,7 @@ export default {
     }
   },
   mounted () {
-    this.$store
-      .dispatch('setupItems')
-      .then(this.setupRenderItems)
+    this.setupRenderItems()
   },
   methods: {
     getItemImage,
@@ -93,7 +84,7 @@ export default {
       }
     },
     setupRenderItems () {
-      const itemsCopy = this.items.splice(0)
+      const itemsCopy = this.items.slice(0)
 
       for (let i = 0; i < this.numBlocks; i += 1) {
         const randItem = this.selectRandomItem(itemsCopy)

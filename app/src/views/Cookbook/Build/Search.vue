@@ -125,14 +125,14 @@ export default {
       return this.inputQuery.toLowerCase().trim()
     },
     items () {
-      if (
-        typeof this.$store.state.gameData[this.$store.state.selectedVersion] === 'undefined' ||
-        typeof this.$store.state.gameData[this.$store.state.selectedVersion].items === 'undefined'
-      ) {
-        return []
-      }
+      // if (
+      //   typeof this.$store.state.gameData[this.$store.state.selectedVersion] === 'undefined' ||
+      //   typeof this.$store.state.gameData[this.$store.state.selectedVersion].items === 'undefined'
+      // ) {
+      //   return []
+      // }
 
-      return this.$store.state.gameData[this.$store.state.selectedVersion].items
+      return this.$store.state.gameData[this.version].items
     },
     tmpSelectedItems: {
       get () {
@@ -155,7 +155,7 @@ export default {
     },
   },
   mounted () {
-    this.$store.dispatch('setupSearchStore')
+    this.$store.dispatch('initSearchStore')
     setTimeout(() => {
       this.showItems = true
     }, 0)

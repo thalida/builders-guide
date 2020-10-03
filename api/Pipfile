@@ -12,6 +12,7 @@ inflect = "*"
 flask-cors = "*"
 python-logstash = "*"
 python-logstash-async = "*"
+flask-compress = "*"
 
 [requires]
 python_version = "3.7"

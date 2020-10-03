@@ -114,13 +114,6 @@ export default {
   },
   computed: {
     items () {
-      if (
-        typeof this.$store.state.gameData[this.$store.state.selectedVersion] === 'undefined' ||
-        typeof this.$store.state.gameData[this.$store.state.selectedVersion].items === 'undefined'
-      ) {
-        return []
-      }
-
       return this.$store.state.gameData[this.$store.state.selectedVersion].items
     },
     selectedItems () {
@@ -145,17 +138,22 @@ export default {
     getItemImage,
     getItemLabel,
     updateSelectedItems (items) {
-      this.$store.commit('setSelectedItems', items)
-      this.$store.dispatch('setupRecipeTree')
+      this.$store.dispatch('updateSelectedItems', items)
     },
     removeAllItems () {
-      this.selectedItems.splice(0, this.selectedItems.length)
+      const itemsCopy = this.selectedItems.slice(0)
+      itemsCopy.splice(0, itemsCopy.length)
+      this.updateSelectedItems(itemsCopy)
     },
     removeSelectedItem (i) {
-      this.selectedItems.splice(i, 1)
+      const itemsCopy = this.selectedItems.slice(0)
+      itemsCopy.splice(i, 1)
+      this.updateSelectedItems(itemsCopy)
     },
     selectRandomItems () {
-      const numItems = 1 + Math.floor(Math.random() * 5)
+      const minItems = 3
+      const maxItems = 7
+      const numItems = Math.floor(Math.random() * (maxItems - minItems + 1) + minItems)
       const items = this.items.slice(0)
       const tmpSelectedItems = []
 
@@ -165,8 +163,8 @@ export default {
         items.splice(randItem.index, 1)
       }
 
-      // this.$store.dispatch('setSelectedFromTmp', tmpSelectedItems)
-      this.$store.dispatch('setSelectedFromTmp', this.items.slice(0))
+      this.$store.dispatch('setSelectedFromTmp', tmpSelectedItems)
+      // this.$store.dispatch('setSelectedFromTmp', this.items.slice(0))
     },
     selectRandomItem (items) {
       const len = items.length

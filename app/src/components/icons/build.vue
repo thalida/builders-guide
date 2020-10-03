@@ -34,14 +34,14 @@
         .icon__build__window-shadow,
         .icon__build__window,
         .icon__build__border {
-            fill: #918C88;
+            fill: #1D1007;
         }
     }
 
     &.filled,
     &.highlighted {
         .icon__build__roof {
-            fill: #C1D1B7;
+            fill: #63D798;
         }
 
         .icon__build__window-shadow,
@@ -56,7 +56,7 @@
     }
 
     &.highlighted .icon__build__door {
-        fill: #F5E0BE;
+        fill: #FFD600;
     }
 }
 </style>
