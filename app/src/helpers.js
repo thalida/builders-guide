@@ -1,3 +1,7 @@
+import createClone from 'rfdc'
+
+export const clone = createClone()
+
 export const ITEM_ALIASES = {
   writable_book: 'book_and_quill',
   heavy_weighted_pressure_plate: 'iron_pressure_plate',
@@ -147,13 +151,14 @@ export function getItemLabel (nodes, useAlias) {
 }
 
 export function createBuildPaths (recipeTree, isGroup) {
+  recipeTree = clone(recipeTree)
   const path = []
 
   for (let i = 0, l = recipeTree.length; i < l; i += 1) {
     const node = recipeTree[i]
 
     if (Array.isArray(node)) {
-      const chosenNode = createBuildPaths(node.slice(0), true)
+      const chosenNode = createBuildPaths(node, true)
       path.push(chosenNode[0])
       continue
     }
@@ -182,7 +187,7 @@ export function createBuildPaths (recipeTree, isGroup) {
 
 export function restoreSelectedItems (recipeTree, selectedBuildPaths, isGroup) {
   isGroup = (typeof isGroup === 'boolean') ? isGroup : false
-  const updatedTree = recipeTree.slice(0)
+  const updatedTree = clone(recipeTree)
   let selectedNode = (isGroup) ? selectedBuildPaths : null
 
   for (let i = 0, l = updatedTree.length; i < l; i += 1) {

@@ -8,8 +8,16 @@
       </p>
     </div>
 
+    <div v-if="!isLoading && isResetting"
+      class="recipe-tree__loading">
+      <recipes-icon class="loading" />
+      <p class="recipe-tree__loading__text">
+        Resetting selected recipes and ingredients for {{ numSelectedItems }} items&hellip;
+      </p>
+    </div>
+
     <div
-      v-if="!isLoading"
+      v-if="!isLoading && !isResetting"
       class="recipe-tree__levels">
       <div
         class="recipe-tree__level"
@@ -87,7 +95,8 @@ export default {
   },
   data () {
     return {
-      treeByLevels: []
+      treeByLevels: [],
+      isResetting: false,
     }
   },
   computed: {
@@ -119,6 +128,13 @@ export default {
       if (oldState === true && newState === false) {
         this.initTreeLevels(this.recipeTree)
       }
+    },
+    visiblePath (newPath, oldPath) {
+      if (newPath.length + 1 >= this.treeByLevels.length) {
+        return
+      }
+
+      this.treeByLevels.splice(newPath.length + 1, this.treeByLevels.length)
     }
   },
   mounted () {
@@ -166,6 +182,15 @@ export default {
         fixedVisiblePath.splice(removeLevelsAfter, this.visiblePath.length)
         this.visiblePath = fixedVisiblePath
       }
+    },
+    reset () {
+      this.isResetting = this.numSelectedItems > 100
+      this.$store.dispatch('resetRecipeTree').then(() => {
+        this.treeByLevels = [this.recipeTree]
+        setTimeout(() => {
+          this.isResetting = false
+        }, 0)
+      })
     },
     getRenderKey (level, label) {
       return `${level}-${label}`
@@ -229,6 +254,10 @@ export default {
       const parentLevel = level - 1
 
       if (parentLevel < 0) {
+        return false
+      }
+
+      if (typeof this.visiblePath[level - 1] === 'undefined') {
         return false
       }
 

@@ -12,8 +12,19 @@
           on the next step.)
       </p>
     </div>
+
     <div class="cookbook-recipes__content">
-      <recipe-tree></recipe-tree>
+      <recipe-tree ref="recipeTree"></recipe-tree>
+    </div>
+
+    <div v-if="hasSelectedItems" class="cookbook-recipes__actions">
+      <a
+        class="link"
+        tabindex="0"
+        @click="resetAllSelections()"
+        @keyup.enter="resetAllSelections()">
+        Reset all selections
+      </a>
     </div>
   </div>
 </template>
@@ -41,7 +52,11 @@ export default {
       return this.selectedItems.length > 0
     },
   },
-  mounted () {}
+  methods: {
+    resetAllSelections () {
+      this.$refs.recipeTree.reset()
+    }
+  }
 }
 </script>
 
@@ -70,6 +85,15 @@ export default {
     flex: 1;
     width: 100%;
     overflow: auto;
+  }
+
+  &__actions {
+    display: flex;
+    width: 100%;
+    height: 3.4em;
+    justify-content: center;
+    align-items: center;
+    background: #F1F1F1;
   }
 }
 </style>

@@ -13,6 +13,8 @@ import cookbook.utils
 import cookbook.data
 import cookbook.calculator
 
+API_ENV = os.environ['BG_API_ENV']
+
 os.environ["TZ"] = "UTC"
 app = Flask(__name__)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
@@ -249,4 +251,4 @@ def api_shopping_list(version):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port="5000")
+    app.run(debug=API_ENV=='debug', host="0.0.0.0", port="5000")

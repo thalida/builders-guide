@@ -2,8 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import VuexPersistence from 'vuex-persist'
 import axios from 'axios'
-import { createBuildPaths, restoreSelectedItems } from '@/helpers.js'
-
+import { clone, createBuildPaths, restoreSelectedItems } from '@/helpers.js'
 const CancelToken = axios.CancelToken
 
 Vue.use(Vuex)
@@ -38,6 +37,7 @@ export default new Vuex.Store({
     selectedItems: [],
     tmpSelectedItems: null,
     recipeTree: [],
+    defaultRecipeTree: [],
     selectedBuildPaths: [],
     visibleBuildPath: [],
     shoppingList: {},
@@ -90,12 +90,14 @@ export default new Vuex.Store({
     setRecipeTree (state, tree) {
       state.recipeTree = tree
     },
+    setDefaultRecipeTree (state, tree) {
+      state.defaultRecipeTree = tree
+    },
     setVisibleBuildPath (state, visiblePath) {
       state.visibleBuildPath = visiblePath
     },
     setSelectedBuildPaths (state) {
-      const tree = state.recipeTree.slice(0)
-      const buildPaths = createBuildPaths(tree)
+      const buildPaths = createBuildPaths(state.recipeTree)
       state.selectedBuildPaths = buildPaths
     },
     setShoppingList (state, shoppingList) {
@@ -125,6 +127,11 @@ export default new Vuex.Store({
 
       Vue.set(state.requests, requestName, requestData)
     },
+    setIsLoading (state, { requestName, isLoading }) {
+      const requestData = Object.assign({}, state.requests[requestName])
+      requestData.isLoading = isLoading
+      Vue.set(state.requests, requestName, requestData)
+    }
   },
   actions: {
     init ({ state, dispatch }) {
@@ -187,6 +194,7 @@ export default new Vuex.Store({
         const numSelectedItems = state.selectedItems.length
         if (numSelectedItems === 0) {
           commit('setRequest', { requestName, cancelToken: null })
+          commit('setDefaultRecipeTree', [])
           commit('setRecipeTree', [])
           resolve()
           return
@@ -202,8 +210,10 @@ export default new Vuex.Store({
           .then(response => {
             commit('setRequest', { requestName, cancelToken: null })
 
-            const tree = restoreSelectedItems(response.data, state.selectedBuildPaths)
-            commit('setRecipeTree', tree)
+            const origTree = response.data
+            const restoredTree = restoreSelectedItems(origTree, state.selectedBuildPaths)
+            commit('setDefaultRecipeTree', clone(origTree))
+            commit('setRecipeTree', restoredTree)
             commit('setSelectedBuildPaths')
             resolve()
           })
@@ -352,6 +362,16 @@ export default new Vuex.Store({
       commit('setRecipeTree', newTree)
       commit('setSelectedBuildPaths')
       return dispatch('fetchShoppingList')
+    },
+    resetRecipeTree ({ commit, dispatch, state }) {
+      return new Promise((resolve, reject) => {
+        const origTree = clone(state.defaultRecipeTree)
+        commit('setRecipeTree', origTree)
+        commit('setVisibleBuildPath', [])
+        commit('setSelectedBuildPaths')
+        dispatch('fetchShoppingList')
+        resolve()
+      })
     },
     updateShoppingList ({ commit, dispatch }, newList) {
       commit('setShoppingList', newList)
