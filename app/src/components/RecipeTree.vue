@@ -82,7 +82,7 @@
   </div> <!-- End Tree -->
 </template>
 <script>
-import { getItemImage, getItemLabel } from '@/helpers.js'
+import { clone, getItemImage, getItemLabel } from '@/helpers.js'
 import recipesIcon from '@/components/icons/recipes.vue'
 import chatAlertIcon from '@/components/icons/chat-alert.vue'
 import ContentLooper from '@/components/ContentLooper.vue'
@@ -325,7 +325,7 @@ export default {
       currLevel = currLevel || 0
 
       if (typeof tree === 'undefined') {
-        tree = this.recipeTree.slice(0)
+        tree = clone(this.recipeTree)
       }
 
       if (currLevel > level) {

@@ -236,9 +236,9 @@ export default new Vuex.Store({
 
       return new Promise((resolve, reject) => {
         if (state.recipeTree.length === 0) {
+          commit('setRequest', { requestName, cancelToken: null })
           commit('setShoppingList', [])
           commit('setHaveAlready')
-          commit('setRequest', { requestName, cancelToken: null })
           resolve()
           return
         }
@@ -254,9 +254,9 @@ export default new Vuex.Store({
             { cancelToken: cancelToken.token }
           )
           .then(response => {
+            commit('setRequest', { requestName, cancelToken: null })
             commit('setShoppingList', response.data)
             commit('setHaveAlready')
-            commit('setRequest', { requestName, cancelToken: null })
             resolve()
           })
           .catch((err) => {
@@ -375,7 +375,6 @@ export default new Vuex.Store({
     },
     updateShoppingList ({ commit, dispatch }, newList) {
       commit('setShoppingList', newList)
-      commit('setSelectedBuildPaths')
       commit('setHaveAlready')
       return dispatch('fetchShoppingList')
     },

@@ -185,37 +185,53 @@ export function createBuildPaths (recipeTree, isGroup) {
   return path
 }
 
-export function restoreSelectedItems (recipeTree, selectedBuildPaths, isGroup) {
-  isGroup = (typeof isGroup === 'boolean') ? isGroup : false
+export function restoreSelectedItems (recipeTree, selectedBuildPaths, isOptionGroup, hasParent) {
+  isOptionGroup = (typeof isOptionGroup === 'boolean') ? isOptionGroup : false
+  hasParent = hasParent || false
+
   const updatedTree = clone(recipeTree)
-  let selectedNode = (isGroup) ? selectedBuildPaths : null
+  let selectedNode = (isOptionGroup) ? selectedBuildPaths : null
+  let defaultNodeIdx = null
+  let foundSelectedNode = null
 
   for (let i = 0, l = updatedTree.length; i < l; i += 1) {
     let node = updatedTree[i]
 
-    if (Array.isArray(node)) {
-      node = restoreSelectedItems(node, selectedBuildPaths[i], true)
-      continue
+    if (!isOptionGroup) {
+      selectedNode = selectedBuildPaths[i]
     }
 
-    if (!isGroup) {
-      selectedNode = selectedBuildPaths[i]
+    if (Array.isArray(node)) {
+      const isGroup = hasParent
+      const treatAsChild = hasParent
+      node = restoreSelectedItems(node, selectedNode, isGroup, treatAsChild)
+      continue
     }
 
     if (typeof selectedNode === 'undefined') {
       break
     }
 
-    node.selected = selectedNode.name === node.name
+    if (isOptionGroup) {
+      defaultNodeIdx = (node.selected) ? i : null
+      node.selected = selectedNode.name === node.name
+      foundSelectedNode = foundSelectedNode || node.selected
+    }
+
     if (!node.selected) {
       continue
     }
 
     if (node.num_recipes >= 1) {
-      node.recipes = restoreSelectedItems(node.recipes, selectedNode.recipes[0], true)
+      node.recipes = restoreSelectedItems(node.recipes, selectedNode.recipes[0], true, true)
     } else if (node.ingredients && node.ingredients.length > 0) {
-      node.ingredients = restoreSelectedItems(node.ingredients, selectedNode.ingredients)
+      node.ingredients = restoreSelectedItems(node.ingredients, selectedNode.ingredients, false, true)
     }
+  }
+
+  if (foundSelectedNode !== null && !foundSelectedNode) {
+    const node = updatedTree[defaultNodeIdx]
+    node.selected = true
   }
 
   return updatedTree
