@@ -87,7 +87,6 @@ export default {
   },
   data () {
     return {
-      visiblePath: [],
       treeByLevels: []
     }
   },
@@ -98,6 +97,14 @@ export default {
       },
       set (newTree) {
         this.$store.dispatch('updateRecipeTree', newTree)
+      }
+    },
+    visiblePath: {
+      get () {
+        return this.$store.state.visibleBuildPath
+      },
+      set (newPath) {
+        this.$store.dispatch('updateVisibleBuildPath', newPath)
       }
     },
     isLoading () {
@@ -122,6 +129,46 @@ export default {
     getItemLabel,
     initTreeLevels (tree) {
       this.treeByLevels = [tree]
+
+      if (tree.length === 0) {
+        return
+      }
+
+      let removeLevelsAfter = null
+
+      for (let level = 0; level < this.visiblePath.length; level += 1) {
+        const visibleItem = this.visiblePath[level]
+        const visibleIdx = visibleItem.index
+        const visibleRenderKey = visibleItem.renderKey
+
+        if (
+          typeof this.treeByLevels[level] === 'undefined' ||
+          typeof this.treeByLevels[level][visibleIdx] === 'undefined'
+        ) {
+          removeLevelsAfter = level
+          break
+        }
+
+        const node = this.treeByLevels[level][visibleIdx]
+        const label = getItemLabel(node)
+        const renderKey = this.getRenderKey(level, label)
+
+        if (renderKey !== visibleRenderKey) {
+          removeLevelsAfter = level
+          break
+        }
+
+        this.handleNodeSelected(level, visibleIdx, node, true)
+      }
+
+      if (removeLevelsAfter !== null) {
+        const fixedVisiblePath = this.visiblePath.slice(0)
+        fixedVisiblePath.splice(removeLevelsAfter, this.visiblePath.length)
+        this.visiblePath = fixedVisiblePath
+      }
+    },
+    getRenderKey (level, label) {
+      return `${level}-${label}`
     },
     formatNodes (level, nodes) {
       const formattedNodes = []
@@ -132,6 +179,7 @@ export default {
         const isOptionGroup = Array.isArray(node)
         const numNestedNodes = this.getNextLevel(node).length
         const label = this.getItemLabel(node)
+        const renderKey = this.getRenderKey(level, label)
         let requirementsLabel = null
 
         if (numNestedNodes > 0) {
@@ -153,10 +201,19 @@ export default {
           }
         }
 
+        node.renderKey = renderKey
+
+        const isStatic = (!isOptional && numNestedNodes === 0)
+        const isOpen = (
+          typeof this.visiblePath[level] !== 'undefined' &&
+          this.visiblePath[level].index === i &&
+          this.visiblePath[level].renderKey === renderKey
+        )
+
         formattedNodes.push({
-          renderKey: `${level}-${i}-${label}`,
-          isStatic: !isOptional && numNestedNodes === 0,
-          isOpen: this.visiblePath[level] === i,
+          renderKey,
+          isStatic,
+          isOpen,
           isOptionGroup,
           isOptional,
           numNestedNodes,
@@ -175,40 +232,23 @@ export default {
         return false
       }
 
-      const parentNodeIdx = this.visiblePath[level - 1]
+      const parentNodeIdx = this.visiblePath[level - 1].index
       const parentNode = this.treeByLevels[parentLevel][parentNodeIdx]
       const isParentArray = Array.isArray(parentNode)
       const isParentMultiRecipe = parentNode.num_recipes > 1
 
       return isParentArray || isParentMultiRecipe
     },
-    toggleTree (level, index, node) {
-      const isAlreadyVisible = this.visiblePath[level] === index
 
-      this.treeByLevels.splice(level + 1, this.treeByLevels.length - level + 1)
-      this.visiblePath.splice(level, this.visiblePath.length - level)
+    handleNodeSelected (level, index, node, isInit) {
+      isInit = (typeof isInit === 'boolean') ? isInit : false
 
-      if (isAlreadyVisible) {
-        return
-      }
-
-      const nextLevel = this.getNextLevel(node, true)
-
-      this.treeByLevels.push(nextLevel)
-      this.visiblePath.push(index)
-
-      setTimeout(() => {
-        this.$el.scrollLeft = this.$el.scrollWidth - this.$el.clientWidth
-      }, 0)
-    },
-
-    handleNodeSelected (level, index, node) {
       const isOptional = this.getIsOptional(level)
       if (!isOptional && this.getNextLevel(node).length === 0) {
         return
       }
 
-      this.toggleTree(level, index, node)
+      this.toggleTree(level, index, node, isInit)
 
       if (!isOptional) {
         return
@@ -218,11 +258,45 @@ export default {
       this.recipeTree = newTree
     },
 
+    toggleTree (level, index, node, isInit) {
+      isInit = (typeof isInit === 'boolean') ? isInit : false
+
+      const newVisiblePath = this.visiblePath.slice(0)
+
+      if (!isInit) {
+        const isAlreadyVisible = (
+          typeof this.visiblePath[level] !== 'undefined' &&
+          this.visiblePath[level].index === index
+        )
+        this.treeByLevels.splice(level + 1, this.treeByLevels.length - level + 1)
+        newVisiblePath.splice(level, this.visiblePath.length - level)
+
+        if (isAlreadyVisible) {
+          this.visiblePath = newVisiblePath
+          return
+        }
+      }
+
+      const nextLevel = this.getNextLevel(node, true)
+      this.treeByLevels.push(nextLevel)
+
+      if (!isInit) {
+        newVisiblePath.push({
+          index,
+          renderKey: node.renderKey
+        })
+        this.visiblePath = newVisiblePath
+        setTimeout(() => {
+          this.$el.scrollLeft = this.$el.scrollWidth - this.$el.clientWidth
+        }, 0)
+      }
+    },
+
     updateTreeByPath (level, index, tree, currLevel) {
       currLevel = currLevel || 0
 
       if (typeof tree === 'undefined') {
-        tree = this.tree.slice(0)
+        tree = this.recipeTree.slice(0)
       }
 
       if (currLevel > level) {
@@ -237,7 +311,7 @@ export default {
         return tree
       }
 
-      const currNodeIdx = this.visiblePath[currLevel]
+      const currNodeIdx = this.visiblePath[currLevel].index
       let node = tree[currNodeIdx]
       const nextLevel = this.getNextLevel(node)
 
@@ -335,7 +409,8 @@ export default {
     &:nth-child(1):nth-last-child(1) {
       width: 80%;
       max-width: 600px;
-      padding: 0;
+      padding-left: 0;
+      padding-right: 0;
     }
 
     &:nth-child(1):nth-last-child(2) {

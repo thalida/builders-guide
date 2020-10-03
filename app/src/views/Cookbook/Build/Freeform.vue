@@ -90,8 +90,6 @@ export default {
             numProcessedLines: res.num_processed_lines,
             successRate: res.success_rate,
           }
-
-          console.log(res)
         })
     },
     cancel () {

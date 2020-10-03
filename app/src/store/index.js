@@ -15,8 +15,9 @@ const vuexLocal = new VuexPersistence({
       skipSplash: state.skipSplash,
       selectedItems: state.selectedItems,
       tmpSelectedItems: state.tmpSelectedItems,
-      shoppingList: {},
-      selectedBuildPaths: [],
+      shoppingList: state.shoppingList,
+      selectedBuildPaths: state.selectedBuildPaths,
+      visibleBuildPath: state.visibleBuildPath,
     }
   }
 })
@@ -59,6 +60,42 @@ const createBuildPaths = (recipeTree, isGroup) => {
   return path
 }
 
+const resetSelectedBuildPath = (recipeTree, selectedBuildPaths, isGroup) => {
+  isGroup = (typeof isGroup === 'boolean') ? isGroup : false
+  const updatedTree = recipeTree.slice(0)
+  let selectedNode = (isGroup) ? selectedBuildPaths : null
+
+  for (let i = 0, l = updatedTree.length; i < l; i += 1) {
+    let node = updatedTree[i]
+
+    if (Array.isArray(node)) {
+      node = resetSelectedBuildPath(node, selectedBuildPaths[i], true)
+      continue
+    }
+
+    if (!isGroup) {
+      selectedNode = selectedBuildPaths[i]
+    }
+
+    if (typeof selectedNode === 'undefined') {
+      break
+    }
+
+    node.selected = selectedNode.name === node.name
+    if (!node.selected) {
+      continue
+    }
+
+    if (node.num_recipes >= 1) {
+      node.recipes = resetSelectedBuildPath(node.recipes, selectedNode.recipes[0], true)
+    } else if (node.ingredients && node.ingredients.length > 0) {
+      node.ingredients = resetSelectedBuildPath(node.ingredients, selectedNode.ingredients)
+    }
+  }
+
+  return updatedTree
+}
+
 export default new Vuex.Store({
   plugins: [vuexLocal.plugin],
   state: {
@@ -70,6 +107,7 @@ export default new Vuex.Store({
     tmpSelectedItems: null,
     recipeTree: [],
     selectedBuildPaths: [],
+    visibleBuildPath: [],
     shoppingList: {},
     requests: {
       fetchItems: {
@@ -119,8 +157,8 @@ export default new Vuex.Store({
     setRecipeTree (state, tree) {
       state.recipeTree = tree
     },
-    setSelectedBuildPaths (state, buildPaths) {
-      state.selectedBuildPaths = buildPaths
+    setVisibleBuildPath (state, visiblePath) {
+      state.visibleBuildPath = visiblePath
     },
     setShoppingList (state, shoppingList) {
       state.shoppingList = shoppingList
@@ -133,7 +171,12 @@ export default new Vuex.Store({
       }
 
       Vue.set(state.requests, requestName, requestData)
-    }
+    },
+    setSelectedBuildPaths (state) {
+      const tree = state.recipeTree.slice(0)
+      const buildPaths = createBuildPaths(tree)
+      state.selectedBuildPaths = buildPaths
+    },
   },
   actions: {
     init ({ state, dispatch }) {
@@ -211,11 +254,9 @@ export default new Vuex.Store({
           .then(response => {
             commit('setRequest', { requestName, cancelToken: null })
 
-            const tree = response.data
+            const tree = resetSelectedBuildPath(response.data, state.selectedBuildPaths)
             commit('setRecipeTree', tree)
-
-            const buildPaths = createBuildPaths(state.recipeTree.slice(0))
-            commit('setSelectedBuildPaths', buildPaths)
+            commit('setSelectedBuildPaths')
             resolve()
           })
           .catch((err) => {
@@ -369,16 +410,16 @@ export default new Vuex.Store({
     },
     updateRecipeTree ({ commit, dispatch, state }, newTree) {
       commit('setRecipeTree', newTree)
-
-      const buildPaths = createBuildPaths(state.recipeTree.slice(0))
-      commit('setSelectedBuildPaths', buildPaths)
-
+      commit('setSelectedBuildPaths')
       return dispatch('fetchShoppingList')
     },
     updateShoppingList ({ commit, dispatch }, newList) {
       commit('setShoppingList', newList)
       return dispatch('fetchShoppingList')
     },
+    updateVisibleBuildPath ({ commit }, newPath) {
+      commit('setVisibleBuildPath', newPath)
+    }
   },
   modules: {
   }
