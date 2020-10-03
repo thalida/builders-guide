@@ -2,6 +2,8 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import VuexPersistence from 'vuex-persist'
 import axios from 'axios'
+import { createBuildPaths, restoreSelectedItems } from '@/helpers.js'
+
 const CancelToken = axios.CancelToken
 
 Vue.use(Vuex)
@@ -15,9 +17,9 @@ const vuexLocal = new VuexPersistence({
       skipSplash: state.skipSplash,
       selectedItems: state.selectedItems,
       tmpSelectedItems: state.tmpSelectedItems,
-      shoppingList: state.shoppingList,
       selectedBuildPaths: state.selectedBuildPaths,
       visibleBuildPath: state.visibleBuildPath,
+      shoppingList: state.shoppingList,
     }
   }
 })
@@ -25,76 +27,6 @@ const vuexLocal = new VuexPersistence({
 const supportedVersions = [
   '1.15'
 ]
-
-const createBuildPaths = (recipeTree, isGroup) => {
-  const path = []
-
-  for (let i = 0, l = recipeTree.length; i < l; i += 1) {
-    const node = recipeTree[i]
-
-    if (Array.isArray(node)) {
-      const chosenNode = createBuildPaths(node.slice(0), true)
-      path.push(chosenNode[0])
-      continue
-    }
-
-    if (!node.selected) {
-      continue
-    }
-
-    const nodeCopy = Object.assign({}, node)
-
-    if (nodeCopy.num_recipes >= 1) {
-      nodeCopy.recipes = createBuildPaths(nodeCopy.recipes, true)
-    } else if (nodeCopy.ingredients && nodeCopy.ingredients.length > 0) {
-      nodeCopy.ingredients = createBuildPaths(nodeCopy.ingredients)
-    }
-
-    path.push(nodeCopy)
-
-    if (isGroup) {
-      break
-    }
-  }
-
-  return path
-}
-
-const resetSelectedBuildPath = (recipeTree, selectedBuildPaths, isGroup) => {
-  isGroup = (typeof isGroup === 'boolean') ? isGroup : false
-  const updatedTree = recipeTree.slice(0)
-  let selectedNode = (isGroup) ? selectedBuildPaths : null
-
-  for (let i = 0, l = updatedTree.length; i < l; i += 1) {
-    let node = updatedTree[i]
-
-    if (Array.isArray(node)) {
-      node = resetSelectedBuildPath(node, selectedBuildPaths[i], true)
-      continue
-    }
-
-    if (!isGroup) {
-      selectedNode = selectedBuildPaths[i]
-    }
-
-    if (typeof selectedNode === 'undefined') {
-      break
-    }
-
-    node.selected = selectedNode.name === node.name
-    if (!node.selected) {
-      continue
-    }
-
-    if (node.num_recipes >= 1) {
-      node.recipes = resetSelectedBuildPath(node.recipes, selectedNode.recipes[0], true)
-    } else if (node.ingredients && node.ingredients.length > 0) {
-      node.ingredients = resetSelectedBuildPath(node.ingredients, selectedNode.ingredients)
-    }
-  }
-
-  return updatedTree
-}
 
 export default new Vuex.Store({
   plugins: [vuexLocal.plugin],
@@ -160,6 +92,11 @@ export default new Vuex.Store({
     setVisibleBuildPath (state, visiblePath) {
       state.visibleBuildPath = visiblePath
     },
+    setSelectedBuildPaths (state) {
+      const tree = state.recipeTree.slice(0)
+      const buildPaths = createBuildPaths(tree)
+      state.selectedBuildPaths = buildPaths
+    },
     setShoppingList (state, shoppingList) {
       state.shoppingList = shoppingList
     },
@@ -171,11 +108,6 @@ export default new Vuex.Store({
       }
 
       Vue.set(state.requests, requestName, requestData)
-    },
-    setSelectedBuildPaths (state) {
-      const tree = state.recipeTree.slice(0)
-      const buildPaths = createBuildPaths(tree)
-      state.selectedBuildPaths = buildPaths
     },
   },
   actions: {
@@ -254,7 +186,7 @@ export default new Vuex.Store({
           .then(response => {
             commit('setRequest', { requestName, cancelToken: null })
 
-            const tree = resetSelectedBuildPath(response.data, state.selectedBuildPaths)
+            const tree = restoreSelectedItems(response.data, state.selectedBuildPaths)
             commit('setRecipeTree', tree)
             commit('setSelectedBuildPaths')
             resolve()

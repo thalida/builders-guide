@@ -145,3 +145,73 @@ export function getItemLabel (nodes, useAlias) {
 
   return foundNames.join(' / ')
 }
+
+export function createBuildPaths (recipeTree, isGroup) {
+  const path = []
+
+  for (let i = 0, l = recipeTree.length; i < l; i += 1) {
+    const node = recipeTree[i]
+
+    if (Array.isArray(node)) {
+      const chosenNode = createBuildPaths(node.slice(0), true)
+      path.push(chosenNode[0])
+      continue
+    }
+
+    if (!node.selected) {
+      continue
+    }
+
+    const nodeCopy = Object.assign({}, node)
+
+    if (nodeCopy.num_recipes >= 1) {
+      nodeCopy.recipes = createBuildPaths(nodeCopy.recipes, true)
+    } else if (nodeCopy.ingredients && nodeCopy.ingredients.length > 0) {
+      nodeCopy.ingredients = createBuildPaths(nodeCopy.ingredients)
+    }
+
+    path.push(nodeCopy)
+
+    if (isGroup) {
+      break
+    }
+  }
+
+  return path
+}
+
+export function restoreSelectedItems (recipeTree, selectedBuildPaths, isGroup) {
+  isGroup = (typeof isGroup === 'boolean') ? isGroup : false
+  const updatedTree = recipeTree.slice(0)
+  let selectedNode = (isGroup) ? selectedBuildPaths : null
+
+  for (let i = 0, l = updatedTree.length; i < l; i += 1) {
+    let node = updatedTree[i]
+
+    if (Array.isArray(node)) {
+      node = restoreSelectedItems(node, selectedBuildPaths[i], true)
+      continue
+    }
+
+    if (!isGroup) {
+      selectedNode = selectedBuildPaths[i]
+    }
+
+    if (typeof selectedNode === 'undefined') {
+      break
+    }
+
+    node.selected = selectedNode.name === node.name
+    if (!node.selected) {
+      continue
+    }
+
+    if (node.num_recipes >= 1) {
+      node.recipes = restoreSelectedItems(node.recipes, selectedNode.recipes[0], true)
+    } else if (node.ingredients && node.ingredients.length > 0) {
+      node.ingredients = restoreSelectedItems(node.ingredients, selectedNode.ingredients)
+    }
+  }
+
+  return updatedTree
+}
