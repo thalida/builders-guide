@@ -49,7 +49,8 @@
           class="cookbook-build__item-group__input"
           type="number"
           min="0"
-          v-model.number="selectedItems[i].amount_required" />
+          v-model.number="selectedItems[i].amount_required"
+          @change="updateAmountRequired(i, $event)" />
         <img
           v-once
           class="cookbook-build__item-group__icon"
@@ -123,14 +124,6 @@ export default {
       return this.selectedItems.length > 0
     },
   },
-  watch: {
-    selectedItems: {
-      deep: true,
-      handler (newVal) {
-        this.debouncedUpdateSelected(newVal)
-      }
-    }
-  },
   created () {
     this.debouncedUpdateSelected = debounce(this.updateSelectedItems, 300)
   },
@@ -149,6 +142,10 @@ export default {
       const itemsCopy = this.selectedItems.slice(0)
       itemsCopy.splice(i, 1)
       this.updateSelectedItems(itemsCopy)
+    },
+    updateAmountRequired (i, event) {
+      const itemsCopy = this.selectedItems.slice(0)
+      this.debouncedUpdateSelected(itemsCopy)
     },
     selectRandomItems () {
       const minItems = 3

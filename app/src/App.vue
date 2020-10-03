@@ -11,7 +11,8 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('init')
+    this.$store
+      .dispatch('init')
       .then(() => {
         this.show = true
       })

@@ -358,7 +358,6 @@ export default new Vuex.Store({
           }
         }
       }
-
       commit('setSelectedItems', newItems)
 
       if (fetchTree) {

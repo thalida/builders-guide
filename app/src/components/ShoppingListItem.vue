@@ -174,7 +174,6 @@ export default {
       return this.combinedHave >= this.item.amount_required
     },
   },
-  watch: {},
   created () {
     this.debouncedUpdateList = debounce(this.updateShoppingList, 300)
   },
