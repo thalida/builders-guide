@@ -1,0 +1,10 @@
+{
+  "type": "cookbook:game_mechanic",
+  "name": "written_book",
+  "ingredients": [
+    "minecraft:writable_book"
+  ],
+  "result": {
+    "item": "minecraft:written_book"
+  }
+}

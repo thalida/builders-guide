@@ -1,0 +1,10 @@
+{
+  "type": "cookbook:naturally_occurring",
+  "name": "emerald_from_mining",
+  "ingredient": {
+    "item": "minecraft:emerald_ore"
+  },
+  "result": {
+    "item": "minecraft:emerald"
+  }
+}

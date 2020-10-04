@@ -1,0 +1,11 @@
+{
+  "type": "cookbook:game_mechanic",
+  "name": "tropical_fish_bucket",
+  "ingredients": [
+    "minecraft:tropical_fish",
+    "minecraft:bucket"
+  ],
+  "result": {
+    "item": "minecraft:tropical_fish_bucket"
+  }
+}

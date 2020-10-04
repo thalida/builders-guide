@@ -24,7 +24,8 @@ const vuexLocal = new VuexPersistence({
 })
 
 const supportedVersions = [
-  '1.15'
+  '1.15',
+  '1.16'
 ]
 
 export default new Vuex.Store({
@@ -41,6 +42,7 @@ export default new Vuex.Store({
     selectedBuildPaths: [],
     visibleBuildPath: [],
     shoppingList: {},
+    defaultShoppingList: {},
     haveAlready: {},
     requests: {
       fetchItems: {
@@ -72,6 +74,13 @@ export default new Vuex.Store({
     setSkipSplash (state, bool) {
       state.skipSplash = bool
     },
+    setSelectedVersion (state, version) {
+      if (!state.supportedVersions.includes(version)) {
+        state.selectedVersion = state.supportedVersions[0]
+      } else {
+        state.selectedVersion = version
+      }
+    },
     setItems (state, itemsArr) {
       const gameData = state.gameData
       if (typeof gameData[state.selectedVersion] === 'undefined') {
@@ -102,6 +111,9 @@ export default new Vuex.Store({
     },
     setShoppingList (state, shoppingList) {
       state.shoppingList = shoppingList
+    },
+    setDefaultShoppingList (state, shoppingList) {
+      state.defaultShoppingList = shoppingList
     },
     setHaveAlready (state) {
       const haveAlready = {}
@@ -237,6 +249,7 @@ export default new Vuex.Store({
       return new Promise((resolve, reject) => {
         if (state.recipeTree.length === 0) {
           commit('setRequest', { requestName, cancelToken: null })
+          commit('setDefaultShoppingList', [])
           commit('setShoppingList', [])
           commit('setHaveAlready')
           resolve()
@@ -255,6 +268,7 @@ export default new Vuex.Store({
           )
           .then(response => {
             commit('setRequest', { requestName, cancelToken: null })
+            commit('setDefaultShoppingList', clone(response.data))
             commit('setShoppingList', response.data)
             commit('setHaveAlready')
             resolve()
@@ -378,9 +392,23 @@ export default new Vuex.Store({
       commit('setHaveAlready')
       return dispatch('fetchShoppingList')
     },
+    resetShoppingList ({ commit, dispatch, state }) {
+      return new Promise((resolve, reject) => {
+        const origList = clone(state.defaultShoppingList)
+        console.log(origList)
+        commit('setShoppingList', origList)
+        commit('setHaveAlready')
+        dispatch('fetchShoppingList')
+        resolve()
+      })
+    },
     updateVisibleBuildPath ({ commit }, newPath) {
       commit('setVisibleBuildPath', newPath)
-    }
+    },
+    updateSelectedVersion ({ state, commit, dispatch }, version) {
+      commit('setSelectedVersion', version)
+      dispatch('init')
+    },
   },
   modules: {
   }

@@ -1,0 +1,11 @@
+{
+  "type": "cookbook:naturally_occurring",
+  "name": "diamond_from_mining",
+  "ingredient": {
+    "item": "minecraft:diamond_ore"
+  },
+  "result": {
+    "item": "minecraft:diamond",
+    "count": 1
+  }
+}

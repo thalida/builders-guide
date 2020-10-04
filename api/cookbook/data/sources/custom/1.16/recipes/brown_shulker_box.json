@@ -1,0 +1,11 @@
+{
+  "type": "cookbook:recipe",
+  "name": "brown_shulker_box",
+  "ingredients": [
+    "minecraft:shulker_box",
+    "minecraft:brown_dye"
+  ],
+  "result": {
+    "item": "minecraft:brown_shulker_box"
+  }
+}

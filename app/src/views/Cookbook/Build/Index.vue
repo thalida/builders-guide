@@ -4,8 +4,15 @@
     :class="[{
       'cookbook-build--is-empty': !hasSelectedItems
     }]">
-    <select class="cookbook-build__version">
-      <option>v1.15.2</option>
+    <select
+      class="cookbook-build__version"
+      v-model="selectedVersion">
+      <option
+        v-for="version in supportedVersions"
+        :key="version"
+        :value="version">
+        Version {{ version }}
+      </option>
     </select>
 
     <div class="cookbook-build__menu">
@@ -38,8 +45,9 @@
         @keyup.enter="selectRandomItems()">
         Randomly Select Items
       </a>
-      <p>or</p>
+      <p v-if="isDebugMode">or</p>
       <a
+        v-if="isDebugMode"
         class="link"
         tabindex="0"
         @click="selectAllItems()"
@@ -117,13 +125,27 @@ export default {
     crossIcon,
   },
   data () {
+    const isDevelopment = process.env.NODE_ENV === 'development'
+    const enableDebug = true
     return {
+      isDebugMode: enableDebug && isDevelopment,
       searchTerm: null
     }
   },
   computed: {
     items () {
       return this.$store.state.gameData[this.$store.state.selectedVersion].items
+    },
+    selectedVersion: {
+      get () {
+        return this.$store.state.selectedVersion
+      },
+      set (version) {
+        this.$store.dispatch('updateSelectedVersion', version)
+      }
+    },
+    supportedVersions () {
+      return this.$store.state.supportedVersions
     },
     selectedItems () {
       return this.$store.state.selectedItems

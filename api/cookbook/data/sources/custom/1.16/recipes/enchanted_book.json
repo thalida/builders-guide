@@ -1,0 +1,10 @@
+{
+  "type": "cookbook:enchanting",
+  "name": "enchanted_book",
+  "ingredients": [
+    "minecraft:book"
+  ],
+  "result": {
+    "item": "minecraft:enchanted_book"
+  }
+}

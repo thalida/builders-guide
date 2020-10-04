@@ -1,0 +1,11 @@
+{
+  "type": "cookbook:game_mechanic",
+  "name": "salmon_bucket",
+  "ingredients": [
+    "minecraft:salmon",
+    "minecraft:bucket"
+  ],
+  "result": {
+    "item": "minecraft:salmon_bucket"
+  }
+}

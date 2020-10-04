@@ -229,8 +229,17 @@ export function restoreSelectedItems (recipeTree, selectedBuildPaths, isOptionGr
     }
   }
 
-  if (foundSelectedNode !== null && !foundSelectedNode) {
-    const node = updatedTree[defaultNodeIdx]
+  if (
+    foundSelectedNode !== null &&
+    !foundSelectedNode &&
+    updatedTree.length > 0
+  ) {
+    let node = updatedTree[defaultNodeIdx]
+
+    if (typeof node === 'undefined') {
+      node = updatedTree[0]
+    }
+
     node.selected = true
   }
 

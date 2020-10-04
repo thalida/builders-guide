@@ -1,0 +1,11 @@
+{
+  "type": "cookbook:game_mechanic",
+  "name": "pufferfish_bucket",
+  "ingredients": [
+    "minecraft:pufferfish",
+    "minecraft:bucket"
+  ],
+  "result": {
+    "item": "minecraft:pufferfish_bucket"
+  }
+}

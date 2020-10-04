@@ -1,0 +1,11 @@
+{
+  "type": "cookbook:game_mechanic",
+  "name": "lava_bucket",
+  "ingredients": [
+    "minecraft:lava",
+    "minecraft:bucket"
+  ],
+  "result": {
+    "item": "minecraft:lava_bucket"
+  }
+}

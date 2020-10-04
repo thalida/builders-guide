@@ -1,0 +1,11 @@
+{
+  "type": "cookbook:naturally_occurring",
+  "name": "lapis_lazuli_from_mining",
+  "ingredient": {
+    "item": "minecraft:lapis_ore"
+  },
+  "result": {
+    "item": "minecraft:lapis_lazuli",
+    "count": 4
+  }
+}

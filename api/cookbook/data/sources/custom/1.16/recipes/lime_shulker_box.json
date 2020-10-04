@@ -1,0 +1,11 @@
+{
+  "type": "cookbook:recipe",
+  "name": "lime_shulker_box",
+  "ingredients": [
+    "minecraft:shulker_box",
+    "minecraft:lime_dye"
+  ],
+  "result": {
+    "item": "minecraft:lime_shulker_box"
+  }
+}

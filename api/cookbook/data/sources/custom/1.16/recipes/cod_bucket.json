@@ -1,0 +1,11 @@
+{
+  "type": "cookbook:game_mechanic",
+  "name": "cod_bucket",
+  "ingredients": [
+    "minecraft:cod",
+    "minecraft:bucket"
+  ],
+  "result": {
+    "item": "minecraft:cod_bucket"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "bad_value": "good_value",
+  "redstone_dust": "redstone",
+  "redstone_repeater": "repeater",
+  "redstone_comparator": "comparator",
+  "book_and_quill": "writable_book",
+  "iron_pressure_plate": "heavy_weighted_pressure_plate",
+  "gold_pressure_plate": "light_weighted_pressure_plate"
+}

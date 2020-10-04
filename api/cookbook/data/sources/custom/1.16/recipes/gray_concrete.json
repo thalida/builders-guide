@@ -1,0 +1,11 @@
+{
+  "type": "cookbook:game_mechanic",
+  "name": "gray_concrete",
+  "ingredients": [
+    "minecraft:gray_concrete_powder",
+    "minecraft:water"
+  ],
+  "result": {
+    "item": "minecraft:gray_concrete"
+  }
+}

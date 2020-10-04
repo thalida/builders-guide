@@ -77,8 +77,17 @@
           </div>
         </div>
       </div>
-
     </div> <!-- End Shopping List Content-->
+
+    <div v-if="numSelectedItems > 0" class="cookbook-shopping__actions">
+      <a
+        class="link"
+        tabindex="0"
+        @click="resetShoppingList()"
+        @keyup.enter="resetShoppingList()">
+        Reset shopping list
+      </a>
+    </div>
   </div> <!-- End Shopping List View-->
 </template>
 
@@ -212,6 +221,10 @@ export default {
     toggleBuildProcess () {
       this.showBuildProcess = !this.showBuildProcess
     },
+    resetShoppingList () {
+      // console.log('here?')
+      // this.$store.dispatch('resetShoppingList')
+    },
   },
 }
 </script>
@@ -318,6 +331,15 @@ export default {
     &__path {
       fill: #1D1007;
     }
+  }
+
+  &__actions {
+    display: flex;
+    width: 100%;
+    height: 3.4em;
+    justify-content: center;
+    align-items: center;
+    background: #F1F1F1;
   }
 }
 </style>

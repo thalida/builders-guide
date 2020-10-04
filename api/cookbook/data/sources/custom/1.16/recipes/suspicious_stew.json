@@ -1,0 +1,15 @@
+{
+  "type": "cookbook:recipe",
+  "name": "suspicious_stew",
+  "ingredients": [
+    "minecraft:red_mushroom",
+    "minecraft:brown_mushroom",
+    {
+      "tag": "minecraft:flowers"
+    },
+    "minecraft:bowl"
+  ],
+  "result": {
+    "item": "minecraft:suspicious_stew"
+  }
+}

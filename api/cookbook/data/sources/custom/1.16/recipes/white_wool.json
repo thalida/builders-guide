@@ -1,0 +1,10 @@
+{
+  "type": "cookbook:naturally_occurring",
+  "name": "white_wool_from_sheep",
+  "ingredient": {
+    "item": "cookbook:self"
+  },
+  "result": {
+    "item": "minecraft:white_wool"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "type": "cookbook:naturally_occurring",
+  "name": "quartz_from_mining",
+  "ingredient": {
+    "item": "minecraft:nether_quartz_ore"
+  },
+  "result": {
+    "item": "minecraft:quartz"
+  }
+}
