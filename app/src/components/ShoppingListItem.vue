@@ -96,7 +96,9 @@ export default {
     checkIcon,
   },
   data () {
-    return {}
+    return {
+      error: null
+    }
   },
   computed: {
     selectedItems: {
@@ -183,7 +185,9 @@ export default {
     getItemImage,
     getItemLabel,
     updateShoppingList (items) {
-      this.$store.dispatch('updateShoppingList', items)
+      this.$store
+        .dispatch('updateShoppingList', items)
+        .catch((err) => (this.error = err))
     },
     onCheckboxChange (e) {
       const isChecked = e.target.checked

@@ -82,7 +82,7 @@
   </div> <!-- End Tree -->
 </template>
 <script>
-import { clone, getItemImage, getItemLabel } from '@/helpers.js'
+import { getItemImage, getItemLabel } from '@/helpers.js'
 import recipesIcon from '@/components/icons/recipes.vue'
 import chatAlertIcon from '@/components/icons/chat-alert.vue'
 import ContentLooper from '@/components/ContentLooper.vue'
@@ -97,6 +97,7 @@ export default {
     return {
       treeByLevels: [],
       isResetting: false,
+      error: null,
     }
   },
   computed: {
@@ -105,7 +106,11 @@ export default {
         return this.$store.state.recipeTree
       },
       set (newTree) {
-        this.$store.dispatch('updateRecipeTree', newTree)
+        this.$store
+          .dispatch('updateRecipeTree', newTree)
+          .catch((err) => {
+            this.error = err
+          })
       }
     },
     visiblePath: {
@@ -226,7 +231,9 @@ export default {
           }
         }
 
-        node.renderKey = renderKey
+        if (!Array.isArray(node)) {
+          node.renderKey = renderKey
+        }
 
         const isStatic = (!isOptional && numNestedNodes === 0)
         const isOpen = (
@@ -290,6 +297,8 @@ export default {
     toggleTree (level, index, node, isInit) {
       isInit = (typeof isInit === 'boolean') ? isInit : false
 
+      const label = getItemLabel(node)
+      const renderKey = this.getRenderKey(level, label)
       const newVisiblePath = this.visiblePath.slice(0)
 
       if (!isInit) {
@@ -312,7 +321,7 @@ export default {
       if (!isInit) {
         newVisiblePath.push({
           index,
-          renderKey: node.renderKey
+          renderKey
         })
         this.visiblePath = newVisiblePath
         setTimeout(() => {
@@ -325,7 +334,7 @@ export default {
       currLevel = currLevel || 0
 
       if (typeof tree === 'undefined') {
-        tree = clone(this.recipeTree)
+        tree = this.recipeTree
       }
 
       if (currLevel > level) {
