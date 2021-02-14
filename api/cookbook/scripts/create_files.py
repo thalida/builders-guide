@@ -164,16 +164,16 @@ def create_bucket_recipes():
             json.dump(item_json, write_file, indent=2)
 
 
-{
-  "type": "cookbook:naturally_occurring",
-  "name": "white_wool_from_sheep",
-  "ingredient": {
-    "item": "cookbook:self"
-  },
-  "result": {
-    "item": "minecraft:white_wool"
-  }
-}
+# {
+#   "type": "cookbook:naturally_occurring",
+#   "name": "white_wool_from_sheep",
+#   "ingredient": {
+#     "item": "cookbook:self"
+#   },
+#   "result": {
+#     "item": "minecraft:white_wool"
+#   }
+# }
 
 
 

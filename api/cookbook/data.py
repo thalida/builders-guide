@@ -1,4 +1,5 @@
 import log
+
 import os
 import logging
 
@@ -108,22 +109,30 @@ def genertate_all_items(version):
         with open(filepath, "r") as f:
             data = f.read()
             item_data = json.loads(data)
-            if item_data.get("parent") == "builtin/entity":
-                continue
-
             filename = get_filename_from_path(filepath)
 
             if filename in [
                 "air",
                 "generated",
+                "debug_stick",
                 "handheld",
                 "handheld_rod",
-                "end_portal_frame",
                 "broken_elytra",
-                "chipped_anvil",
-                "damaged_anvil",
                 "filled_map",
-                "petrified_oak_slab"
+                "potion",
+                "splash_potion",
+                "lingering_potion",
+                "structure_block",
+                "structure_void",
+                "barrier",
+                "jigsaw",
+                "command_block",
+                "command_block_minecart",
+                "repeating_command_block",
+                "chain_command_block",
+                "experience_bottle",
+                "knowledge_book",
+                "spawner",
             ]:
                 continue
 
@@ -131,7 +140,15 @@ def genertate_all_items(version):
                 filename.find("spawn_egg") >= 0
                 or filename.find("clock_") >= 0
                 or filename.find("compass_") >= 0
+                or filename.find("coral_wall_fan") >= 0
             ):
+                continue
+
+            if item_data.get("parent") == "builtin/entity" and filename not in [
+                'shield',
+                'chest',
+                'conduit'
+            ]:
                 continue
 
             raw_items[filename] = item_data
@@ -141,7 +158,7 @@ def genertate_all_items(version):
         parent = data.get('parent', '/')
         parent_type, parent_name = parent.split('/')
 
-        if name != parent_name and parent_name in raw_items:
+        if name != parent_name and parent_name in ['crossbow', 'bow', 'fishing_rod']:
             continue
 
         items.append(name)

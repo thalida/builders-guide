@@ -67,15 +67,19 @@
           min="0"
           v-model.number="selectedItems[i].amount_required"
           @change="updateAmountRequired(i, $event)" />
-        <img
+
+        <item-image
+          :item="item"
+          class="cookbook-build__item-group__icon" />
+        <!-- <img
           v-once
           class="cookbook-build__item-group__icon"
-          :src="getItemImage(item.key)" />
+          :src="getItemImage(item)" /> -->
         <div class="cookbook-build__item-group__text">
           <span
             v-once
             class="item-title">
-            {{ getItemLabel(item) }}
+            {{ item.key }} {{ item.name }} {{ getItemLabel(item) }}
           </span>
           <a
             v-once
@@ -115,11 +119,13 @@ import blob from '@/components/blob.vue'
 import searchIcon from '@/components/icons/search.vue'
 import plaintextInputIcon from '@/components/icons/plaintext-input.vue'
 import crossIcon from '@/components/icons/cross.vue'
+import ItemImage from '@/components/ItemImage.vue'
 
 export default {
   name: 'CookbookBuild',
   components: {
     blob,
+    ItemImage,
     searchIcon,
     plaintextInputIcon,
     crossIcon,
@@ -156,6 +162,7 @@ export default {
   },
   created () {
     this.debouncedUpdateSelected = debounce(this.updateSelectedItems, 300)
+    console.log(this.selectedItems)
   },
   methods: {
     getItemImage,

@@ -29,7 +29,7 @@ export function getItemImage (node, attempt) {
   let image = null
 
   if (attempt === 1) {
-    image = node.name
+    image = node.key || node.name
   } else {
     image = node.result_name
   }

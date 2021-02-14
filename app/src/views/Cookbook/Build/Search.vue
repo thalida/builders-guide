@@ -41,10 +41,16 @@
                   <check-icon v-once class="checkbox__checkmark" />
                 </span>
                 <span class="search__results__details">
-                  <img
+
+                  <item-image
+                    v-once
+                    :item="renderData[letter].items[itemKey].name"
+                    class="search__results__icon" />
+
+                  <!-- <img
                     v-once
                     class="search__results__icon"
-                    :src="getItemImage(renderData[letter].items[itemKey].name)" />
+                    :src="getItemImage(renderData[letter].items[itemKey].name)" /> -->
 
                   <span v-once class="search__results__name">
                     {{ getItemLabel(renderData[letter].items[itemKey].renderKey) }}
@@ -94,6 +100,7 @@
 <script>
 import { ITEM_ALIASES, getItemImage, getItemLabel } from '@/helpers.js'
 import Modal from '@/components/Modal.vue'
+import ItemImage from '@/components/ItemImage.vue'
 import searchIcon from '@/components/icons/search.vue'
 import checkIcon from '@/components/icons/check.vue'
 
@@ -104,6 +111,7 @@ export default {
   },
   components: {
     Modal,
+    ItemImage,
     searchIcon,
     checkIcon,
   },

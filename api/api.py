@@ -9,9 +9,7 @@ from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
 from flask_compress import Compress
 
-import cookbook.utils
-import cookbook.data
-import cookbook.calculator
+import cookbook
 
 API_ENV = os.environ['BG_API_ENV']
 
