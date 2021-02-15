@@ -1,46 +1,20 @@
 # builder's guide
 
 # Todo
--[x] autogenerate recipe files
--[] auto choose recipe by shortest steps
+-[x] Refactor ItemImage to take one or many items to loop through
+-[x] content looper logic would (kinda) be in item image as transtions
+-[] Once done test if stained glass works
+-[] Afterwards get stained glass panes to work
+-[] Confirm all sets are working correctly
+-[] Check if 1.15 vs 1.16 dropdown works
+-[] Get images for werid things like "cows" and "water"
+-[] Create a better placeholder image
+-[] Review ALL complex logic
 
-## Missing recipes
--[x] concrete (all)
--[x] shulker (all)
--[x] water bucket
--[x] Suspicious Stew
--[x] andesite (natural)
--[x] diorite (natural)
--[x] terracotta (natural)
--[x] leather (natural)
--[x] granite (natural)
--[x] Sandstone (natural)
--[-] sponge (natural)
--[x] Slime Ball (natural)
--[x] Cod Bucket
--[x] Lava Bucket
--[x] Pufferfish Bucket
--[x] Salmon Bucket
--[x] Tropical Fish Bucket
--[-] Wet Sponge (sponge)
--[x] Enchanted Book
--[x] Written Book
--[x] Carved Pumpkin
+----
 
-## What to do?
--[-] Dead Bubble Coral Block
-
-## Alias
--[x] Iron pressure plate (Heavy weighted pressure plate)
--[x] gold pressure plate (Light weighted pressure plate)
--[x] book & quill (writeable blook)
-
-## Hide
--[x] Chipped Anvil
--[x] Filled Map
--[x] Petrified Oak Slab
-
-# Don't Look
+# Tests
+## Build Item List
 https://www.youtube.com/watch?v=2sCEsghQI6w
 Observer: 334
 Redstone Dust: 287
@@ -76,12 +50,15 @@ Flower Pot: 1
 Spruce Sapling: 1
 White Wool: 1
 
-
+## Generic Groups of Items
 10 wool
 10 concrete
 10 concrete powder
-10 stained glass
 10 glass
+10 glass panes
+10 stained glass
+10 stained glass panes
 10 terracotta
+10 glazed terracotta
 10 shulker boxes
 10 beds

@@ -69,7 +69,7 @@
           @change="updateAmountRequired(i, $event)" />
 
         <item-image
-          :item="item"
+          :item="(item.tag) ? recipeTree[i] : item"
           :size="32"
           class="cookbook-build__item-group__icon" />
 
@@ -153,6 +153,9 @@ export default {
     },
     selectedItems () {
       return this.$store.state.selectedItems
+    },
+    recipeTree () {
+      return this.$store.state.recipeTree
     },
     hasSelectedItems () {
       return this.selectedItems.length > 0

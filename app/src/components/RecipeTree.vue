@@ -49,24 +49,10 @@
           @keyup.enter="handleNodeSelected(level, index, formattedNode.node)">
 
           <div class="recipe-tree__node__content">
-            <!-- If this node is an option group loop through all the images -->
-            <content-looper
-              v-if="formattedNode.isOptionGroup"
-              class="recipe-tree__node__icon-set">
-              <item-image
-                v-for="(nestedNode, nni) in formattedNode.node"
-                :key="nni"
-                class="recipe-tree__node__icon"
-                :item="nestedNode"
-                :size="32" />
-            </content-looper>
-
-            <!-- Otherwise render the node image -->
             <item-image
-              v-else
-              class="recipe-tree__node__icon"
               :item="formattedNode.node"
-              :size="32" />
+              :size="32"
+              class="recipe-tree__node__icon" />
 
             <!-- Node text -->
             <div class="recipe-tree__node__text">
@@ -88,14 +74,12 @@ import { getItemLabel } from '@/helpers.js'
 import recipesIcon from '@/components/icons/recipes.vue'
 import chatAlertIcon from '@/components/icons/chat-alert.vue'
 import ItemImage from '@/components/ItemImage.vue'
-import ContentLooper from '@/components/ContentLooper.vue'
 
 export default {
   components: {
     recipesIcon,
     chatAlertIcon,
     ItemImage,
-    ContentLooper,
   },
   data () {
     return {
@@ -478,23 +462,6 @@ export default {
 
     &__checkbox {
       display: none;
-    }
-
-    &__icon-set {
-      position: relative;
-      flex: 0 0 32px;
-      width: 32px;
-      height: 32px;
-      margin: 0 1em 0 0;
-      overflow: hidden;
-
-      .recipe-tree__node__icon {
-        display: block;
-        position: absolute;
-        top: 0;
-        left: 0;
-        margin: 0;
-      }
     }
 
     &__icon {
