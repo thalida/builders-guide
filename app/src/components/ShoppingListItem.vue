@@ -14,9 +14,10 @@
       </label>
 
       <div class="shopping-item__row__item">
-        <img
+        <item-image
           class="shopping-item__row__icon"
-          :src="getItemImage(itemName)" />
+          :item="itemName"
+          :size="32" />
 
         <div class="shopping-item__row__text">
           <span class="shopping-item__row__label">
@@ -68,9 +69,10 @@
         v-show="item.amount_used_for[usedForItem] > 0"
         :key="index"
         :href="`#${usedForItem}`">
-          <img
+          <item-image
             class="shopping-item__required-for__tag__icon"
-            :src="getItemImage(usedForItem)" />
+            :item="usedForItem"
+            :size="32" />
           <span class="shopping-item__required-for__tag__label">
             {{ getItemLabel(usedForItem) }}
           </span>
@@ -81,8 +83,9 @@
 
 <script>
 import debounce from 'lodash.debounce'
-import { getItemImage, getItemLabel } from '@/helpers.js'
+import { getItemLabel } from '@/helpers.js'
 import checkIcon from '@/components/icons/check.vue'
+import ItemImage from '@/components/ItemImage.vue'
 
 export default {
   props: {
@@ -94,6 +97,7 @@ export default {
   },
   components: {
     checkIcon,
+    ItemImage,
   },
   data () {
     return {
@@ -182,7 +186,6 @@ export default {
     this.debouncedUpdateList = debounce(this.updateShoppingList, 300)
   },
   methods: {
-    getItemImage,
     getItemLabel,
     updateShoppingList (items) {
       this.$store

@@ -5,9 +5,11 @@
           class="splash__background__item"
           v-for="(itemName, index) in renderItems"
           :key="index">
-          <img
-            class="splash__background__img"
-            :src="getItemImage(itemName)" />
+          <item-image
+            v-once
+            :item="itemName"
+            :size="64"
+            class="splash__background__img" />
         </div>
     </div>
 
@@ -41,13 +43,14 @@
 
 <script>
 import chevronRightIcon from '@/components/icons/chevron-right.vue'
-import { getItemImage } from '@/helpers.js'
+import ItemImage from '@/components/ItemImage.vue'
 
 // @ is an alias to /src
 export default {
   name: 'Splash',
   components: {
-    chevronRightIcon
+    chevronRightIcon,
+    ItemImage
   },
   data: () => {
     return {
@@ -74,7 +77,6 @@ export default {
     this.setupRenderItems()
   },
   methods: {
-    getItemImage,
     selectRandomItem (arr) {
       const len = arr.length
       const randIdx = Math.floor(Math.random() * Math.floor(len))

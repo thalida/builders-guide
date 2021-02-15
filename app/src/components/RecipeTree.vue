@@ -51,20 +51,22 @@
           <div class="recipe-tree__node__content">
             <!-- If this node is an option group loop through all the images -->
             <content-looper
-            v-if="formattedNode.isOptionGroup"
-            class="recipe-tree__node__icon-set">
-              <img
+              v-if="formattedNode.isOptionGroup"
+              class="recipe-tree__node__icon-set">
+              <item-image
                 v-for="(nestedNode, nni) in formattedNode.node"
                 :key="nni"
                 class="recipe-tree__node__icon"
-                :src="getItemImage(nestedNode)" />
+                :item="nestedNode"
+                :size="32" />
             </content-looper>
 
             <!-- Otherwise render the node image -->
-            <img
+            <item-image
               v-else
               class="recipe-tree__node__icon"
-              :src="getItemImage(formattedNode.node)" />
+              :item="formattedNode.node"
+              :size="32" />
 
             <!-- Node text -->
             <div class="recipe-tree__node__text">
@@ -82,15 +84,17 @@
   </div> <!-- End Tree -->
 </template>
 <script>
-import { getItemImage, getItemLabel } from '@/helpers.js'
+import { getItemLabel } from '@/helpers.js'
 import recipesIcon from '@/components/icons/recipes.vue'
 import chatAlertIcon from '@/components/icons/chat-alert.vue'
+import ItemImage from '@/components/ItemImage.vue'
 import ContentLooper from '@/components/ContentLooper.vue'
 
 export default {
   components: {
     recipesIcon,
     chatAlertIcon,
+    ItemImage,
     ContentLooper,
   },
   data () {
@@ -146,8 +150,6 @@ export default {
     this.initTreeLevels(this.recipeTree)
   },
   methods: {
-    getItemImage,
-    getItemLabel,
     initTreeLevels (tree) {
       this.treeByLevels = [tree]
 
@@ -208,7 +210,7 @@ export default {
         const node = nodes[i]
         const isOptionGroup = Array.isArray(node)
         const numNestedNodes = this.getNextLevel(node).length
-        const label = this.getItemLabel(node)
+        const label = getItemLabel(node)
         const renderKey = this.getRenderKey(level, label)
         let requirementsLabel = null
 

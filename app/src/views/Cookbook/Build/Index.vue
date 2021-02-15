@@ -70,16 +70,14 @@
 
         <item-image
           :item="item"
+          :size="32"
           class="cookbook-build__item-group__icon" />
-        <!-- <img
-          v-once
-          class="cookbook-build__item-group__icon"
-          :src="getItemImage(item)" /> -->
+
         <div class="cookbook-build__item-group__text">
           <span
             v-once
             class="item-title">
-            {{ item.key }} {{ item.name }} {{ getItemLabel(item) }}
+            {{ getItemLabel(item) }}
           </span>
           <a
             v-once
@@ -114,7 +112,7 @@
 
 <script>
 import debounce from 'lodash.debounce'
-import { getItemImage, getItemLabel } from '@/helpers.js'
+import { getItemLabel } from '@/helpers.js'
 import blob from '@/components/blob.vue'
 import searchIcon from '@/components/icons/search.vue'
 import plaintextInputIcon from '@/components/icons/plaintext-input.vue'
@@ -162,10 +160,8 @@ export default {
   },
   created () {
     this.debouncedUpdateSelected = debounce(this.updateSelectedItems, 300)
-    console.log(this.selectedItems)
   },
   methods: {
-    getItemImage,
     getItemLabel,
     updateSelectedItems (items) {
       this.$store.dispatch('updateSelectedItems', items)

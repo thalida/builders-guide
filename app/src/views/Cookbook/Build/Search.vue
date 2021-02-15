@@ -45,12 +45,8 @@
                   <item-image
                     v-once
                     :item="renderData[letter].items[itemKey].name"
+                    :size="32"
                     class="search__results__icon" />
-
-                  <!-- <img
-                    v-once
-                    class="search__results__icon"
-                    :src="getItemImage(renderData[letter].items[itemKey].name)" /> -->
 
                   <span v-once class="search__results__name">
                     {{ getItemLabel(renderData[letter].items[itemKey].renderKey) }}
@@ -98,7 +94,7 @@
 </template>
 
 <script>
-import { ITEM_ALIASES, getItemImage, getItemLabel } from '@/helpers.js'
+import { ITEM_ALIASES, getItemLabel } from '@/helpers.js'
 import Modal from '@/components/Modal.vue'
 import ItemImage from '@/components/ItemImage.vue'
 import searchIcon from '@/components/icons/search.vue'
@@ -169,7 +165,6 @@ export default {
     }, 0)
   },
   methods: {
-    getItemImage,
     getItemLabel,
     getRenderDataByQuery (query) {
       // if (typeof this.renderDataByQuery[query] !== 'undefined') {
