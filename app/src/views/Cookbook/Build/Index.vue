@@ -337,6 +337,10 @@ export default {
       height: 32px;
       width: 32px;
       margin: 0 1.0em;
+
+      .item-image__img {
+        width: 100%;
+      }
     }
 
     &__text {

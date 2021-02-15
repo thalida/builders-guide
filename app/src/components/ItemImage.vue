@@ -10,7 +10,7 @@
       v-for="(nestedItem, i) in item"
       v-show="i === visibleIdx"
       class="item-image__img"
-      :key="i"
+      :key="`item-${i}`"
       :src="getItemImage(nestedItem)" />
   </transition-group>
 

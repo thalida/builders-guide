@@ -242,6 +242,10 @@ export default {
       height: 32px;
       width: 32px;
       margin: 0 1.0em;
+
+      .item-image__img {
+        width: 100%;
+      }
     }
 
     &__inputs {
@@ -305,6 +309,10 @@ export default {
         width: 1.4em;
         height: 1.4em;
         margin: 0 0.8em 0 0;
+
+        .item-image__img {
+          width: 100%;
+        }
       }
 
       &__label {

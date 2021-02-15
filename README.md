@@ -3,11 +3,11 @@
 # Todo
 -[x] Refactor ItemImage to take one or many items to loop through
 -[x] content looper logic would (kinda) be in item image as transtions
--[] Once done test if stained glass works
--[] Afterwards get stained glass panes to work
+-[x] Once done test if stained glass works
+-[] get missing tags (eg. stained glass pane group)
 -[] Confirm all sets are working correctly
 -[] Check if 1.15 vs 1.16 dropdown works
--[] Get images for werid things like "cows" and "water"
+-[] Get images for weird things like "cows" and "water"
 -[] Create a better placeholder image
 -[] Review ALL complex logic
 
