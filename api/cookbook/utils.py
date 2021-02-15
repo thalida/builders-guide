@@ -10,19 +10,24 @@ logger = logging.getLogger(__name__)
 
 import re
 import inflect
+from collections import defaultdict
 
 inflect_engine = inflect.engine()
 
 
 # Regex used to get the amount and item name from a string
-ITEM_LIST_REGEX = (
-    # r"^(?P<amount1>[\d,]+)?(.*?)(?P<name>[A-Za-z\-_ ]+)(.*?)(?P<amount2>[\d,]+)?$"
-    r"^(?P<amount1>[\d,\-\s]+)?(.*?)(?P<name>[A-Za-z\-_ ]+)(.*?)(?P<amount2>[\d,\-\s]+)?$"
+ITEM_LIST_REGEX = re.compile(
+    r"^(?P<amount1>[\d,\-\s]+)?(.*?)(?P<name>[A-Za-z\-_ ]+)(.*?)(?P<amount2>[\d,\-\s]+)?$",
+    re.MULTILINE | re.IGNORECASE
 )
 
 # Regex used to split a string into words
-WORD_SEPERATORS_REGEX = r"[\W_]+"
+WORD_SEPERATORS_REGEX = re.compile(r"[\W_]+")
 
+# Regex used for converting block(s) of item to item_block
+BLOCKS_FORMAT_REGEX = re.compile(r"blocks?_of_")
+
+cache = defaultdict(dict)
 
 def parse_item_name(orig_item_name):
     """Get the actual item name from a string, Minecraft prepends items with
@@ -74,6 +79,10 @@ def is_supported_recipe(recipe):
     Returns:
         bool -- True if the recipe is one of the support types below or is custom
     """
+    cached_value = cache.get('supported_recipe', {}).get(recipe["name"])
+    if cached_value is not None:
+        return cached_value
+
     recipe_type = recipe["type"]
     supported_types = [
         "minecraft:blasting",
@@ -89,11 +98,10 @@ def is_supported_recipe(recipe):
     # is_supported = true
     is_supported = recipe_type in supported_types
     is_custom = is_custom_recipe(recipe)
+    res = is_supported or is_custom
 
-    if not is_supported:
-        print(recipe_type)
-
-    return is_supported or is_custom
+    cache['supported_recipe'][recipe["name"]] = res
+    return res
 
 
 def generate_correct_item_name(
@@ -115,14 +123,19 @@ def generate_correct_item_name(
     Returns:
         string or bool -- Either return the correctly generated string or False
     """
+    cached_value = cache.get('correct_item_name', {}).get(raw_name)
+    if cached_value is not None:
+        return cached_value
+
     # Let's format the name so it's snakecase
     # First split the name into separate words
-    name_parts = re.split(WORD_SEPERATORS_REGEX, raw_name)
+    name_parts = WORD_SEPERATORS_REGEX.split(raw_name)
 
     # Discard any empty strings
     name_parts = [word for word in name_parts if len(word) > 0]
 
     if len(name_parts) == 0:
+        cache['correct_item_name'][raw_name] = ""
         return ""
 
     # Check if the word is singular, if so we'll try to pluralize on the retry
@@ -145,10 +158,10 @@ def generate_correct_item_name(
     # Rejoin the word with underscores
     name = "_".join(name_parts).lower()
 
-    # Check if the format "Blocks of Item"
-    if name.find("blocks_of_") >= 0:
-        name = name.replace("blocks_of_", "")
-        name = f'{name}_block'
+    # Check if the format "Blocks of Item" or "Block of Item"
+    if BLOCKS_FORMAT_REGEX.match(name):
+        item_name = name.split('_', 2)[-1]
+        name = f'{item_name}_block'
 
     # Check if this itemname maps to something else
     name = item_mappings.get(name, name)
@@ -165,6 +178,7 @@ def generate_correct_item_name(
         else:
             return False
 
+    cache['correct_item_name'][raw_name] = name
     return name
 
 
@@ -214,7 +228,7 @@ def parse_items_from_string(
             num_processed_lines += 1
 
             # Use regex to get the amount and name from the string
-            matches = re.match(ITEM_LIST_REGEX, line, re.MULTILINE | re.IGNORECASE)
+            matches = ITEM_LIST_REGEX.match(line)
             groups = matches.groupdict()
 
             # If we couldn't parse the name, log to errors and move on
@@ -241,8 +255,11 @@ def parse_items_from_string(
                 amount_arr = amount.split('-')
                 amount = amount_arr[-1]
 
-            # Make sure it's an int -- no partial crafting allowed
-            amount = int(amount)
+            try:
+                # Make sure it's an int -- no partial crafting allowed
+                amount = int(amount)
+            except Exception as e:
+                amount = 1
 
             src_name = groups.get("name")
             name = generate_correct_item_name(

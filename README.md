@@ -14,6 +14,7 @@
 -[] Review ALL complex logic
 -[] Refactor how crafting_special_* recipes are fetched (stop excluding them setup directory with special definitions)
 -[] how to handle stick and stick from bamboo (eg 2 stick extra)
+-[x] Block of Redstone
 
 ----
 

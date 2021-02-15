@@ -9,9 +9,9 @@ logger = logging.getLogger(__name__)
 import glob
 import json
 import sys
+from collections import defaultdict
 
 import cookbook.utils
-from collections import defaultdict
 
 cur_dir = os.path.dirname(sys.argv[0])
 
@@ -262,6 +262,7 @@ def generate_all_recipes(version):
             if isinstance(recipe_result, str):
                 recipe_data["result"] = {"item": recipe_result}
 
+            recipe_data["name"] = recipe_name
             recipes[recipe_name] = recipe_data
 
     # Write the formatted recipe data to a file

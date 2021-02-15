@@ -5,6 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 pytest = "*"
+snakeviz = "*"
 
 [packages]
 flask = "*"
@@ -12,7 +13,7 @@ inflect = "*"
 flask-cors = "*"
 python-logstash = "*"
 python-logstash-async = "*"
-flask-compress = "*"
+line-profiler = "*"
 
 [requires]
 python_version = "3.7"

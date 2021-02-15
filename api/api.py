@@ -5,26 +5,28 @@ import logging
 os.environ["TZ"] = "UTC"
 logger = logging.getLogger(__name__)
 
-from flask import Flask, jsonify, request, abort
+from flask import Flask, request, abort
 from flask_cors import CORS
-from flask_compress import Compress
+import gzip
 
+from decorators import profile, compress
 import cookbook
 
 API_ENV = os.environ['BG_API_ENV']
-
-os.environ["TZ"] = "UTC"
-app = Flask(__name__)
-app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
-
-Compress(app)
-cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+IS_MIGRATION = False
+HOT_RELOAD_ENABLED = API_ENV == 'debug' or API_ENV == 'hot_production'
+FORCE_RECREATE_DATA = API_ENV == 'debug' or IS_MIGRATION
 
 BAD_REQUEST = 400
 SERVER_ERROR = 500
 
+os.environ["TZ"] = "UTC"
+app = Flask(__name__)
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+
 
 @app.route("/api/<version>/items", methods=["GET"])
+@compress
 def api_get_items(version):
     """GET all items for a given version of Minecraft Java Edition
 
@@ -35,8 +37,7 @@ def api_get_items(version):
         list -- all items
     """
     try:
-        items = cookbook.data.fetch_all_items(version, force_create=app.debug)
-        return jsonify(items)
+        return cookbook.data.fetch_all_items(version, force_create=FORCE_RECREATE_DATA)
     except Exception as e:
         logger.exception(e)
         abort(SERVER_ERROR)
@@ -53,7 +54,7 @@ def api_get_recipes(version):
         list -- all recipes
     """
     try:
-        return cookbook.data.fetch_all_recipes(version, force_create=app.debug)
+        return cookbook.data.fetch_all_recipes(version, force_create=FORCE_RECREATE_DATA)
     except Exception:
         abort(SERVER_ERROR)
 
@@ -69,7 +70,7 @@ def api_get_tags(version):
         list -- all tags
     """
     try:
-        return cookbook.data.fetch_all_tags(version, force_create=app.debug)
+        return cookbook.data.fetch_all_tags(version, force_create=FORCE_RECREATE_DATA)
     except Exception:
         abort(SERVER_ERROR)
 
@@ -85,12 +86,13 @@ def api_get_item_mappings(version):
         list -- all item mappings
     """
     try:
-        return cookbook.data.fetch_item_mappings(version, force_create=app.debug)
+        return cookbook.data.fetch_item_mappings(version, force_create=FORCE_RECREATE_DATA)
     except Exception:
         abort(SERVER_ERROR)
 
 
 @app.route("/api/<version>/supported_recipes_and_items", methods=["GET"])
+@compress
 def api_get_supported_recipes_and_items(version):
     """GET all supported recipes and craftable items
         Supported recipes consist of anything that pass utils.is_supported_recipe()
@@ -103,18 +105,17 @@ def api_get_supported_recipes_and_items(version):
     """
 
     try:
-        recipes = cookbook.data.fetch_all_recipes(version, force_create=app.debug)
+        recipes = cookbook.data.fetch_all_recipes(version, force_create=FORCE_RECREATE_DATA)
         supported_recipes_by_result = cookbook.data.get_supported_recipes_by_result(
-            version, recipes, force_create=app.debug
+            version, recipes, force_create=FORCE_RECREATE_DATA
         )
         supported_craftable_items = cookbook.data.get_supported_craftable_items(
-            version, supported_recipes_by_result, force_create=app.debug
+            version, supported_recipes_by_result, force_create=FORCE_RECREATE_DATA
         )
-        response = {
+        return {
             "supported_recipes_by_result": supported_recipes_by_result,
             "supported_craftable_items": supported_craftable_items,
         }
-        return jsonify(response)
     except Exception:
         abort(SERVER_ERROR)
 
@@ -137,7 +138,7 @@ def api_get_all_crafting_data(version):
         dict -- all crafting data
     """
     try:
-        return cookbook.data.get_all_crafting_data(version, force_create=app.debug)
+        return cookbook.data.get_all_crafting_data(version, force_create=FORCE_RECREATE_DATA)
     except Exception:
         abort(SERVER_ERROR)
 
@@ -161,7 +162,7 @@ def api_parse_items_from_string(version):
 
     try:
         all_crafting_data = cookbook.data.get_all_crafting_data(
-            version, force_create=app.debug
+            version, force_create=FORCE_RECREATE_DATA
         )
         return cookbook.utils.parse_items_from_string(
             parse_strings,
@@ -175,6 +176,7 @@ def api_parse_items_from_string(version):
 
 
 @app.route("/api/<version>/recipe_tree", methods=["POST"])
+@compress
 def api_recipe_tree(version):
     """Get all the recipes and ingredients required to craft the provided items
 
@@ -196,24 +198,26 @@ def api_recipe_tree(version):
 
     try:
         all_crafting_data = cookbook.data.get_all_crafting_data(
-            version, force_create=app.debug
+            version, force_create=FORCE_RECREATE_DATA
         )
 
-        recipe_tree, _ = cookbook.calculator.create_recipe_tree(
+        recipe_tree, stats = cookbook.calculator.create_recipe_tree(
             requested_items,
             selected_build_paths,
+            version=version,
             all_recipes=all_crafting_data["recipes"],
             all_tags=all_crafting_data["tags"],
             supported_recipes=all_crafting_data["supported_recipes"],
         )
 
-        return jsonify(recipe_tree)
+        return recipe_tree
     except Exception as e:
         logger.exception(e)
         abort(SERVER_ERROR)
 
 
 @app.route("/api/<version>/shopping_list", methods=["POST"])
+@compress
 def api_shopping_list(version):
     """Get the shopping list for the recipes selected
 
@@ -236,18 +240,16 @@ def api_shopping_list(version):
 
     try:
         all_crafting_data = cookbook.data.get_all_crafting_data(
-            version, force_create=app.debug
+            version, force_create=FORCE_RECREATE_DATA
         )
 
-        shopping_list = cookbook.calculator.create_shopping_list(
+        return cookbook.calculator.create_shopping_list(
             recipe_path, have_already=have_already
         )
-
-        return jsonify(shopping_list)
     except Exception as e:
         logger.exception(e)
         abort(SERVER_ERROR)
 
 
 if __name__ == "__main__":
-    app.run(debug=API_ENV=='debug', host="0.0.0.0", port="5000")
+    app.run(debug=HOT_RELOAD_ENABLED, host="0.0.0.0", port="5000")

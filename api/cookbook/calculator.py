@@ -7,10 +7,14 @@ logger = logging.getLogger(__name__)
 
 import time
 import math
+from collections import defaultdict
+from decorators import profile
 import cookbook.utils
 
+# Holds all cached responses
+ingredients_cache = defaultdict(dict)
 
-def get_ingredients(recipe, all_tags):
+def get_ingredients(recipe, all_tags, version):
     """Get the ingredients for a given recipe
 
     Arguments:
@@ -20,8 +24,13 @@ def get_ingredients(recipe, all_tags):
     Returns:
         list -- All ingredients for the recipe
     """
+    cached_value = ingredients_cache.get(version, {}).get(recipe["name"])
+    if cached_value is not None:
+        return cached_value
+
     # If this recipe isn't supported return no ingredients
     if not cookbook.utils.is_supported_recipe(recipe):
+        ingredients_cache[version][recipe["name"]] = []
         return []
 
     ingredients = []
@@ -49,6 +58,7 @@ def get_ingredients(recipe, all_tags):
 
         ingredients = format_recipe_ingredients(raw_ingredients, all_tags)
 
+    ingredients_cache[version][recipe["name"]] = ingredients
     return ingredients
 
 
@@ -236,15 +246,16 @@ def format_recipe_ingredients(
     # :D
     return formatted_ingredients
 
+# @profile
 def create_recipe_tree(
     items,
     selected_build_paths,
+    version,
     all_recipes,
     all_tags,
     supported_recipes,
     ancestors=None,
     is_group=False,
-    exclude_same_ingredients=True,
 ):
     """Using the list of `items` provided, generate it's recipe tree. A recipe tree
     is an item with a list of the recipes that craft it, each recipe has a set
@@ -310,6 +321,7 @@ def create_recipe_tree(
             response, res_stats = create_recipe_tree(
                 item,
                 selected_build_paths,
+                version=version,
                 all_recipes=all_recipes,
                 all_tags=all_tags,
                 supported_recipes=supported_recipes,
@@ -425,7 +437,7 @@ def create_recipe_tree(
             amount_created = recipe["result"].get("count", 1)
 
             # Get a list of all the ingredients
-            ingredients = get_ingredients(recipe, all_tags)
+            ingredients = get_ingredients(recipe, all_tags, version)
 
             new_selected_build_paths = selected_recipe.get('ingredients', {})
 
@@ -435,6 +447,7 @@ def create_recipe_tree(
             response, recipe_stats = create_recipe_tree(
                 ingredients,
                 new_selected_build_paths,
+                version=version,
                 all_recipes=all_recipes,
                 all_tags=all_tags,
                 supported_recipes=supported_recipes,
