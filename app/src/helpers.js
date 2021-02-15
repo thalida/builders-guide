@@ -8,43 +8,6 @@ export const ITEM_ALIASES = {
   light_weighted_pressure_plate: 'gold_pressure_plate'
 }
 
-export function getImage (image) {
-  const images = require.context('./assets/minecraft/1.15/32x32/', false, /\.png$/)
-  return images(`./${image}.png`)
-}
-
-export function getItemImage (node, attempt) {
-  const fallbackImg = 'air'
-
-  if (typeof node === 'string') {
-    try {
-      return getImage(node)
-    } catch (error) {
-      return getImage(fallbackImg)
-    }
-  }
-
-  attempt = attempt || 1
-  const maxAttempts = 2
-  let image = null
-
-  if (attempt === 1) {
-    image = node.key || node.name
-  } else {
-    image = node.result_name
-  }
-
-  try {
-    return getImage(image)
-  } catch (error) {
-    if (attempt < maxAttempts) {
-      return getItemImage(node, attempt + 1)
-    }
-
-    return getImage(fallbackImg)
-  }
-}
-
 export function getItemLabel (nodes, useAlias) {
   if (typeof useAlias !== 'boolean') {
     useAlias = true
@@ -152,14 +115,14 @@ export function getItemLabel (nodes, useAlias) {
 
 export function createBuildPaths (recipeTree, isGroup) {
   recipeTree = clone(recipeTree)
-  const path = []
+  let path = {}
 
   for (let i = 0, l = recipeTree.length; i < l; i += 1) {
     const node = recipeTree[i]
 
     if (Array.isArray(node)) {
       const chosenNode = createBuildPaths(node, true)
-      path.push(chosenNode[0])
+      path = Object.assign({}, path, chosenNode)
       continue
     }
 
@@ -167,15 +130,23 @@ export function createBuildPaths (recipeTree, isGroup) {
       continue
     }
 
-    const nodeCopy = Object.assign({}, node)
-
-    if (nodeCopy.num_recipes >= 1) {
-      nodeCopy.recipes = createBuildPaths(nodeCopy.recipes, true)
-    } else if (nodeCopy.ingredients && nodeCopy.ingredients.length > 0) {
-      nodeCopy.ingredients = createBuildPaths(nodeCopy.ingredients)
+    const pathNode = {
+      name: node.name,
+      tag: node.tag,
+      selected: node.selected,
+      type: node.type,
+      amount_required: node.amount_required,
+      amount_created: node.amount_created,
     }
 
-    path.push(nodeCopy)
+    if (node.num_recipes >= 1) {
+      const chosenRecipe = createBuildPaths(node.recipes, true)
+      pathNode.recipe = Object.values(chosenRecipe)[0]
+    } else if (node.ingredients && node.ingredients.length > 0) {
+      pathNode.ingredients = createBuildPaths(node.ingredients)
+    }
+
+    path[pathNode.name] = pathNode
 
     if (isGroup) {
       break
@@ -183,65 +154,4 @@ export function createBuildPaths (recipeTree, isGroup) {
   }
 
   return path
-}
-
-export function restoreSelectedItems (recipeTree, selectedBuildPaths, isOptionGroup, hasParent) {
-  isOptionGroup = (typeof isOptionGroup === 'boolean') ? isOptionGroup : false
-  hasParent = hasParent || false
-
-  const updatedTree = clone(recipeTree)
-  let selectedNode = (isOptionGroup) ? selectedBuildPaths : null
-  let defaultNodeIdx = null
-  let foundSelectedNode = null
-
-  for (let i = 0, l = updatedTree.length; i < l; i += 1) {
-    let node = updatedTree[i]
-
-    if (!isOptionGroup) {
-      selectedNode = selectedBuildPaths[i]
-    }
-
-    if (Array.isArray(node)) {
-      const isGroup = hasParent
-      const treatAsChild = hasParent
-      node = restoreSelectedItems(node, selectedNode, isGroup, treatAsChild)
-      continue
-    }
-
-    if (typeof selectedNode === 'undefined') {
-      break
-    }
-
-    if (isOptionGroup) {
-      defaultNodeIdx = (node.selected) ? i : null
-      node.selected = selectedNode.name === node.name
-      foundSelectedNode = foundSelectedNode || node.selected
-    }
-
-    if (!node.selected) {
-      continue
-    }
-
-    if (node.num_recipes >= 1) {
-      node.recipes = restoreSelectedItems(node.recipes, selectedNode.recipes[0], true, true)
-    } else if (node.ingredients && node.ingredients.length > 0) {
-      node.ingredients = restoreSelectedItems(node.ingredients, selectedNode.ingredients, false, true)
-    }
-  }
-
-  if (
-    foundSelectedNode !== null &&
-    !foundSelectedNode &&
-    updatedTree.length > 0
-  ) {
-    let node = updatedTree[defaultNodeIdx]
-
-    if (typeof node === 'undefined') {
-      node = updatedTree[0]
-    }
-
-    node.selected = true
-  }
-
-  return updatedTree
 }

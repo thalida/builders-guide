@@ -232,6 +232,7 @@ def format_recipe_ingredients(
 
 def create_recipe_tree(
     items,
+    selected_build_paths,
     all_recipes,
     all_tags,
     supported_recipes,
@@ -246,6 +247,7 @@ def create_recipe_tree(
 
     Arguments:
         items {list} -- All the items to be crafted
+        selected_build_paths {list} - The already selected build paths
         all_recipes {dict} -- All the recipes in the game
         all_tags {dict} -- All the tags in the game
         supported_recipes {dict} -- Only the supported recipes in the game!
@@ -268,6 +270,8 @@ def create_recipe_tree(
         'most_efficient_node': None,
         'min_items_required': 0,
     }
+
+    found_selected_node = not is_group
     selected_node_idx = None
 
     for (item_index, item) in enumerate(items):
@@ -299,6 +303,7 @@ def create_recipe_tree(
             # We need to ge the recipe tree for all of these item(s)
             response, res_stats = create_recipe_tree(
                 item,
+                selected_build_paths,
                 all_recipes=all_recipes,
                 all_tags=all_tags,
                 supported_recipes=supported_recipes,
@@ -337,6 +342,10 @@ def create_recipe_tree(
                 "min_recipe_ingredients": None,
             }
         }
+
+        if is_group and item_name in selected_build_paths:
+            node["selected"] = True
+            found_selected_node = True
 
         if not is_group:
             stats["min_items_required"] += amount_required
@@ -386,8 +395,12 @@ def create_recipe_tree(
         new_ancestors.append(item_name)
 
         recipe_tree = []
-        selected_recipe_idx = None
         found_circular_node = False
+
+        item_build_path = selected_build_paths.get(item_name, {})
+        selected_recipe = item_build_path.get('recipe', {})
+        found_selected_recipe = False
+        selected_recipe_idx = None
 
         # For every recipe we want to get it's ingredients, then generate another
         # branch of the recipe tree for how to craft those items -- sounds like
@@ -408,11 +421,14 @@ def create_recipe_tree(
             # Get a list of all the ingredients
             ingredients = get_ingredients(recipe, all_tags)
 
+            new_selected_build_paths = selected_recipe.get('ingredients', {})
+
             # Create our recipe tree for each ingredient -- this logic has
             # it's own function instead of calling recipe_tree again because
             # ingredients can be a list of arrays of any depth. Yep.
             response, recipe_stats = create_recipe_tree(
                 ingredients,
+                new_selected_build_paths,
                 all_recipes=all_recipes,
                 all_tags=all_tags,
                 supported_recipes=supported_recipes,
@@ -440,7 +456,10 @@ def create_recipe_tree(
                 "recipe_stats": recipe_stats,
             }
 
-            if (
+            if recipe_node['name'] == selected_recipe.get('name'):
+                found_selected_recipe = True
+                recipe_node['selected'] = True
+            elif (
                 node["stats"]["max_recipe_efficiency"] is None or
                 recipe_efficiency > node["stats"]["max_recipe_efficiency"]
             ):
@@ -450,7 +469,7 @@ def create_recipe_tree(
 
             recipe_tree.append(recipe_node)
 
-        if selected_recipe_idx is not None:
+        if not found_selected_recipe and selected_recipe_idx is not None:
             recipe_tree[selected_recipe_idx]["selected"] = True
 
         if node["stats"]["max_recipe_efficiency"] is None:
@@ -476,7 +495,7 @@ def create_recipe_tree(
         node["recipes"] = recipe_tree
         tree.append(node)
 
-    if is_group:
+    if not found_selected_node and is_group:
         tree[selected_node_idx]["selected"] = True
 
     if stats["most_efficient_node"] is None:
@@ -518,9 +537,9 @@ def create_shopping_list(
     if have_already is None:
         have_already = {}
 
-    for node_idx, node in enumerate(path):
+    for node_name, node in path.items():
         node_used_leftovers = parent_used_leftovers
-        node_name = node["name"]
+        # node_name = node["name"]
         amount_required = node["amount_required"]
 
         if not isinstance(amount_required, int):
@@ -534,7 +553,7 @@ def create_shopping_list(
             shopping_list[node_name] = {
                 "name": node_name,
                 "level": level,
-                "has_recipe": node["num_recipes"] > 0,
+                "has_recipe": node.get('recipe') is not None,
                 "amount_required": 0,
                 "amount_available": have,
                 "have": have,
@@ -579,20 +598,16 @@ def create_shopping_list(
                 node_used_leftovers = True
 
         # No recipes required to craft this item, so we can move on
-        if node["num_recipes"] == 0:
+        if node.get('recipe') is None:
             continue
-
-        # Now time to choose a recipe to craft with, either pick the recipe
-        # set by the path or...
-        chosen_recipe = node["recipes"][0]
 
         # The following logic is about making sure we have all the right amount
         # counts for this item in our shopping list!
         # v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v
 
-        recipe_amount_created = chosen_recipe.get("amount_created", 1)
+        recipe_amount_created = node["recipe"].get("amount_created", 1)
         shopping_list[node_name]["amount_recipe_creates"] = recipe_amount_created
-        shopping_list[node_name]["recipe_type"] = chosen_recipe['type']
+        shopping_list[node_name]["recipe_type"] = node["recipe"]["type"]
 
         if node_used_leftovers:
             next_recipe_multiplier = 0
@@ -606,20 +621,18 @@ def create_shopping_list(
         # ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^
 
         # Now it's time to get the shopping list required for every ingredient!
-        ingredients = chosen_recipe["ingredients"]
-        for idx, ingredient in enumerate(ingredients):
-            # Now get a new shopping list!
-            new_shopping_list = create_shopping_list(
-                [ingredient],
-                parent_node=node_name,
-                shopping_list=shopping_list,
-                have_already=have_already,
-                parent_used_leftovers=node_used_leftovers,
-                recipe_multiplier=next_recipe_multiplier,
-                level=level + 1
-            )
-            # Let's join our current list with the new data
-            shopping_list.update(new_shopping_list)
+        new_shopping_list = create_shopping_list(
+            node["recipe"].get('ingredients', {}),
+            parent_node=node_name,
+            shopping_list=shopping_list,
+            have_already=have_already,
+            parent_used_leftovers=node_used_leftovers,
+            recipe_multiplier=next_recipe_multiplier,
+            level=level + 1
+        )
+
+        # Let's join our current list with the new data
+        shopping_list.update(new_shopping_list)
 
     # And, we're done!
     return shopping_list

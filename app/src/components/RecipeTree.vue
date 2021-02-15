@@ -288,7 +288,7 @@ export default {
 
       this.toggleTree(level, index, node, isInit)
 
-      if (!isOptional) {
+      if (!isOptional || isInit) {
         return
       }
 

@@ -177,12 +177,11 @@ def api_parse_items_from_string(version):
 @app.route("/api/<version>/recipe_tree", methods=["POST"])
 def api_recipe_tree(version):
     """Get all the recipes and ingredients required to craft the provided items
-        Provide either parse_item_strings OR requested_items, will try to use
-        requested_items if provided.
 
     Arguments:
         version {string} -- Version of Minecraft Java Edition
-        requested_items {list} -- The items (already formatted) that you'd like crafted
+        items {list} -- The items (already formatted) that you'd like crafted
+        selected_build_paths {dict} - [optional] the currently selected build paths
 
     Returns:
         [dict] -- [description]
@@ -190,6 +189,7 @@ def api_recipe_tree(version):
     try:
         req_json = request.get_json(force=True)
         requested_items = req_json.get("items", [])
+        selected_build_paths = req_json.get("selected_build_paths", {})
     except Exception:
         logger.exception(e)
         abort(SERVER_ERROR)
@@ -201,6 +201,7 @@ def api_recipe_tree(version):
 
         recipe_tree, _ = cookbook.calculator.create_recipe_tree(
             requested_items,
+            selected_build_paths,
             all_recipes=all_crafting_data["recipes"],
             all_tags=all_crafting_data["tags"],
             supported_recipes=all_crafting_data["supported_recipes"],
