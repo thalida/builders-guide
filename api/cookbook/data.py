@@ -33,8 +33,6 @@ GENERATED_DATA_DIR = DATA_DIR + "generated/"
 ALL_ITEMS_FILE = GENERATED_DATA_DIR + "{version}/all_items.json"
 ALL_RECIPES_FILE = GENERATED_DATA_DIR + "{version}/all_recipes.json"
 ALL_ITEM_TAGS_FILE = GENERATED_DATA_DIR + "{version}/all_tags.json"
-RECIPE_TREE_OUTPUT_FILE = GENERATED_DATA_DIR + "{version}/recipe_tree.json"
-SHOPPING_LIST_OUTPUT_FILE = GENERATED_DATA_DIR + "{version}/shopping_list.json"
 
 # Holds all cached responses
 cache = defaultdict(dict)

@@ -33,8 +33,14 @@ def get_ingredients(recipe, all_tags):
     ]
 
     # Crafting recipes are a bit more complicated
-    if recipe["type"] in 'minecraft:crafting_shaped':
+    if recipe["type"] == 'minecraft:crafting_shaped':
         ingredients = get_shaped_recipe_ingredients(recipe, all_tags)
+    elif recipe["type"] == 'minecraft:smithing':
+        raw_ingredients = [
+            recipe.get("base"),
+            recipe.get("addition"),
+        ]
+        ingredients = format_recipe_ingredients(raw_ingredients, all_tags)
     else:
         raw_ingredients = recipe.get("ingredients", recipe.get("ingredient", []))
 

@@ -16,7 +16,7 @@ def fix_image_name(s):
 def rename_item(filename, version):
     item = filename.split('.png')[0]
     map = {}
-    map['1.15'] = {
+    map[1.15] = {
         'block_of_redstone': 'redstone_block',
         'block_of_gold': 'gold_block',
         'block_of_iron': 'iron_block',
@@ -81,31 +81,31 @@ def rename_item(filename, version):
         'arrow_of_fire_resistance': 'tipped_arrow',
     }
 
-    map['1.16'] = map['1.15'].copy()
-    map['1.16']['block_of_netherite'] = 'netherite_block'
-    map['1.16']['smooth_quartz_block'] = 'smooth_quartz'
-    map['1.16']['banner_pattern'] = 'flower_banner_pattern'
-    map['1.16']['banner_pattern_1'] = 'creeper_banner_pattern'
-    map['1.16']['banner_pattern_2'] = 'skull_banner_pattern'
-    map['1.16']['banner_pattern_3'] = 'mojang_banner_pattern'
-    map['1.16']['banner_pattern_4'] = 'globe_banner_pattern'
-    map['1.16']['banner_pattern_5'] = 'piglin_banner_pattern'
-    del map['1.16']['banner_pattern_6']
+    map[1.16] = map[1.15].copy()
+    map[1.16]['block_of_netherite'] = 'netherite_block'
+    map[1.16]['smooth_quartz_block'] = 'smooth_quartz'
+    map[1.16]['banner_pattern'] = 'flower_banner_pattern'
+    map[1.16]['banner_pattern_1'] = 'creeper_banner_pattern'
+    map[1.16]['banner_pattern_2'] = 'skull_banner_pattern'
+    map[1.16]['banner_pattern_3'] = 'mojang_banner_pattern'
+    map[1.16]['banner_pattern_4'] = 'globe_banner_pattern'
+    map[1.16]['banner_pattern_5'] = 'piglin_banner_pattern'
+    del map[1.16]['banner_pattern_6']
 
-    map['1.16']['music_disc'] = 'music_disc_13'
-    map['1.16']['music_disc_1'] = 'music_disc_cat'
-    map['1.16']['music_disc_2'] = 'music_disc_blocks'
-    map['1.16']['music_disc_3'] = 'music_disc_chirp'
-    map['1.16']['music_disc_4'] = 'music_disc_far'
-    map['1.16']['music_disc_5'] = 'music_disc_mall'
-    map['1.16']['music_disc_6'] = 'music_disc_mellohi'
-    map['1.16']['music_disc_7'] = 'music_disc_stal'
-    map['1.16']['music_disc_8'] = 'music_disc_strad'
-    map['1.16']['music_disc_9'] = 'music_disc_ward'
-    map['1.16']['music_disc_11'] = 'music_disc_wait'
-    map['1.16']['music_disc_10'] = 'music_disc_11'
-    map['1.16']['music_disc_12'] = 'music_disc_pigstep'
-    del map['1.16']['music_disc_14']
+    map[1.16]['music_disc'] = 'music_disc_13'
+    map[1.16]['music_disc_1'] = 'music_disc_cat'
+    map[1.16]['music_disc_2'] = 'music_disc_blocks'
+    map[1.16]['music_disc_3'] = 'music_disc_chirp'
+    map[1.16]['music_disc_4'] = 'music_disc_far'
+    map[1.16]['music_disc_5'] = 'music_disc_mall'
+    map[1.16]['music_disc_6'] = 'music_disc_mellohi'
+    map[1.16]['music_disc_7'] = 'music_disc_stal'
+    map[1.16]['music_disc_8'] = 'music_disc_strad'
+    map[1.16]['music_disc_9'] = 'music_disc_ward'
+    map[1.16]['music_disc_11'] = 'music_disc_wait'
+    map[1.16]['music_disc_10'] = 'music_disc_11'
+    map[1.16]['music_disc_12'] = 'music_disc_pigstep'
+    del map[1.16]['music_disc_14']
 
     if item in map[version]:
         return map[version][item] + '.png'
@@ -136,5 +136,5 @@ def process_images(version):
         os.rename(path, new_path)
 
 
-game_version = '1.16'
+game_version = 1.16
 process_images(game_version)

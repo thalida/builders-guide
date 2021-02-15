@@ -24,8 +24,8 @@ const vuexLocal = new VuexPersistence({
 })
 
 const supportedVersions = [
-  '1.15',
-  '1.16'
+  1.16,
+  1.15,
 ]
 
 export default new Vuex.Store({

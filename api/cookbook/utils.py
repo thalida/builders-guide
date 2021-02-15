@@ -77,6 +77,7 @@ def is_supported_recipe(recipe):
     recipe_type = recipe["type"]
     supported_types = [
         "minecraft:blasting",
+        "minecraft:smithing",
         "minecraft:campfire_cooking",
         "minecraft:crafting_shaped",
         "minecraft:crafting_shapeless",
@@ -85,8 +86,12 @@ def is_supported_recipe(recipe):
         "minecraft:stonecutting",
     ]
 
+    # is_supported = true
     is_supported = recipe_type in supported_types
     is_custom = is_custom_recipe(recipe)
+
+    if not is_supported:
+        print(recipe_type)
 
     return is_supported or is_custom
 
