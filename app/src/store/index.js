@@ -68,6 +68,9 @@ export default new Vuex.Store({
       }
 
       return selectedByKey
+    },
+    compatibleSelectedItems: state => {
+      return state.selectedItems.filter(item => !item.incompatible)
     }
   },
   mutations: {
@@ -147,11 +150,22 @@ export default new Vuex.Store({
   },
   actions: {
     init ({ state, dispatch }) {
-      const fetchItemsPromise = dispatch('fetchItems')
-      dispatch('fetchRecipeTree')
-        .then(() => dispatch('fetchShoppingList'))
+      return new Promise((resolve, reject) => {
+        dispatch('fetchItems').then(() => {
+          if (state.selectedItems.length > 0) {
+            const versionedItems = state.gameData[state.selectedVersion].items
+            for (let i = 0, l = state.selectedItems.length; i < l; i += 1) {
+              const selectedItem = state.selectedItems[i]
+              selectedItem.incompatible = !versionedItems.includes(selectedItem.name)
+            }
+          }
 
-      return fetchItemsPromise
+          dispatch('fetchRecipeTree')
+            .then(() => dispatch('fetchShoppingList'))
+
+          resolve()
+        })
+      })
     },
     fetchItems ({ state, commit }) {
       const requestName = 'fetchItems'
@@ -191,7 +205,7 @@ export default new Vuex.Store({
         }
       })
     },
-    fetchRecipeTree ({ state, commit, dispatch }) {
+    fetchRecipeTree ({ state, getters, commit, dispatch }) {
       const requestName = 'fetchRecipeTree'
       const request = state.requests[requestName]
 
@@ -203,7 +217,7 @@ export default new Vuex.Store({
       commit('setRequest', { requestName, cancelToken })
 
       return new Promise((resolve, reject) => {
-        const numSelectedItems = state.selectedItems.length
+        const numSelectedItems = getters.compatibleSelectedItems.length
         if (numSelectedItems === 0) {
           commit('setRequest', { requestName, cancelToken: null })
           commit('setDefaultRecipeTree', [])
@@ -217,7 +231,7 @@ export default new Vuex.Store({
           .post(
             `http://${hostname}:5000/api/${state.selectedVersion}/recipe_tree`,
             {
-              items: state.selectedItems,
+              items: getters.compatibleSelectedItems,
               selected_build_paths: state.selectedBuildPaths
             },
             { cancelToken: cancelToken.token }

@@ -8,7 +8,7 @@
 -[] Confirm all sets are working correctly
 -[x] Check if 1.15 vs 1.16 dropdown works
 -[x] treat version as number
--[] Remove unsupported items when dropping down a version
+-[x] Remove unsupported items when dropping down a version
 -[] Get images for weird things like "cows" and "water"
 -[] Create a better placeholder image
 -[] Review ALL complex logic

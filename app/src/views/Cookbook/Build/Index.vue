@@ -62,6 +62,7 @@
         v-for="(item, i) in selectedItems"
         :key="item.key">
         <input
+          v-if="!item.incompatible"
           class="cookbook-build__item-group__input"
           type="number"
           min="0"
@@ -69,6 +70,7 @@
           @change="updateAmountRequired(i, $event)" />
 
         <item-image
+          v-if="!item.incompatible"
           :item="(item.tag) ? recipeTree[i] : item"
           :size="32"
           class="cookbook-build__item-group__icon" />
@@ -79,13 +81,20 @@
             class="item-title">
             {{ getItemLabel(item) }}
           </span>
-          <a
-            v-once
-            class="link"
-            :href="`https://minecraft.gamepedia.com/${item.name}`"
-            target="_blank">
-            Minecraft Wiki
-          </a>
+          <span class="item-subtext">
+            <span
+              v-if="item.incompatible"
+              class="item-warning">
+              Item unavailable in Minecraft {{selectedVersion}}
+            </span>
+            <a
+              v-once
+              class="link"
+              :href="`https://minecraft.gamepedia.com/${item.name}`"
+              target="_blank">
+              Minecraft Wiki
+            </a>
+          </span>
         </div>
         <button
           class="cookbook-build__item-group__remove-btn"
@@ -349,6 +358,13 @@ export default {
       flex-flow: column wrap;
       margin: 0 1.0em 0 0;
       width: calc(80% - 96px);
+
+      .item-warning {
+        margin-right: 5px;
+        font-size: 1.4em;
+        color: #d45953;
+        font-weight: 700;
+      }
 
       .item-title {
         line-height: 1.6;
