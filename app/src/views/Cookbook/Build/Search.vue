@@ -154,14 +154,14 @@ export default {
     this.$store.dispatch('initSearchStore')
     setTimeout(() => {
       this.showItems = true
-    }, 5)
+    }, 3)
   },
   methods: {
     getItemLabel,
     getRenderDataByQuery (query) {
-      // if (typeof this.renderDataByQuery[query] !== 'undefined') {
-      //   return this.renderDataByQuery[query]
-      // }
+      if (typeof this.renderDataByQuery[query] !== 'undefined') {
+        return this.renderDataByQuery[query]
+      }
 
       const renderData = {}
 
@@ -205,7 +205,7 @@ export default {
         renderData[letter].order.sort()
       }
 
-      // this.renderDataByQuery[query] = renderData
+      this.renderDataByQuery[query] = renderData
       return renderData
     },
     onInputChange () {

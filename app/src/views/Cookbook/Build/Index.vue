@@ -59,8 +59,8 @@
       </a>
     </div>
 
-    <div v-if="hasSelectedItems" class="cookbook-build__content">
-      <div
+    <ul v-if="hasSelectedItems" class="cookbook-build__content">
+      <li
         class="cookbook-build__item-group"
         v-for="(item, i) in selectedItems"
         :key="item.key">
@@ -107,8 +107,8 @@
           @click="removeSelectedItem(i)">
           <cross-icon />
         </button>
-      </div>
-    </div>
+      </li>
+    </ul>
 
     <div v-if="hasSelectedItems" class="cookbook-build__actions">
       <a
@@ -295,9 +295,11 @@ export default {
 
   &__content {
     margin: 0 auto;
+    padding: 0;
     width: 100%;
     flex: 1;
     overflow: auto;
+    list-style-type: none;
   }
 
   &__empty {

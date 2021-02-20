@@ -3,11 +3,11 @@ import VueRouter from 'vue-router'
 import Index from '../views/Index.vue'
 import Splash from '../views/Splash/Index.vue'
 import Cookbook from '../views/Cookbook/Index.vue'
-import CookbookBuild from '../views/Cookbook/Build/Index.vue'
-import CookbookBuildSearch from '../views/Cookbook/Build/Search.vue'
-import CookbookBuildFreeform from '../views/Cookbook/Build/Freeform.vue'
-import CookbookRecipes from '../views/Cookbook/Recipes/Index.vue'
-import CookbookShoppingList from '../views/Cookbook/ShoppingList/Index.vue'
+// import CookbookBuild from '../views/Cookbook/Build/Index.vue'
+// import CookbookBuildSearch from '../views/Cookbook/Build/Search.vue'
+// import CookbookBuildFreeform from '../views/Cookbook/Build/Freeform.vue'
+// import CookbookRecipes from '../views/Cookbook/Recipes/Index.vue'
+// import CookbookShoppingList from '../views/Cookbook/ShoppingList/Index.vue'
 
 Vue.use(VueRouter)
 
@@ -31,11 +31,11 @@ const routes = [
       {
         name: 'build',
         path: 'build',
-        component: CookbookBuild,
+        component: () => import(/* webpackPrefetch: true */ '../views/Cookbook/Build/Index.vue'),
         children: [
           {
             path: 'search',
-            component: CookbookBuildSearch,
+            component: () => import(/* webpackPrefetch: true */ '../views/Cookbook/Build/Search.vue'),
             meta: {
               modal: true,
               returnFocusOnDeactivate: true
@@ -44,7 +44,7 @@ const routes = [
           },
           {
             path: 'freeform',
-            component: CookbookBuildFreeform,
+            component: () => import('../views/Cookbook/Build/Freeform.vue'),
             meta: {
               modal: true,
             },
@@ -54,20 +54,19 @@ const routes = [
       {
         name: 'recipes',
         path: 'recipes',
-        component: CookbookRecipes
+        component: () => import('../views/Cookbook/Recipes/Index.vue'),
       },
       {
         name: 'shoppingList',
         path: 'shopping-list',
-        component: CookbookShoppingList
+        component: () => import('../views/Cookbook/ShoppingList/Index.vue'),
       }
     ],
   },
   {
     path: '/about',
     name: 'About',
-    component: () =>
-      import(/* webpackChunkName: "about" */ '../views/About/Index.vue')
+    component: () => import('../views/About/Index.vue')
   }
 ]
 

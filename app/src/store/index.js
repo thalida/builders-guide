@@ -60,6 +60,12 @@ export default new Vuex.Store({
     }
   },
   getters: {
+    apiURL (state) {
+      const hostname = window.location.hostname
+      const port = (process.env.NODE_ENV === 'development') ? ':5000' : ''
+      const version = state.selectedVersion
+      return `//${hostname}${port}/api/${version}`
+    },
     selectedByKey (state) {
       const selectedByKey = {}
       for (let i = 0, l = state.selectedItems.length; i < l; i += 1) {
@@ -167,7 +173,7 @@ export default new Vuex.Store({
         })
       })
     },
-    fetchItems ({ state, commit }) {
+    fetchItems ({ state, getters, commit }) {
       const requestName = 'fetchItems'
       const request = state.requests[requestName]
 
@@ -178,7 +184,6 @@ export default new Vuex.Store({
       const cancelToken = CancelToken.source()
       commit('setRequest', { requestName, cancelToken })
 
-      const hostname = window.location.hostname
       return new Promise((resolve, reject) => {
         if (
           typeof state.gameData[state.selectedVersion] === 'undefined' ||
@@ -187,7 +192,7 @@ export default new Vuex.Store({
         ) {
           axios
             .get(
-              `http://${hostname}:5000/api/${state.selectedVersion}/items`,
+              `${getters.apiURL}/items`,
               { cancelToken: cancelToken.token }
             )
             .then(response => {
@@ -226,10 +231,9 @@ export default new Vuex.Store({
           return
         }
 
-        const hostname = window.location.hostname
         axios
           .post(
-            `http://${hostname}:5000/api/${state.selectedVersion}/recipe_tree`,
+            `${getters.apiURL}/recipe_tree`,
             {
               items: getters.compatibleSelectedItems,
               selected_build_paths: state.selectedBuildPaths
@@ -249,7 +253,7 @@ export default new Vuex.Store({
           })
       })
     },
-    fetchShoppingList ({ state, commit, dispatch }) {
+    fetchShoppingList ({ state, getters, commit, dispatch }) {
       const requestName = 'fetchShoppingList'
       const request = state.requests[requestName]
 
@@ -270,10 +274,9 @@ export default new Vuex.Store({
           return
         }
 
-        const hostname = window.location.hostname
         axios
           .post(
-            `http://${hostname}:5000/api/${state.selectedVersion}/shopping_list`,
+            `${getters.apiURL}/shopping_list`,
             {
               recipe_path: state.selectedBuildPaths,
               have_already: state.haveAlready,

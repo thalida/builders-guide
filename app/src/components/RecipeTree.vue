@@ -470,6 +470,7 @@ export default {
     }
 
     &__icon {
+      flex: 0 0 32px;
       height: 32px;
       width: 32px;
       margin: 0 1em 0 0;
