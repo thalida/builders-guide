@@ -63,7 +63,7 @@
         </a>
         <div class="cookbook-shopping__accordion__content">
           <p class="cookbook-shopping__accordion__description text--secondary">
-            Every item you’ll for your build in reverse order.
+            Every item you’ll for your build in reverse chronological order.
           </p>
           <div
             v-for="level in buildLevels"
@@ -222,7 +222,6 @@ export default {
       this.showBuildProcess = !this.showBuildProcess
     },
     resetShoppingList () {
-      // console.log('here?')
       // this.$store.dispatch('resetShoppingList')
     },
   },

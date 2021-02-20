@@ -94,7 +94,7 @@ export default {
       this.intervalID = window.setInterval(() => {
         const newVisibleIdx = (self.visibleIdx + 1 < self.items.length) ? self.visibleIdx + 1 : 0
         self.visibleIdx = newVisibleIdx
-      }, 3000)
+      }, 1000)
     },
 
     stopInterval () {
@@ -106,7 +106,6 @@ export default {
 <style lang="scss">
 .item-image {
   position: relative;
-  flex: 0 0 100%;
   width: 100%;
   height: 100%;
   overflow: hidden;
@@ -117,6 +116,8 @@ export default {
     top: 0;
     left: 0;
     margin: 0;
+    width: 100%;
+    height: 100%;
   }
 
   .fade-enter,
@@ -126,7 +127,7 @@ export default {
 
   .fade-enter-active,
   .fade-leave-active {
-    transition: all 1000ms ease;
+    transition: all 500ms ease;
   }
 }
 </style>

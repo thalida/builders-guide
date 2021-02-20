@@ -340,25 +340,20 @@ export default {
     justify-content: space-between;
 
     &__input {
-      width: 32px;
+      width: 64px;
       height: 32px;
       padding: 0;
       border: 0;
       border-bottom: 1px solid #918C88;
-      text-align: center;
+      text-align: right;
       font-size: 1.6em;
       font-weight: 500;
     }
 
     &__icon {
-      flex: 0 0 32px;
       height: 32px;
       width: 32px;
       margin: 0 1.0em;
-
-      .item-image__img {
-        width: 100%;
-      }
     }
 
     &__text {

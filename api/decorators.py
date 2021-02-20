@@ -58,13 +58,14 @@ def line_profile(func):
     return wrapper_line_profile
 
 
-def compress(func):
+def json_response(func):
     @functools.wraps(func)
     def wrapper_compress(*args, **kwargs):
         res_data = func(*args, **kwargs)
 
         content = json.dumps(res_data)
         response = make_response(content)
+        response.mimetype = 'application/json'
         return response
 
     return wrapper_compress

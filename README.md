@@ -9,9 +9,9 @@
 -[x] Check if 1.15 vs 1.16 dropdown works
 -[x] treat version as number
 -[x] Remove unsupported items when dropping down a version
--[] Get images for weird things like "cows" and "water"
--[] Create a better placeholder image
--[] Review ALL complex logic
+-[x] Get images for weird things like "cows" and "water"
+-[x] Create a better placeholder image
+-[x] Review ALL complex logic
 -[] Refactor how crafting_special_* recipes are fetched (stop excluding them setup directory with special definitions)
 -[] how to handle stick and stick from bamboo (eg 2 stick extra)
 -[x] Block of Redstone
