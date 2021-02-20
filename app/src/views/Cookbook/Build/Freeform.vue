@@ -10,9 +10,9 @@
     <section class="freeform__content">
       <p>
         Got a list of resources required for a build from a YouTube comment?
-        <span class="font-weight--medium">
-          Enter the list below to quickly get started!
-        </span>
+      </p>
+      <p class="font-weight--medium">
+        Enter the list below to quickly get started!
       </p>
       <div class="freeform__errors" v-if="hasErrors">
         <p>{{errorData.numErrors}} error{{errorData.numErrors == 1 ? '' : 's'}} found parsing the following lines:</p>

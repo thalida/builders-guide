@@ -2,7 +2,7 @@
   <div class="cookbook">
     <header class="cookbook__header">
         <div class="cookbook__header__cell">
-          <router-link class="wordmark wordmark--minimal" to="/cookbook">bg</router-link>
+          <router-link class="wordmark wordmark--minimal" to="/">bg</router-link>
         </div>
         <div class="cookbook__header__cell">
           <h1>
