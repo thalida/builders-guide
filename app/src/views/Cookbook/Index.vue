@@ -24,6 +24,7 @@
           to="/cookbook/build"
           class="cookbook__navbar__link cookbook__navbar__link--build">
           <build-icon
+            alt="Build Page"
             :class="[
             {
               'outlined': currRoute!=='build',
@@ -39,6 +40,7 @@
           to="/cookbook/recipes"
           class="cookbook__navbar__link cookbook__navbar__link--recipes">
           <recipes-icon
+            alt="Recipes Page"
             :class="[
             {
               'loading': isRecipesLoading,
@@ -55,6 +57,7 @@
           to="/cookbook/shopping-list"
           class="cookbook__navbar__link cookbook__navbar__link--shopping">
           <shopping-list-icon
+            alt="Shopping List Page"
             :class="[
             {
               'loading': isShoppingListLoading,

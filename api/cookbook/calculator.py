@@ -7,12 +7,14 @@ logger = logging.getLogger(__name__)
 
 import time
 import math
+import json
 from collections import defaultdict
 from decorators import profile
 import cookbook.utils
 
 # Holds all cached responses
 ingredients_cache = defaultdict(dict)
+recipe_tree_cache = defaultdict(dict)
 
 def get_ingredients(recipe, all_tags, version):
     """Get the ingredients for a given recipe
@@ -275,6 +277,11 @@ def create_recipe_tree(
     Returns:
         list -- Our entire recipe tree!
     """
+    cache_enabled = False
+    cache_key = json.dumps(items)
+    if cache_enabled and cache_key in recipe_tree_cache:
+        tree, stats = recipe_tree_cache[cache_key]
+        return tree, stats
 
     # If no ancestors setup the list
     has_no_ancestors = ancestors is None or len(ancestors) == 0
@@ -283,6 +290,7 @@ def create_recipe_tree(
 
     tree = []
     stats = {
+        'found_nodes': [],
         'node_is_circular': False,
         'most_efficient_node': None,
         'min_items_required': 0,
@@ -334,7 +342,6 @@ def create_recipe_tree(
 
             stats["min_items_required"] += amount_required
 
-            # Add this response to our top_level tree
             tree.append(response)
 
             # Move onto the next item
@@ -361,6 +368,8 @@ def create_recipe_tree(
             }
         }
 
+        stats['found_nodes'].append(item_name)
+
         if is_group and item_name in selected_build_paths:
             node["selected"] = True
             found_selected_node = True
@@ -377,6 +386,7 @@ def create_recipe_tree(
 
         # If FALSE this item does not need to be crafted
         has_recipes = found_recipes is not None
+
 
         if is_circular_ref or not has_recipes:
             node["stats"]["max_recipe_efficiency"] = 0
@@ -519,6 +529,8 @@ def create_recipe_tree(
 
     if stats["most_efficient_node"] is None:
         stats["most_efficient_node"] = 0
+
+    recipe_tree_cache[cache_key] = [tree, stats]
 
     # Wow, we got a tree -- perfect!
     return tree, stats

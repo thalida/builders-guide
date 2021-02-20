@@ -63,10 +63,8 @@ def compress(func):
     def wrapper_compress(*args, **kwargs):
         res_data = func(*args, **kwargs)
 
-        content = gzip.compress(json.dumps(res_data).encode('utf8'), 5)
+        content = json.dumps(res_data)
         response = make_response(content)
-        response.headers['Content-length'] = len(content)
-        response.headers['Content-Encoding'] = 'gzip'
         return response
 
     return wrapper_compress

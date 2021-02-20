@@ -4,19 +4,22 @@
     :class="[{
       'cookbook-build--is-empty': !hasSelectedItems
     }]">
-    <select
-      class="cookbook-build__version"
-      v-model="selectedVersion">
-      <option
-        v-for="version in supportedVersions"
-        :key="version"
-        :value="version">
-        Version {{ version }}
-      </option>
-    </select>
+
+    <label class="cookbook-build__version">
+      <select
+        class="cookbook-build__version__select"
+        v-model="selectedVersion">
+        <option
+          v-for="version in supportedVersions"
+          :key="version"
+          :value="version">
+          Version {{ version }}
+        </option>
+      </select>
+    </label>
 
     <div class="cookbook-build__menu">
-      <div class="searchbox">
+      <label class="searchbox">
         <search-icon class="searchbox__icon" />
         <input
           class="searchbox__field"
@@ -25,12 +28,12 @@
           placeholder="What do you need?"
           @click="goToSearch"
           @keyup.enter="goToSearch" />
-      </div>
+      </label>
 
       <router-link
         class="cookbook-build__menu__btn"
         to="/cookbook/build/freeform">
-        <plaintext-input-icon />
+        <plaintext-input-icon alt="Freeform Input" />
       </router-link>
     </div>
 
@@ -64,6 +67,7 @@
         <input
           v-if="!item.incompatible"
           class="cookbook-build__item-group__input"
+          :id="`item-amount-input--${item.key}`"
           type="number"
           min="0"
           v-model.number="selectedItems[i].amount_required"
@@ -76,11 +80,12 @@
           class="cookbook-build__item-group__icon" />
 
         <div class="cookbook-build__item-group__text">
-          <span
+          <label
             v-once
+            :for="`item-amount-input--${item.key}`"
             class="item-title">
             {{ getItemLabel(item) }}
-          </span>
+          </label>
           <span class="item-subtext">
             <span
               v-if="item.incompatible"
@@ -98,6 +103,7 @@
         </div>
         <button
           class="cookbook-build__item-group__remove-btn"
+          aria-label="Remove Item"
           @click="removeSelectedItem(i)">
           <cross-icon />
         </button>
@@ -244,11 +250,14 @@ export default {
   &__version {
     margin-top: 0.5em;
     align-self: center;
-    padding: 0.4em;
-    font-size: 1.2em;
-    background: #F1F1F1;
-    border: 1px solid #E9E9E9;
-    border-radius: 1.4em;
+
+    &__select {
+      padding: 0.4em;
+      font-size: 1.2em;
+      background: #F1F1F1;
+      border: 1px solid #E9E9E9;
+      border-radius: 1.4em;
+    }
   }
 
   &__menu {
@@ -342,7 +351,7 @@ export default {
     }
 
     &__icon {
-      flex: 0 1 32px;
+      flex: 0 0 32px;
       height: 32px;
       width: 32px;
       margin: 0 1.0em;

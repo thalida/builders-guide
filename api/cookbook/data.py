@@ -254,7 +254,7 @@ def generate_all_recipes(version):
             data = f.read()
             recipe_data = json.loads(data)
             filename = get_filename_from_path(filepath)
-            recipe_name = prefix + filename
+            recipe_name = recipe_data.get("name", prefix + filename)
 
             # Sometimes Minecraft data as recipes results as strings instead of
             # dicts, let's make sure it's always a dict

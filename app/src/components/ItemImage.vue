@@ -1,27 +1,22 @@
 <template>
-<div class="item-image">
-  <!-- If multiple images -->
-  <transition-group
-    v-if="numItems > 1"
-    name="fade"
-    tag="div"
-    class="item-image__group">
-    <img
-      v-for="(nestedItem, i) in item"
-      v-show="i === visibleIdx"
-      class="item-image__img"
-      :key="`item-${i}`"
-      :src="getItemImage(nestedItem)" />
-  </transition-group>
-
-  <!-- Otherwise render the node image -->
+<transition-group
+  name="fade"
+  tag="div"
+  class="item-image">
   <img
-    v-else
+    v-for="(img, i) in images"
+    v-show="img.name !== 'air' && i === visibleIdx"
     class="item-image__img"
-    :src="getItemImage(item)"  />
-</div>
+    :key="`item-${i}`"
+    :src="img.path"
+    :alt="img.label"
+    :width="`${size}px`"
+    :height="`${size}px`" />
+</transition-group>
 </template>
 <script>
+import { getItemLabel } from '@/helpers.js'
+
 export default {
   name: 'ItemImage',
   props: ['item', 'size'],
@@ -35,9 +30,21 @@ export default {
     selectedVersion () {
       return this.$store.state.selectedVersion
     },
-    numItems () {
-      return (Array.isArray(this.item)) ? this.item.length : 1
-    }
+    items () {
+      return (Array.isArray(this.item)) ? this.item : [this.item]
+    },
+    images () {
+      const images = []
+
+      for (let i = 0, l = this.items.length; i < l; i += 1) {
+        const item = this.items[i]
+        const image = this.getItemImage(item)
+        const label = this.getItemLabel(item)
+        images.push({ ...image, label })
+      }
+
+      return images
+    },
   },
   mounted () {
     this.startInterval()
@@ -50,39 +57,42 @@ export default {
     this.stopInterval()
   },
   methods: {
-    fetchImage (image) {
+    getItemLabel,
+
+    fetchImagePath (imageName) {
       const images = require.context('@/assets/minecraft', true, /\.png$/)
-      const path = `./${this.selectedVersion}/${this.size}x${this.size}/${image}.png`
+      const path = `./${this.selectedVersion}/${this.size}x${this.size}/${imageName}.png`
       return images(path)
     },
 
     getItemImage (node, attempt) {
-      let image
+      let imageName
       attempt = attempt || 1
 
       if (attempt === 1) {
-        image = (typeof node === 'object') ? node.key || node.name : node
+        imageName = (typeof node === 'object') ? node.key || node.name : node
       } else if (attempt === 2 && typeof node === 'object') {
-        image = node.result_name
+        imageName = node.result_name
       } else {
-        image = 'air'
+        imageName = 'air'
       }
 
       try {
-        return this.fetchImage(image)
+        const path = this.fetchImagePath(imageName)
+        return { name: imageName, path }
       } catch (error) {
         return this.getItemImage(node, attempt + 1)
       }
     },
 
     startInterval () {
-      if (this.numItems <= 1) {
+      if (this.items.length <= 1) {
         return
       }
 
       const self = this
       this.intervalID = window.setInterval(() => {
-        const newVisibleIdx = (self.visibleIdx + 1 < self.numItems) ? self.visibleIdx + 1 : 0
+        const newVisibleIdx = (self.visibleIdx + 1 < self.items.length) ? self.visibleIdx + 1 : 0
         self.visibleIdx = newVisibleIdx
       }, 3000)
     },
@@ -95,20 +105,18 @@ export default {
 </script>
 <style lang="scss">
 .item-image {
-  &__group {
-    position: relative;
-    flex: 0 1 100%;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
+  position: relative;
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 
-    .item-image__img {
-      display: block;
-      position: absolute;
-      top: 0;
-      left: 0;
-      margin: 0;
-    }
+  &__img {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0;
   }
 
   .fade-enter,

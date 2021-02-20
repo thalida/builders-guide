@@ -29,7 +29,7 @@
           v-if="nodes.length === 0"
           class="recipe-tree__node recipe-tree__node--is-empty">
           <chat-alert-icon />
-          <p class="recipe-tree__node__alert">This item has no ingredients.</p>
+          <p class="recipe-tree__node__alert">This item does not require crafting.</p>
         </div>
 
         <!-- Loop over all nodes in the level -->
@@ -40,11 +40,10 @@
           :class="[{
             'recipe-tree__node--is-selected': formattedNode.node.selected,
             'recipe-tree__node--is-open': formattedNode.isOpen,
-            'recipe-tree__node--is-plaintext': formattedNode.isStatic,
             'recipe-tree__node--is-optional': formattedNode.isOptional,
             'recipe-tree__node--has-nested': formattedNode.numNestedNodes > 0,
           }]"
-          :tabindex="(formattedNode.isStatic) ? -1 : 0"
+          :tabindex="0"
           @click="handleNodeSelected(level, index, formattedNode.node)"
           @keyup.enter="handleNodeSelected(level, index, formattedNode.node)">
 
@@ -221,7 +220,6 @@ export default {
           node.renderKey = renderKey
         }
 
-        const isStatic = (!isOptional && numNestedNodes === 0)
         const isOpen = (
           typeof this.visiblePath[level] !== 'undefined' &&
           this.visiblePath[level].index === i &&
@@ -230,7 +228,6 @@ export default {
 
         formattedNodes.push({
           renderKey,
-          isStatic,
           isOpen,
           isOptionGroup,
           isOptional,
@@ -265,13 +262,9 @@ export default {
     handleNodeSelected (level, index, node, isInit) {
       isInit = (typeof isInit === 'boolean') ? isInit : false
 
-      const isOptional = this.getIsOptional(level)
-      if (!isOptional && this.getNextLevel(node).length === 0) {
-        return
-      }
-
       this.toggleTree(level, index, node, isInit)
 
+      const isOptional = this.getIsOptional(level)
       if (!isOptional || isInit) {
         return
       }
@@ -304,7 +297,17 @@ export default {
       const nextLevel = this.getNextLevel(node, true)
       this.treeByLevels.push(nextLevel)
 
-      if (!isInit) {
+      if (isInit) {
+        setTimeout(() => {
+          const $firstLevel = this.$el.querySelector('.recipe-tree__level')
+          const $openItem = $firstLevel.querySelector('.recipe-tree__node--is-open')
+          const itemRowTop = $openItem.offsetTop - $firstLevel.offsetTop
+          $openItem.focus()
+          if (itemRowTop >= $firstLevel.offsetHeight - 10) {
+            $firstLevel.scrollTop = itemRowTop - 12
+          }
+        }, 0)
+      } else {
         newVisiblePath.push({
           index,
           renderKey
@@ -450,9 +453,11 @@ export default {
     position: relative;
     margin: 0 0 2em 0;
     padding: 1em;
-    border: 1px solid transparent;
+    border: 1px solid #DBDCDD;
+    background: #FFF;
     border-radius: 0.8em;
     transition: all 300ms;
+    cursor: pointer;
 
     &__content {
       display: flex;
@@ -465,7 +470,7 @@ export default {
     }
 
     &__icon {
-      flex: 0 1 32px;
+      flex: 0 0 32px;
       height: 32px;
       width: 32px;
       margin: 0 1em 0 0;
@@ -493,6 +498,9 @@ export default {
     }
 
     &--is-empty {
+      border: 1px solid transparent;
+      cursor: default;
+
       .icon__chat-alert__path {
         fill: #918C88;
       }
@@ -504,10 +512,6 @@ export default {
     }
 
     &--has-nested {
-      background: #FFF;
-      border: 1px solid #DBDCDD;
-      cursor: pointer;
-
       .recipe-tree__node__content {
         align-items: start;
       }
@@ -516,7 +520,6 @@ export default {
     &--is-optional {
       background: #F1F1F1;
       border: 1px solid transparent;
-      cursor: pointer;
 
       .recipe-tree__node__requirements {
         color: darken(#005226, 10);
@@ -552,12 +555,6 @@ export default {
         border-top: 0.8em solid transparent;
         border-bottom: 0.8em solid transparent;
         border-left: 0.8em solid #4AA674;
-      }
-    }
-
-    &:focus {
-      &.recipe-tree__node--is-plaintext {
-        outline: none;
       }
     }
   }

@@ -238,7 +238,7 @@ export default {
     }
 
     &__icon {
-      flex: 0 1 32px;
+      flex: 0 0 32px;
       height: 32px;
       width: 32px;
       margin: 0 1.0em;

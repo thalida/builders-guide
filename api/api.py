@@ -197,6 +197,9 @@ def api_recipe_tree(version):
         abort(SERVER_ERROR)
 
     try:
+        print('FORCE_RECREATE_DATA', FORCE_RECREATE_DATA)
+        print('API_ENV', API_ENV)
+
         all_crafting_data = cookbook.data.get_all_crafting_data(
             version, force_create=FORCE_RECREATE_DATA
         )

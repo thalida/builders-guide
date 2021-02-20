@@ -20,6 +20,7 @@ export function getItemLabel (nodes, useAlias) {
     } else if (typeof nodes === 'object' && nodes !== null) {
       name = nodes.name || nodes.tag
     }
+
     if (name === null) {
       return
     }
@@ -63,12 +64,14 @@ export function getItemLabel (nodes, useAlias) {
         const phrase = nameParts.slice(startIdx, endIdx).join('_')
         const phraseIdx = phraseIdxMap[phrase]
         const distFromEnd = name.length - (name.indexOf(phrase) + phrase.length)
+        const numParts = endIdx - startIdx
 
         if (typeof phraseIdx === 'undefined') {
           phraseIdxMap[phrase] = phraseCounts.length
           phraseCounts.push({
             phrase,
             distFromEnd,
+            numParts,
             count: 1,
           })
           continue
@@ -84,17 +87,17 @@ export function getItemLabel (nodes, useAlias) {
   }
 
   phraseCounts.sort((a, b) => {
-    if (a.count > b.count) return -1
-    if (a.count < b.count) return 1
-
     if (a.distFromEnd < b.distFromEnd) return -1
     if (a.distFromEnd > b.distFromEnd) return 1
 
-    if (a.phrase.length > b.phrase.length) return -1
-    if (a.phrase.length < b.phrase.length) return 1
+    if (a.count > b.count) return -1
+    if (a.count < b.count) return 1
 
-    if (a.phrase > b.phrase) return 1
+    if (a.numParts < b.numParts) return -1
+    if (a.numParts > b.numParts) return 1
+
     if (a.phrase < b.phrase) return -1
+    if (a.phrase > b.phrase) return 1
   })
 
   let describedNodes = 0
