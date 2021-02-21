@@ -4,14 +4,53 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <title><%= htmlWebpackPlugin.options.title %></title>
+
+    <meta name="robots" content="index,follow">
+
+    <title>builder's guide</title>
+    <meta name="description" content="A Minecraft Cookbook: Calculate the recipes and resources you’ll need for your next build!">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="builder's guide">
+    <meta name="twitter:description" content="A Minecraft Cookbook: Calculate the recipes and resources you’ll need for your next build!">
+    <meta name="twitter:creator" content="@thalidanoel">
+
+    <meta property="og:title" content="builder's guide" />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="A Minecraft Cookbook: Calculate the recipes and resources you’ll need for your next build!" />
+    <meta property="og:url" content="https://buildersguide.app/" />
+
+    <meta name="application-name" content="builder's guide">
+    <meta name="theme-color" content="#ffffff">
+
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-navbutton-color" content="#ffffff">
+    <meta name="msapplication-tap-highlight" content="no">
+
+    <meta name="apple-mobile-web-app-title" content="builder's guide">
+    <meta name="apple-mobile-web-app-status-bar-style" content="white-translucent">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="<%= BASE_URL %>/img/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="<%= BASE_URL %>/img/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="<%= BASE_URL %>/img/icons/favicon-16x16.png">
+    <link rel="shortcut icon" href="<%= BASE_URL %>favicon.ico">
 
     <link href="https://fonts.googleapis.com/css2?family=Grand+Hotel&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2WZ8CN4V8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-2WZ8CN4V8J');
+    </script>
   </head>
   <body>
     <noscript>
-      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+      <strong>Builder's Guide doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
     <div id="app"></div>
     <!-- built files will be auto injected -->

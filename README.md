@@ -15,6 +15,16 @@
 -[] Refactor how crafting_special_* recipes are fetched (stop excluding them setup directory with special definitions)
 -[] how to handle stick and stick from bamboo (eg 2 stick extra)
 -[x] Block of Redstone
+-[x] metadata and favicons
+-[] hosting
+-[] tests
+-[] documentation
+-[] cleanup frontend
+-[] cleanup api
+-[] fancier landing page
+-[] move tasks to github (?)
+-[] setup community on github
+-[] add support for custom build recipes
 
 ----
 
