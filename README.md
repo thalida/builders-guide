@@ -16,7 +16,7 @@
 -[] how to handle stick and stick from bamboo (eg 2 stick extra)
 -[x] Block of Redstone
 -[x] metadata and favicons
--[] hosting
+-[x] hosting
 -[] tests
 -[] documentation
 -[] cleanup frontend
