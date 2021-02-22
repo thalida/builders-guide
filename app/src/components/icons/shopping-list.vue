@@ -1,5 +1,6 @@
 <template>
 <svg class="icon icon__shopping-list" width="25px" height="32px" viewBox="0 0 25 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <desc>Shopping List Section Icon (symbol is a receipt)</desc>
     <g transform="translate(-287.000000, -2187.000000)" fill-rule="nonzero">
         <g transform="translate(0.000000, 2171.000000)">
             <g transform="translate(287.000000, 16.000000)">

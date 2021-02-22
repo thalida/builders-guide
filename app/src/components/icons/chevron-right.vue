@@ -1,5 +1,6 @@
 <template>
 <svg class="icon icon__chevron-right" width="9px" height="16px" viewBox="0 0 9 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <desc>Right Chevron</desc>
     <g class="icon__chevron-right__path" transform="translate(-250.000000, -371.000000)" fill-rule="nonzero">
         <g transform="translate(48.000000, 174.000000)">
             <g transform="translate(50.000000, 181.000000)">

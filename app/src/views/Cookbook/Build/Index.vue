@@ -8,7 +8,8 @@
     <label class="cookbook-build__version">
       <select
         class="cookbook-build__version__select"
-        v-model="selectedVersion">
+        v-model="selectedVersion"
+        aria-label="Minecraft Version">
         <option
           v-for="version in supportedVersions"
           :key="version"
@@ -32,8 +33,9 @@
 
       <router-link
         class="cookbook-build__menu__btn"
-        to="/cookbook/build/freeform">
-        <plaintext-input-icon alt="Freeform Input" />
+        to="/cookbook/build/freeform"
+        aria-label="Freeform Input">
+        <plaintext-input-icon />
       </router-link>
     </div>
 
@@ -145,7 +147,7 @@ export default {
   },
   data () {
     const isDevelopment = process.env.NODE_ENV === 'development'
-    const enableDebug = true
+    const enableDebug = false
     return {
       isDebugMode: enableDebug && isDevelopment,
       searchTerm: null
@@ -243,10 +245,6 @@ export default {
   display: flex;
   flex-flow: column nowrap;
 
-  &--is-empty {
-    min-height: calc(100vh - 6.4em - 6.4em);
-  }
-
   &__version {
     margin-top: 0.5em;
     align-self: center;
@@ -303,18 +301,17 @@ export default {
   }
 
   &__empty {
-    align-self: center;
-    justify-self: center;
-
     display: flex;
-    position: relative;
-    flex-flow: column nowrap;
-    align-items: center;
-    justify-content: center;
+    margin: 0 auto;
+    padding: 0;
     height: 100%;
     width: 100%;
     min-height: 400px;
     max-width: 34.0em;
+    flex: 1;
+    flex-flow: column nowrap;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
     text-align: center;
     line-height: 1.4;

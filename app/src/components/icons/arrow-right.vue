@@ -1,5 +1,6 @@
 <template>
 <svg class="icon icon__arrow-right" width="22px" height="15px" viewBox="0 0 22 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <desc>Right Arrow</desc>
     <g class="icon__arrow-right__path" transform="translate(-121.000000, -800.000000)" fill-rule="nonzero">
         <g transform="translate(0.000000, 775.000000)">
             <g transform="translate(120.000000, 20.000000)">

@@ -1,5 +1,6 @@
 <template>
 <svg class="icon icon__cross" width="18px" height="18px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <desc>X</desc>
     <g class="icon__cross__path" transform="translate(-320.000000, -179.000000)" fill-rule="nonzero">
         <g transform="translate(40.000000, 172.000000)">
             <g transform="translate(273.000000, 0.000000)">

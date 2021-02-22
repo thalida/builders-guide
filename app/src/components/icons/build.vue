@@ -1,5 +1,6 @@
 <template>
 <svg class="icon icon__build" width="32px" height="29px" viewBox="0 0 32 29" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <desc>Build Section Icon (symbol is a store)</desc>
     <g transform="translate(-60.000000, -621.000000)" fill-rule="nonzero">
         <g transform="translate(0.000000, 603.000000)">
             <g transform="translate(60.000000, 18.000000)">

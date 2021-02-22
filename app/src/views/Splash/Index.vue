@@ -129,8 +129,8 @@ export default {
   flex-flow: column nowrap;
   justify-content: space-between;
   align-items: center;
-  min-width: 100vw;
-  min-height: 100vh;
+  min-width: 100%;
+  min-height: 100%;
   overflow: hidden;
 
   &__container {
@@ -226,7 +226,6 @@ export default {
     height: $circle-size;
     padding: 0;
     margin: 0;
-    border-radius: 50%;
     z-index: -1;
 
     animation-duration: 420s;
@@ -248,7 +247,6 @@ export default {
       @for $i from 1 through $item-count {
         $circle_radius: $circle-size / 2;
         $rand_translate: $circle_radius;
-        // $rand_translate: random(round($circle_radius / 4)) + $circle_radius;
         $rand_item_rot: random(22) + $rot;
 
         &:nth-of-type(#{$i}) {

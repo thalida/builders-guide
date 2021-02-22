@@ -2,7 +2,9 @@
   <Modal
     class="search"
     :modal-aria-label="modalAriaLabel">
-    <header class="search__header">
+    <header
+      class="search__header"
+      aria-label="Search Header">
       <div class="searchbox">
         <search-icon class="searchbox__icon" />
         <input
@@ -10,7 +12,7 @@
           type="text"
           v-model="inputQuery"
           placeholder="What do you need?"
-        v-on:keyup="onInputChange" />
+          v-on:keyup="onInputChange" />
       </div>
     </header>
 
@@ -22,7 +24,7 @@
           class="search__results__section"
           v-for="letter in visibleAlpha"
           :key="letter">
-          <a class="search__results__header" :id="letter">
+          <a class="search__results__header" :id="letter" :href="`#${letter}`">
             <h2>{{ letter }}</h2>
           </a>
           <ol
@@ -30,7 +32,12 @@
             v-for="itemKey in renderData[letter].order"
             :key="itemKey">
             <li class="search__results__row">
-              <label class="checkbox" tabindex="0">
+              <label
+                class="checkbox"
+                tabindex="0"
+                @keyup.enter="handleItemToggle(renderData[letter].items[itemKey])"
+                @keyup.space="handleItemToggle(renderData[letter].items[itemKey])"
+                :aria-label="getItemLabel(renderData[letter].items[itemKey].renderKey)">
                 <span class="search__results__input">
                   <input
                     class="checkbox__input"
@@ -41,13 +48,12 @@
                   <check-icon v-once class="checkbox__checkmark" />
                 </span>
                 <span class="search__results__details">
-
                   <item-image
                     v-once
+                    :decorative="true"
                     :item="renderData[letter].items[itemKey].name"
                     :size="32"
                     class="search__results__icon" />
-
                   <span v-once class="search__results__name">
                     {{ getItemLabel(renderData[letter].items[itemKey].renderKey) }}
                     <span v-once v-if="renderData[letter].items[itemKey].alias">
@@ -208,6 +214,14 @@ export default {
       this.renderDataByQuery[query] = renderData
       return renderData
     },
+    handleItemToggle (item) {
+      const index = this.tmpSelectedItems.indexOf(item.name)
+      if (index < 0) {
+        this.tmpSelectedItems.push(item.name)
+      } else {
+        this.tmpSelectedItems.splice(index, 1)
+      }
+    },
     onInputChange () {
       if (this.inputQuery === this.query) {
         return
@@ -305,8 +319,9 @@ export default {
       margin-top: 30px;
       align-items: center;
       font-size: 2.0em;
-      color: #E6CE51;
+      color: #005226;
       text-transform: uppercase;
+      text-decoration: none;
 
       &.is-first {
         margin-top: 0;

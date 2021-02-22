@@ -22,10 +22,10 @@ SERVER_ERROR = 500
 
 os.environ["TZ"] = "UTC"
 app = Flask(__name__)
-cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+cors = CORS(app, resources={r"*": {"origins": "*"}})
 
 
-@app.route("/api/<version>/items", methods=["GET"])
+@app.route("/<version>/items", methods=["GET"])
 @json_response
 def api_get_items(version):
     """GET all items for a given version of Minecraft Java Edition
@@ -43,7 +43,7 @@ def api_get_items(version):
         abort(SERVER_ERROR)
 
 
-@app.route("/api/<version>/recipes", methods=["GET"])
+@app.route("/<version>/recipes", methods=["GET"])
 @json_response
 def api_get_recipes(version):
     """GET all recipes for a given version of Minecraft Java Edition
@@ -60,7 +60,7 @@ def api_get_recipes(version):
         abort(SERVER_ERROR)
 
 
-@app.route("/api/<version>/tags", methods=["GET"])
+@app.route("/<version>/tags", methods=["GET"])
 @json_response
 def api_get_tags(version):
     """GET all tags for a given version of Minecraft Java Edition
@@ -77,7 +77,7 @@ def api_get_tags(version):
         abort(SERVER_ERROR)
 
 
-@app.route("/api/<version>/item_mappings", methods=["GET"])
+@app.route("/<version>/item_mappings", methods=["GET"])
 @json_response
 def api_get_item_mappings(version):
     """GET a mapping of all incorrect names of items to their correct version
@@ -94,7 +94,7 @@ def api_get_item_mappings(version):
         abort(SERVER_ERROR)
 
 
-@app.route("/api/<version>/supported_recipes_and_items", methods=["GET"])
+@app.route("/<version>/supported_recipes_and_items", methods=["GET"])
 @json_response
 def api_get_supported_recipes_and_items(version):
     """GET all supported recipes and craftable items
@@ -123,7 +123,7 @@ def api_get_supported_recipes_and_items(version):
         abort(SERVER_ERROR)
 
 
-@app.route("/api/<version>/all_crafting_data", methods=["GET"])
+@app.route("/<version>/all_crafting_data", methods=["GET"])
 @json_response
 def api_get_all_crafting_data(version):
     """GET all crafting data for a given version of Minecraft Java Edition
@@ -147,7 +147,7 @@ def api_get_all_crafting_data(version):
         abort(SERVER_ERROR)
 
 
-@app.route("/api/<version>/parse_items_from_string", methods=["POST"])
+@app.route("/<version>/parse_items_from_string", methods=["POST"])
 @json_response
 def api_parse_items_from_string(version):
     """GET parse items from a array of strings
@@ -180,7 +180,7 @@ def api_parse_items_from_string(version):
         abort(SERVER_ERROR)
 
 
-@app.route("/api/<version>/recipe_tree", methods=["POST"])
+@app.route("/<version>/recipe_tree", methods=["POST"])
 @json_response
 def api_recipe_tree(version):
     """Get all the recipes and ingredients required to craft the provided items
@@ -221,7 +221,7 @@ def api_recipe_tree(version):
         abort(SERVER_ERROR)
 
 
-@app.route("/api/<version>/shopping_list", methods=["POST"])
+@app.route("/<version>/shopping_list", methods=["POST"])
 @json_response
 def api_shopping_list(version):
     """Get the shopping list for the recipes selected

@@ -19,7 +19,17 @@ import { getItemLabel } from '@/helpers.js'
 
 export default {
   name: 'ItemImage',
-  props: ['item', 'size'],
+  props: {
+    item: [String, Array, Object],
+    size: {
+      type: Number,
+      default: 32
+    },
+    decorative: {
+      type: Boolean,
+      default: false
+    },
+  },
   data () {
     return {
       intervalID: null,
@@ -39,7 +49,7 @@ export default {
       for (let i = 0, l = this.items.length; i < l; i += 1) {
         const item = this.items[i]
         const image = this.getItemImage(item)
-        const label = this.getItemLabel(item)
+        const label = (!this.decorative) ? this.getItemLabel(item) : ''
         images.push({ ...image, label })
       }
 

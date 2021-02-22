@@ -22,9 +22,9 @@
       <div class="cookbook__navbar__inner">
         <router-link
           to="/cookbook/build"
-          class="cookbook__navbar__link cookbook__navbar__link--build">
+          class="cookbook__navbar__link cookbook__navbar__link--build"
+          aria-label="Build Section">
           <build-icon
-            alt="Build Page"
             :class="[
             {
               'outlined': currRoute!=='build',
@@ -38,9 +38,9 @@
         <component
           :is="hasSelectedItems ? 'router-link' : 'span'"
           to="/cookbook/recipes"
-          class="cookbook__navbar__link cookbook__navbar__link--recipes">
+          class="cookbook__navbar__link cookbook__navbar__link--recipes"
+          aria-label="Recipes Section">
           <recipes-icon
-            alt="Recipes Page"
             :class="[
             {
               'loading': isRecipesLoading,
@@ -55,9 +55,9 @@
         <component
           :is="hasSelectedItems ? 'router-link' : 'span'"
           to="/cookbook/shopping-list"
-          class="cookbook__navbar__link cookbook__navbar__link--shopping">
+          class="cookbook__navbar__link cookbook__navbar__link--shopping"
+          aria-label="Shopping List Section">
           <shopping-list-icon
-            alt="Shopping List Page"
             :class="[
             {
               'loading': isShoppingListLoading,
@@ -161,7 +161,7 @@ export default {
     align-items: center;
     justify-content: center;
     background: #FAFAFA;
-    box-shadow: 1.0em 0 1.0em #DBDCDD;
+    box-shadow: 0 0 1.0em #DBDCDD;
     z-index: 1;
 
     &__inner {

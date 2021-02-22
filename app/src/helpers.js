@@ -116,15 +116,17 @@ export function getItemLabel (nodes, useAlias) {
   return foundNames.join(' / ')
 }
 
-export function createBuildPaths (recipeTree, isGroup) {
+export function createBuildPaths (recipeTree, selectedItems, isGroup) {
   recipeTree = clone(recipeTree)
   let path = {}
+  const hasSelectedItems = Array.isArray(selectedItems) && selectedItems.length > 0
 
   for (let i = 0, l = recipeTree.length; i < l; i += 1) {
     const node = recipeTree[i]
 
     if (Array.isArray(node)) {
-      const chosenNode = createBuildPaths(node, true)
+      const newSelectedItems = (hasSelectedItems && selectedItems[i] && selectedItems[i].tag === node[0].group) ? [selectedItems[i]] : null
+      const chosenNode = createBuildPaths(node, newSelectedItems, true)
       path = Object.assign({}, path, chosenNode)
       continue
     }
@@ -133,20 +135,27 @@ export function createBuildPaths (recipeTree, isGroup) {
       continue
     }
 
+    let selectedItem = null
+    if (hasSelectedItems && isGroup && selectedItems[0].tag === node.group) {
+      selectedItem = selectedItems[0]
+    } else if (hasSelectedItems && selectedItems[i].name === node.name) {
+      selectedItem = selectedItems[i]
+    }
+
     const pathNode = {
       name: node.name,
       tag: node.tag,
       selected: node.selected,
       type: node.type,
-      amount_required: node.amount_required,
+      amount_required: (selectedItem) ? selectedItem.amount_required : node.amount_required,
       amount_created: node.amount_created,
     }
 
     if (node.num_recipes >= 1) {
-      const chosenRecipe = createBuildPaths(node.recipes, true)
+      const chosenRecipe = createBuildPaths(node.recipes, null, true)
       pathNode.recipe = Object.values(chosenRecipe)[0]
     } else if (node.ingredients && node.ingredients.length > 0) {
-      pathNode.ingredients = createBuildPaths(node.ingredients)
+      pathNode.ingredients = createBuildPaths(node.ingredients, null)
     }
 
     path[pathNode.name] = pathNode

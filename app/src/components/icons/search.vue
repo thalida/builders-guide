@@ -1,5 +1,6 @@
 <template>
 <svg class="icon icon__search" width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <desc>Search Icon</desc>
     <g class="icon icon__search__path" transform="translate(-44.000000, -123.000000)" fill-rule="nonzero">
         <g transform="translate(30.000000, 107.000000)">
             <g transform="translate(14.000000, 16.000000)">

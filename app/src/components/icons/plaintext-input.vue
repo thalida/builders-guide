@@ -1,5 +1,6 @@
 <template>
 <svg class="icon icon__plaintext-input" width="18px" height="18px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <desc>Plaintext Input</desc>
     <g class="icon__plaintext-input__path" transform="translate(-316.000000, -122.000000)" fill-rule="nonzero">
         <g transform="translate(30.000000, 107.000000)">
             <g transform="translate(275.000000, 4.000000)">

@@ -63,8 +63,9 @@ export default new Vuex.Store({
     apiURL (state) {
       const hostname = window.location.hostname
       const port = (process.env.NODE_ENV === 'development') ? ':5000' : ''
+      const subdomain = (process.env.NODE_ENV === 'production') ? 'api.' : ''
       const version = state.selectedVersion
-      return `//${hostname}${port}/api/${version}`
+      return `//${subdomain}${hostname}${port}/${version}`
     },
     selectedByKey (state) {
       const selectedByKey = {}
@@ -115,7 +116,7 @@ export default new Vuex.Store({
       state.visibleBuildPath = visiblePath
     },
     setSelectedBuildPaths (state) {
-      const buildPaths = createBuildPaths(state.recipeTree)
+      const buildPaths = createBuildPaths(state.recipeTree, state.selectedItems)
       state.selectedBuildPaths = clone(buildPaths)
     },
     setShoppingList (state, shoppingList) {
@@ -162,7 +163,11 @@ export default new Vuex.Store({
             const versionedItems = state.gameData[state.selectedVersion].items
             for (let i = 0, l = state.selectedItems.length; i < l; i += 1) {
               const selectedItem = state.selectedItems[i]
-              selectedItem.incompatible = !versionedItems.includes(selectedItem.name)
+              if (selectedItem.tag) {
+                selectedItem.incompatible = false
+              } else {
+                selectedItem.incompatible = !versionedItems.includes(selectedItem.name)
+              }
             }
           }
 
@@ -381,6 +386,7 @@ export default new Vuex.Store({
       }
 
       commit('setSelectedItems', newItems)
+      commit('setSelectedBuildPaths')
 
       if (fetchTree) {
         return dispatch('fetchRecipeTree')

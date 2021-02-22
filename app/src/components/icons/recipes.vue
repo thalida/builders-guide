@@ -1,5 +1,6 @@
 <template>
 <svg class="icon icon__recipes" width="30px" height="32px" viewBox="0 0 30 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <desc>Recipes Section Icon (symbol is a box)</desc>
     <g transform="translate(-173.000000, -791.000000)" fill-rule="nonzero">
         <g transform="translate(0.000000, 775.000000)">
             <g transform="translate(173.000000, 16.000000)">
