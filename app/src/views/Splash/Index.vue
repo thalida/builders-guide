@@ -1,6 +1,18 @@
 <template>
   <div class="splash">
     <div class="splash__background">
+      <img
+        v-for="(img, i) in sortedImgs"
+        v-show="img.name !== 'air'"
+        class="splash__background__img"
+        :key="`item-${i}`"
+        :src="img.path"
+        :alt="img.label"
+        width="128px"
+        height="128px" />
+    </div>
+<!--
+    <div class="splash__background">
         <div
           class="splash__background__item"
           v-for="(itemName, index) in renderItems"
@@ -11,7 +23,7 @@
             :size="64"
             class="splash__background__img" />
         </div>
-    </div>
+    </div> -->
 
     <div class="splash__container">
       <section class="splash__content">
@@ -42,27 +54,47 @@
 </template>
 
 <script>
+import ColorThief from 'colorthief'
+import chroma from 'chroma-js'
+import { clone } from '@/helpers.js'
 import chevronRightIcon from '@/components/icons/chevron-right.vue'
-import ItemImage from '@/components/ItemImage.vue'
+// import ItemImage from '@/components/ItemImage.vue'
 
 // @ is an alias to /src
 export default {
   name: 'Splash',
   components: {
     chevronRightIcon,
-    ItemImage
+    // ItemImage
   },
   data: () => {
     return {
+      colorThief: new ColorThief(),
       checked: true,
-      numBlocks: 16,
-      // numBlocks: 30,
+      // numBlocks: 16,
+      numBlocks: 32,
       renderItems: [],
+      imgsWithPallet: [],
     }
   },
   computed: {
+    selectedVersion () {
+      return this.$store.state.selectedVersion
+    },
     items () {
-      return this.$store.state.gameData[this.$store.state.selectedVersion].items
+      return this.$store.state.gameData[this.selectedVersion].items
+    },
+    sortedImgs () {
+      // if (this.imgsWithPallet.length !== this.items.length) {
+      if (this.imgsWithPallet.length !== this.numBlocks) {
+        return []
+      }
+
+      const sorted = clone(this.imgsWithPallet)
+      sorted.sort((colorA, colorB) => {
+        return chroma(colorA.rgb).get('hsl.h') - chroma(colorB.rgb).get('hsl.h')
+      })
+      return sorted
     },
     skipSplash: {
       get () {
@@ -74,9 +106,36 @@ export default {
     }
   },
   mounted () {
-    this.setupRenderItems()
+    // this.setupRenderItems()
+    this.newMain()
   },
   methods: {
+    fetchImagePath (imageName) {
+      const images = require.context('@/assets/minecraft', true, /\.png$/)
+      const path = `./${this.selectedVersion}/128x128/${imageName}.png`
+      return images(path)
+    },
+
+    getItemImage (node, attempt) {
+      let imageName
+      attempt = attempt || 1
+
+      if (attempt === 1) {
+        imageName = (typeof node === 'object') ? node.key || node.name : node
+      } else if (attempt === 2 && typeof node === 'object') {
+        imageName = node.result_name
+      } else {
+        imageName = 'air'
+      }
+
+      try {
+        const path = this.fetchImagePath(imageName)
+        return { name: imageName, path }
+      } catch (error) {
+        return this.getItemImage(node, attempt + 1)
+      }
+    },
+
     selectRandomItem (arr) {
       const len = arr.length
       const randIdx = Math.floor(Math.random() * Math.floor(len))
@@ -85,6 +144,39 @@ export default {
         item: arr[randIdx]
       }
     },
+
+    newMain () {
+      const itemsCopy = this.items.slice(0)
+
+      for (let i = 0; i < this.numBlocks; i += 1) {
+        const randItem = this.selectRandomItem(itemsCopy)
+        const imgData = this.getItemImage(randItem.item)
+
+        if (imgData.name === 'air') {
+          continue
+        }
+
+        const $img = new Image()
+        $img.addEventListener('load', () => {
+          const rgb = this.colorThief.getColor($img)
+          this.imgsWithPallet.push({ ...imgData, rgb })
+        })
+        $img.src = imgData.path
+        itemsCopy.splice(randItem.index, 1)
+      }
+
+      // for (let i = 0, l = this.items.length; i < l; i += 1) {
+      //   const item = this.items[i]
+      //   const imgData = this.getItemImage(item)
+      //   const $img = new Image()
+      //   $img.addEventListener('load', () => {
+      //     const rgb = this.colorThief.getColor($img)
+      //     this.imgsWithPallet.push({ ...imgData, rgb })
+      //   })
+      //   $img.src = imgData.path
+      // }
+    },
+
     setupRenderItems () {
       const itemsCopy = this.items.slice(0)
 
@@ -219,69 +311,83 @@ export default {
     background-repeat: no-repeat;
   }
 
-  // https://css-tricks.com/snippets/sass/placing-items-circle/
   &__background {
+    display: flex;
+    flex-flow: row wrap;
     position: absolute;
-    width:  $circle-size;
-    height: $circle-size;
-    padding: 0;
-    margin: 0;
-    z-index: -1;
-
-    animation-duration: 420s;
-    animation-timing-function: linear;
-    animation-name: animation--item-circle;
-    animation-iteration-count: infinite;
-
-    &__item {
-      display: block;
-      position: absolute;
-      top:  50%;
-      left: 50%;
-      width:  $item-size;
-      height: $item-size;
-      margin: -($item-size / 2);
-
-      $angle: (360 / $item-count);
-      $rot: 0;
-      @for $i from 1 through $item-count {
-        $circle_radius: $circle-size / 2;
-        $rand_translate: $circle_radius;
-        $rand_item_rot: random(22) + $rot;
-
-        &:nth-of-type(#{$i}) {
-          @if random(1) == 1 {
-            transform:
-              rotate($rot * 1deg)
-              translate($rand_translate)
-              rotate($rand_item_rot * -1deg);
-          } @else {
-            transform:
-              rotate($rot * 1deg)
-              translate($rand_translate)
-              rotate($rand_item_rot * 1deg);
-          }
-        }
-
-        $rot: $rot + $angle;
-      }
-    }
+    width: 100%;
+    height: 100%;
 
     &__img {
-      width: 100%;
-      height: 100%;
-
-      animation-timing-function: linear;
-      animation-name: animation--item;
-      animation-iteration-count: infinite;
-
-      @for $i from 1 through $item-count {
-        &:nth-of-type(#{$i}) {
-          animation-duration: random(30) + 30s;
-        }
-      }
+      width: 128px;
+      height: 128px;
+      flex: 0 0 128px;
     }
   }
+
+  // https://css-tricks.com/snippets/sass/placing-items-circle/
+  // &__background {
+  //   position: absolute;
+  //   width:  $circle-size;
+  //   height: $circle-size;
+  //   padding: 0;
+  //   margin: 0;
+  //   z-index: -1;
+
+  //   animation-duration: 420s;
+  //   animation-timing-function: linear;
+  //   animation-name: animation--item-circle;
+  //   animation-iteration-count: infinite;
+
+  //   &__item {
+  //     display: block;
+  //     position: absolute;
+  //     top:  50%;
+  //     left: 50%;
+  //     width:  $item-size;
+  //     height: $item-size;
+  //     margin: -($item-size / 2);
+
+  //     $angle: (360 / $item-count);
+  //     $rot: 0;
+  //     @for $i from 1 through $item-count {
+  //       $circle_radius: $circle-size / 2;
+  //       $rand_translate: $circle_radius;
+  //       $rand_item_rot: random(22) + $rot;
+
+  //       &:nth-of-type(#{$i}) {
+  //         @if random(1) == 1 {
+  //           transform:
+  //             rotate($rot * 1deg)
+  //             translate($rand_translate)
+  //             rotate($rand_item_rot * -1deg);
+  //         } @else {
+  //           transform:
+  //             rotate($rot * 1deg)
+  //             translate($rand_translate)
+  //             rotate($rand_item_rot * 1deg);
+  //         }
+  //       }
+
+  //       $rot: $rot + $angle;
+  //     }
+  //   }
+
+  //   &__img {
+  //     width: 100%;
+  //     height: 100%;
+
+  //     animation-timing-function: linear;
+  //     animation-name: animation--item;
+  //     animation-iteration-count: infinite;
+
+  //     @for $i from 1 through $item-count {
+  //       &:nth-of-type(#{$i}) {
+  //         animation-duration: random(30) + 30s;
+  //       }
+  //     }
+  //   }
+  // }
 
   @media screen and (max-width: 600px) {
     &__footer {
