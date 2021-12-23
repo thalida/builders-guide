@@ -224,10 +224,6 @@ export default {
           }
         }
 
-        // if (!matching) {
-        //   continue
-        // }
-
         if (typeof renderData[letter] === 'undefined') {
           renderData[letter] = {
             order: [],
@@ -249,10 +245,6 @@ export default {
           letter,
           matching,
         }
-
-        //  (!matching) {
-        // //   continue
-        // // }
 
         renderData[letter].order.sort()
       }

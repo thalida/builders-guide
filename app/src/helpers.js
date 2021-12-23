@@ -138,7 +138,7 @@ export function createBuildPaths (recipeTree, selectedItems, isGroup) {
     let selectedItem = null
     if (hasSelectedItems && isGroup && selectedItems[0].tag === node.group) {
       selectedItem = selectedItems[0]
-    } else if (hasSelectedItems && selectedItems[i].name === node.name) {
+    } else if (hasSelectedItems && selectedItems[i] && selectedItems[i].name === node.name) {
       selectedItem = selectedItems[i]
     }
 
