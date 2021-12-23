@@ -1,6 +1,4 @@
-FROM python:3.7
-
-MAINTAINER Thalida Noel "hello@thalida.com"
+FROM python:3.10
 
 COPY ./ /api
 WORKDIR /api
