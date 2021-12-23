@@ -16,66 +16,68 @@
       </div>
     </header>
 
+    <RecycleScroller
+      class="search__scroll-container"
+      v-if="showItems && flatRenderData.length > 0"
+      :items="flatRenderData"
+      key-field="renderKey"
+      v-slot="{ item }"
+    >
+      <div class="search__content">
+        <a
+          v-if="item.type === 'header'"
+          class="search__results__header"
+          :id="item.letter"
+          :href="`#${item.letter}`">
+          <h2>{{ item.letter }}</h2>
+        </a>
+        <div
+          v-else-if="item.type === 'item'"
+          class="search__results__row">
+          <label
+            class="checkbox"
+            tabindex="0"
+            @keyup.enter="handleItemToggle(item)"
+            @keyup.space="handleItemToggle(item)"
+            :aria-label="getItemLabel(item.renderKey)"
+          >
+            <span class="search__results__input">
+              <input
+                class="checkbox__input"
+                type="checkbox"
+                name="checkbox"
+                :value="item.name"
+                v-model="tmpSelectedItems">
+              <check-icon class="checkbox__checkmark" />
+            </span>
+            <span class="search__results__details">
+              <item-image
+                :decorative="true"
+                :item="item.name"
+                :size="32"
+                class="search__results__icon" />
+              <span class="search__results__name">
+                {{ getItemLabel(item.renderKey) }}
+                <span v-if="item.alias">
+                  ({{ getItemLabel(item.name, false) }})
+                </span>
+              </span>
+            </span>
+          </label>
+        </div>
+      </div>
+    </RecycleScroller>
+
     <div class="search__scroll-container">
       <div
-        class="search__results"
-        v-if="showItems && visibleAlpha.length > 0">
-        <section
-          class="search__results__section"
-          v-for="letter in visibleAlpha"
-          :key="letter">
-          <a class="search__results__header" :id="letter" :href="`#${letter}`">
-            <h2>{{ letter }}</h2>
-          </a>
-          <ol
-            class="search__results__items"
-            v-for="itemKey in renderData[letter].order"
-            :key="itemKey">
-            <li class="search__results__row">
-              <label
-                class="checkbox"
-                tabindex="0"
-                @keyup.enter="handleItemToggle(renderData[letter].items[itemKey])"
-                @keyup.space="handleItemToggle(renderData[letter].items[itemKey])"
-                :aria-label="getItemLabel(renderData[letter].items[itemKey].renderKey)">
-                <span class="search__results__input">
-                  <input
-                    class="checkbox__input"
-                    type="checkbox"
-                    name="checkbox"
-                    :value="renderData[letter].items[itemKey].name"
-                    v-model="tmpSelectedItems">
-                  <check-icon v-once class="checkbox__checkmark" />
-                </span>
-                <span class="search__results__details">
-                  <item-image
-                    v-once
-                    :decorative="true"
-                    :item="renderData[letter].items[itemKey].name"
-                    :size="32"
-                    class="search__results__icon" />
-                  <span v-once class="search__results__name">
-                    {{ getItemLabel(renderData[letter].items[itemKey].renderKey) }}
-                    <span v-once v-if="renderData[letter].items[itemKey].alias">
-                      ({{ getItemLabel(renderData[letter].items[itemKey].name, false) }})
-                    </span>
-                  </span>
-                </span>
-              </label>
-            </li>
-          </ol>
-        </section>
-      </div>
-
-      <div
         class="search__content search__content--status"
-        v-else-if="showItems && visibleAlpha.length === 0">
+        v-if="showItems && flatRenderData.length === 0">
         No items found matching <span class="font-weight--medium">{{inputQuery}}</span>
       </div>
 
       <div
         class="search__content search__content--status"
-        v-else>
+        v-else-if="!showItems">
         Loading Minecraft {{this.version}} Items...
       </div>
     </div>
@@ -103,8 +105,8 @@
 import { ITEM_ALIASES, getItemLabel } from '@/helpers.js'
 import Modal from '@/components/Modal.vue'
 import ItemImage from '@/components/ItemImage.vue'
-import searchIcon from '@/components/icons/search.vue'
 import checkIcon from '@/components/icons/check.vue'
+import searchIcon from '@/components/icons/search.vue'
 
 export default {
   name: 'CookbookBuildSearch',
@@ -114,8 +116,8 @@ export default {
   components: {
     Modal,
     ItemImage,
-    searchIcon,
     checkIcon,
+    searchIcon,
   },
   data () {
     const inputQuery = (typeof this.query === 'string' && this.query.length > 0) ? this.query : ''
@@ -151,9 +153,42 @@ export default {
       return this.getRenderDataByQuery(this.formattedInputQuery)
     },
     visibleAlpha () {
-      const alpha = Object.keys(this.renderData)
+      const alpha = []
+      for (const letter in this.renderData) {
+        if (this.renderData[letter].hasMatches) {
+          alpha.push(letter)
+        }
+      }
+
       alpha.sort()
       return alpha
+    },
+    flatRenderData () {
+      const flattenedRenderData = []
+      for (const letter of this.visibleAlpha) {
+        if (!this.renderData[letter].hasMatches) {
+          continue
+        }
+
+        flattenedRenderData.push({
+          type: 'header',
+          renderKey: `${letter}-header`,
+          letter,
+          size: 82,
+        })
+
+        for (const itemKey of this.renderData[letter].order) {
+          if (!this.renderData[letter].items[itemKey].matching) {
+            continue
+          }
+
+          const item = this.renderData[letter].items[itemKey]
+          item.size = 52
+          flattenedRenderData.push(item)
+        }
+      }
+
+      return flattenedRenderData
     },
   },
   mounted () {
@@ -189,24 +224,35 @@ export default {
           }
         }
 
-        if (!matching) {
-          continue
-        }
+        // if (!matching) {
+        //   continue
+        // }
 
         if (typeof renderData[letter] === 'undefined') {
           renderData[letter] = {
             order: [],
             items: {},
+            hasMatches: false,
           }
+        }
+
+        if (matching) {
+          renderData[letter].hasMatches = true
         }
 
         renderData[letter].order.push(renderKey)
         renderData[letter].items[renderKey] = {
+          type: 'item',
           renderKey,
           name,
           alias,
-          letter
+          letter,
+          matching,
         }
+
+        //  (!matching) {
+        // //   continue
+        // // }
 
         renderData[letter].order.sort()
       }
@@ -251,9 +297,8 @@ export default {
   }
 
   .searchbox,
-  &__results__section,
   &__action-bar__inner,
-  &__content--status {
+  &__content {
     width: 80%;
     max-width: 600px;
     margin: 0 auto;
@@ -280,8 +325,6 @@ export default {
     display: flex;
     position: relative;
     flex-flow: column nowrap;
-    align-items: center;
-    width: 100%;
 
     &--status {
       display: block;
@@ -312,8 +355,6 @@ export default {
   }
 
   &__results {
-    &__section {}
-
     &__header {
       display: flex;
       margin-top: 30px;
