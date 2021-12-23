@@ -5,11 +5,10 @@ import logging
 os.environ["TZ"] = "UTC"
 logger = logging.getLogger(__name__)
 
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request, abort
 from flask_cors import CORS
-import gzip
 
-from decorators import profile, json_response
+from decorators import json_response
 import cookbook
 
 API_ENV = os.environ['BG_API_ENV']

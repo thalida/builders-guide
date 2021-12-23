@@ -6,12 +6,14 @@ import logging
 os.environ["TZ"] = "UTC"
 logger = logging.getLogger(__name__)
 
+import re
 import glob
 import json
 import sys
 from collections import defaultdict
 
 import cookbook.utils
+import cookbook.constants
 
 cur_dir = os.path.dirname(sys.argv[0])
 
@@ -109,44 +111,18 @@ def genertate_all_items(version):
             item_data = json.loads(data)
             filename = get_filename_from_path(filepath)
 
-            if filename in [
-                "air",
-                "generated",
-                "debug_stick",
-                "handheld",
-                "handheld_rod",
-                "broken_elytra",
-                "filled_map",
-                "potion",
-                "splash_potion",
-                "lingering_potion",
-                "structure_block",
-                "structure_void",
-                "barrier",
-                "jigsaw",
-                "command_block",
-                "command_block_minecart",
-                "repeating_command_block",
-                "chain_command_block",
-                "experience_bottle",
-                "knowledge_book",
-                "spawner",
-            ]:
-                continue
+            is_excluded = filename in cookbook.constants.EXCLUDED_ITEMS
+            is_excluded_fuzzy = any(search in filename for search in cookbook.constants.EXCLUDED_ITEMS_FUZZY)
 
-            if (
-                filename.find("spawn_egg") >= 0
-                or filename.find("clock_") >= 0
-                or filename.find("compass_") >= 0
-                or filename.find("coral_wall_fan") >= 0
-            ):
-                continue
+            excluded_items_regex = '(?:% s)' % '|'.join(cookbook.constants.EXCLUDED_ITEMS_REGEX)
+            is_excluded_regex = re.match(excluded_items_regex, filename)
 
-            if item_data.get("parent") == "builtin/entity" and filename not in [
-                'shield',
-                'chest',
-                'conduit'
-            ]:
+            entity_isnt_allowed = (
+                item_data.get("parent") == "builtin/entity"
+                and filename not in cookbook.constants.ALLOWED_ENTITIES
+            )
+
+            if is_excluded or is_excluded_fuzzy or is_excluded_regex or entity_isnt_allowed:
                 continue
 
             raw_items[filename] = item_data
