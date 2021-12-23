@@ -13,10 +13,9 @@ inflect = "*"
 flask-cors = "*"
 python-logstash = "*"
 python-logstash-async = "*"
-line-profiler = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.10"
 
 [pipenv]
 allow_prereleases = true

@@ -1,4 +1,3 @@
-import log
 import os
 import logging
 
@@ -9,7 +8,6 @@ import time
 import math
 import json
 from collections import defaultdict
-from decorators import profile
 import cookbook.utils
 
 # Holds all cached responses
