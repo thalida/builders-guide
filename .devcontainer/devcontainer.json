@@ -1,0 +1,61 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.192.0/containers/python-3-postgres
+{
+	"name": "Development",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "development",
+	"workspaceFolder": "/workspaces/builders-guide",
+	// Set *default* container specific settings.json values on container create.
+	"settings": {
+		// "python.pythonPath": "/home/vscode/.local/share/virtualenvs/server-XbmDM_xI",
+		"python.languageServer": "Pylance",
+		"python.linting.enabled": true,
+		"python.linting.pylintEnabled": true,
+		"python.formatting.autopep8Path": "/usr/local/py-utils/bin/autopep8",
+		"python.formatting.blackPath": "/usr/local/py-utils/bin/black",
+		"python.formatting.yapfPath": "/usr/local/py-utils/bin/yapf",
+		"python.linting.banditPath": "/usr/local/py-utils/bin/bandit",
+		"python.linting.flake8Path": "/usr/local/py-utils/bin/flake8",
+		"python.linting.mypyPath": "/usr/local/py-utils/bin/mypy",
+		"python.linting.pycodestylePath": "/usr/local/py-utils/bin/pycodestyle",
+		"python.linting.pydocstylePath": "/usr/local/py-utils/bin/pydocstyle",
+		"python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
+		"python.testing.pytestPath": "/usr/local/py-utils/bin/pytest",
+		// VSCode Terminal settings.
+		"terminal.integrated.defaultProfile.linux": "zsh",
+		// Shared Git Settings
+		"git.rebaseWhenSync": true
+	},
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": [
+		"dbaeumer.vscode-eslint",
+		"eamodio.gitlens",
+		"github.copilot",
+		"johnsoncodehk.volar",
+		"ms-python.python",
+		"ms-python.vscode-pylance",
+		"ms-vscode-remote.remote-containers",
+		"ms-vscode-remote.remote-ssh-edit",
+		"ms-vscode-remote.remote-ssh",
+		"mtxr.sqltools-driver-pg",
+		"mtxr.sqltools",
+		"njpwerner.autodocstring",
+		"oouo-diogo-perdigao.docthis",
+		"rafamel.subtle-brackets",
+		"rvest.vs-code-prettier-eslint",
+		"sirtori.indenticator",
+		"streetsidesoftware.code-spell-checker",
+		"wmaurer.change-case",
+		"kamikillerto.vscode-colorize",
+		"bradlc.vscode-tailwindcss"
+	],
+	"forwardPorts": [
+		// API Server
+		5000,
+		// Vue
+		8080,
+	],
+	"postCreateCommand": "bash -i /workspaces/builders-guide/.devcontainer/scripts/postCreateCommand.sh",
+	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+	"remoteUser": "vscode"
+}
