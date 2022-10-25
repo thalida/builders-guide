@@ -1,0 +1,19 @@
+{
+  "name": "Builder&#39;s Guide",
+  "version": "0.0.1",
+  "description": "A Minecraft Cookbook",
+  "main": "index.js",
+  "authors": {
+    "name": "Thalida Noel",
+    "email": "hello@thalida.com"
+  },
+  "repository": "https://github.com/thalida/builders-guide/Builder&#39;s Guide",
+  "scripts": {
+    "dev": "vuepress dev src",
+    "build": "vuepress build src"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "vuepress": "^1.5.3"
+  }
+}
